@@ -2,20 +2,38 @@
 <html lang="en">
 <head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+{#    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>#}
 
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>BMC Registration</title>
 </head>
 <body>
- <nav>
+<nav>
     <div class="nav-wrapper">
-      <ul id="nav-mobile" class="right">
-        <li><a href="#">Schedule</a></li>
-        <li><a href="#">Sign In</a></li>
-      </ul>
+        <ul id="nav-mobile" class="right">
+            <li><a href="#">Schedule</a></li>
+            <li><a href="#">Sign In</a></li>
+        </ul>
     </div>
-  </nav>
+</nav>
 {% block content %}{% endblock %}
+<div style="margin-bottom: 200px"></div>
+<script
+        src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.1/js/materialize.min.js"
+        integrity="sha256-SrBfGi+Zp2LhAvy9M1bWOCXztRU9Ztztxmu5BcYPcPE=" crossorigin="anonymous"></script>
+
+<script>
+    $(document).ready(function () {
+
+        // Initialize materialize data picker
+        $('.datepicker').datepicker({'format': 'yyyy-mm-dd'});
+        $('select').formSelect();
+
+    });
+</script>
 </body>
 </html>
