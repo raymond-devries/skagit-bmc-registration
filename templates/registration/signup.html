@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load materializecss %}
+
+{% block content %}
+    <div class="container center-align">
+        <h3>Sign Up</h3>
+        <form method="post" class="left-align">{% csrf_token %}
+            {{ form|materializecss }}
+            <input type="submit" value="Change Password" class="btn waves-effect waves-light">
+        </form>
+    </div>
+{% endblock %}
