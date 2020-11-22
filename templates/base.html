@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-{#    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>#}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>BMC Registration</title>
@@ -10,9 +10,17 @@
 <body>
 <nav>
     <div class="nav-wrapper">
+        <ul>
+            <li><a href="{% url "home" %}">BMC Registration</a></li>
+        </ul>
         <ul id="nav-mobile" class="right">
             <li><a href="#">Schedule</a></li>
-            <li><a href="#">Sign In</a></li>
+            {% if user.is_authenticated %}
+                <li><a href="{% url "logout" %}">Logout</a></li>
+            {% else %}
+                <li><a href="{% url "signup" %}">Sign Up</a></li>
+                <li><a href="{% url "login" %}">Login</a></li>
+            {% endif %}
         </ul>
     </div>
 </nav>
@@ -32,8 +40,20 @@
         // Initialize materialize data picker
         $('.datepicker').datepicker({'format': 'yyyy-mm-dd'});
         $('select').formSelect();
-
     });
 </script>
+{% if messages %}
+    {% for message in messages %}
+        {% if message.tags == 'success' %}
+            <script>M.toast({html: "{{message}}", classes: 'green rounded', displayLength: 5000});</script>
+        {% elif message.tags == 'info' %}
+            <script>M.toast({html: "{{message}}", classes: 'blue rounded', displayLength: 5000});</script>
+        {% elif message.tags == 'warning' %}
+            <script>M.toast({html: "{{message}}", classes: 'orange rounded', displayLength: 10000});</script>
+        {% elif message.tags == 'error' %}
+            <script>M.toast({html: "{{message}}", classes: 'red rounded', displayLength: 10000});</script>
+        {% endif %}
+    {% endfor %}
+{% endif %}
 </body>
 </html>

@@ -1,8 +1,17 @@
-from django.forms import ModelForm
+from django import forms
+from django.contrib.auth.models import User
+
 from registration import models
+from django.contrib.auth.forms import UserCreationForm
 
 
-class BMCRegistrationForm(ModelForm):
+class SignUpForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ["first_name", "last_name", "email", "username"]
+
+
+class BMCRegistrationForm(forms.ModelForm):
     class Meta:
         model = models.BMCRegistration
         fields = "__all__"

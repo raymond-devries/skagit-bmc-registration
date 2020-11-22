@@ -1,21 +1,22 @@
-from django.shortcuts import render
-from django.views.generic.edit import FormView
-from registration.forms import BMCRegistrationForm
-from django.contrib.auth.forms import UserCreationForm
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, TemplateView
+from registration.forms import BMCRegistrationForm, SignUpForm
+from django.contrib.messages.views import SuccessMessageMixin
 
 
-class UserRegistrationView(FormView):
+class UserRegistrationView(SuccessMessageMixin, CreateView):
     template_name = "registration/signup.html"
-    form_class = UserCreationForm
-    success_url = "/home"
+    form_class = SignUpForm
+    success_url = reverse_lazy("home")
+    success_message = "You have successfully created an account you can now login"
 
 
-def home(request):
-    return render(request, "bmc_registration/home.html")
+class Home(TemplateView):
+    template_name = "bmc_registration/home.html"
 
 
-class BMCRegistrationView(FormView):
+class BMCRegistrationView(CreateView):
     template_name = "bmc_registration/bmc_registration.html"
     form_class = BMCRegistrationForm
-    success_url = "/home"
+    success_url = reverse_lazy("home")
 

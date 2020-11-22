@@ -3,6 +3,7 @@
 
 {% block content %}
     <div class="container center-align">
+        <h5>To register for the BMC please login or <a href="{% url "signup" %}">signup</a> for an account</h5>
         <h3>Login</h3>
         <form method="post" class="left-align">{% csrf_token %}
             {{ form|materializecss }}
