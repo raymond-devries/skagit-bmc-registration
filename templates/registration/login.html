@@ -1,13 +1,11 @@
 {% extends "base.html" %}
-{% load materializecss %}
+{% load bulma_tags %}
 
 {% block content %}
-    <div class="">
-        <h5>To register for the BMC please login or <a href="{% url "signup" %}">signup</a> for an account</h5>
-        <h3>Login</h3>
-        <form method="post" class="">{% csrf_token %}
-            {{ form|materializecss }}
-            <input type="submit" value="Login" class="">
-        </form>
-    </div>
+    <h5 class="mb-3 title is-5">To register for the BMC please login or <a href="{% url "signup" %}">signup</a> for an account</h5>
+    <h3>Login</h3>
+    <form method="post" class="">{% csrf_token %}
+        {{ form|bulma }}
+        <input type="submit" value="Login" class="button is-primary">
+    </form>
 {% endblock %}

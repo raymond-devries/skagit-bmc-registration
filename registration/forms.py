@@ -33,3 +33,7 @@ class BMCRegistrationForm(forms.ModelForm):
             "signature": "Enter your initials here to certify that the information is "
                          "true and correct to your knowledge"
         }
+        widgets = {
+            "date_of_birth": forms.DateInput(attrs={"type": "date"}),
+            "todays_date": forms.DateInput(attrs={"type": "date"})
+        }

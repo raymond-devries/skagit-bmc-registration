@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'localflavor',
     'phonenumber_field',
+    'bulma',
     'registration'
 ]
 

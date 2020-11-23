@@ -17,9 +17,12 @@ from django.contrib import admin
 from django.urls import path, include
 from registration import urls as reg_urls
 from django.contrib.auth import urls as auth_urls
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("", include(reg_urls)),
     path('accounts/', include(auth_urls))
 ]
+
+urlpatterns += staticfiles_urlpatterns()
