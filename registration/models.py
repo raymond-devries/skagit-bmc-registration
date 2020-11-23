@@ -3,9 +3,7 @@ from django.db import models
 from localflavor.us import models as us_model
 from phonenumber_field.modelfields import PhoneNumberField
 
-GENDER_CHOICES = [
-    ("M", "Male"), ("F", "Female"), ("O", "Other")
-]
+GENDER_CHOICES = [("M", "Male"), ("F", "Female"), ("O", "Other")]
 
 
 class BMCRegistration(models.Model):

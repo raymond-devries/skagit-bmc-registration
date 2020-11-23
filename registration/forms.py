@@ -1,8 +1,8 @@
 from django import forms
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
 from registration import models
-from django.contrib.auth.forms import UserCreationForm
 
 
 class SignUpForm(UserCreationForm):
@@ -12,7 +12,12 @@ class SignUpForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ["username", "first_name", "last_name", "email",]
+        fields = [
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+        ]
 
 
 class BMCRegistrationForm(forms.ModelForm):
@@ -28,12 +33,12 @@ class BMCRegistrationForm(forms.ModelForm):
             "medications": "Check this box if you are taking any medications",
             "medications_descriptions": "If you checked the box, what medications are you taking?",
             "medical_insurance": "Check this box if you have medical insurance "
-                                 "(medical insurance is required to take this course)",
+            "(medical insurance is required to take this course)",
             "relation_of_policy_holder": "Relation of policy holder to you",
             "signature": "Enter your initials here to certify that the information is "
-                         "true and correct to your knowledge"
+            "true and correct to your knowledge",
         }
         widgets = {
             "date_of_birth": forms.DateInput(attrs={"type": "date"}),
-            "todays_date": forms.DateInput(attrs={"type": "date"})
+            "todays_date": forms.DateInput(attrs={"type": "date"}),
         }

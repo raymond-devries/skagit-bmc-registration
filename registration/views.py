@@ -1,9 +1,10 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse_lazy
-from django.views.generic import CreateView, TemplateView, FormView
-from registration.forms import BMCRegistrationForm, SignUpForm
 from django.contrib.messages.views import SuccessMessageMixin
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, FormView, TemplateView
+
 from registration import models
+from registration.forms import BMCRegistrationForm, SignUpForm
 
 
 class UserRegistrationView(SuccessMessageMixin, CreateView):
@@ -34,4 +35,3 @@ class BMCRegistrationView(LoginRequiredMixin, FormView):
         form.instance.user = self.request.user
         form.save()
         return super().form_valid(form)
-
