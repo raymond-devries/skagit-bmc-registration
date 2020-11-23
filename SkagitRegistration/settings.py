@@ -128,3 +128,5 @@ STATIC_URL = '/static/'
 
 LOGOUT_REDIRECT_URL = reverse_lazy("home")
 LOGIN_REDIRECT_URL = reverse_lazy("home")
+
+PHONENUMBER_DEFAULT_REGION = "US"
