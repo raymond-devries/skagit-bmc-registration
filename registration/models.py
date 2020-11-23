@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 from localflavor.us import models as us_model
 from phonenumber_field.modelfields import PhoneNumberField
@@ -8,6 +9,7 @@ GENDER_CHOICES = [
 
 
 class BMCRegistration(models.Model):
+    user = models.OneToOneField(User, models.CASCADE)
     address = models.CharField(max_length=300)
     address_2 = models.CharField(max_length=300, blank=True)
     city = models.CharField(max_length=100)

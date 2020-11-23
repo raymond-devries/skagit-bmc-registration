@@ -18,7 +18,7 @@ class SignUpForm(UserCreationForm):
 class BMCRegistrationForm(forms.ModelForm):
     class Meta:
         model = models.BMCRegistration
-        fields = "__all__"
+        exclude = ["user"]
         labels = {
             "physical_fitness": "Describe your current physical fitness and level of activity",
             "medical_conditions": "Check this box if you have any medical conditions",
