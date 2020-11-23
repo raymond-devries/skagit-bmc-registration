@@ -1,8 +1,9 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, TemplateView
+from django.views.generic import CreateView, TemplateView, FormView
 from registration.forms import BMCRegistrationForm, SignUpForm
 from django.contrib.messages.views import SuccessMessageMixin
+from registration import models
 
 
 class UserRegistrationView(SuccessMessageMixin, CreateView):
@@ -16,12 +17,21 @@ class Home(TemplateView):
     template_name = "bmc_registration/home.html"
 
 
-class BMCRegistrationView(LoginRequiredMixin, CreateView):
+class BMCRegistrationView(LoginRequiredMixin, FormView):
     template_name = "bmc_registration/bmc_registration.html"
     form_class = BMCRegistrationForm
     success_url = reverse_lazy("home")
 
+    def get_form(self, form_class=None):
+        try:
+            instance = models.BMCRegistration.objects.get(user=self.request.user)
+            form = self.get_form_class()
+            return form(instance=instance, **self.get_form_kwargs())
+        except models.BMCRegistration.DoesNotExist:
+            return super().get_form(form_class=form_class)
+
     def form_valid(self, form):
         form.instance.user = self.request.user
+        form.save()
         return super().form_valid(form)
 

@@ -72,14 +72,6 @@ python-stdnum = ">=1.6"
 
 [[package]]
 category = "main"
-description = "A simple Django form template tag to work with Materializecss"
-name = "django-materializecss-form"
-optional = false
-python-versions = "*"
-version = "1.1.17"
-
-[[package]]
-category = "main"
 description = "An international phone number field for django models."
 name = "django-phonenumber-field"
 optional = false
@@ -220,7 +212,7 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 version = "0.10.2"
 
 [metadata]
-content-hash = "f238abf62c11ec634dcf94a5ee60dbc880ab18eb7cf8627ce22e930e73fafe59"
+content-hash = "a498ad9898dc754759eca1bbc91477a5c9b6d93fd062a8f99ed6073a86f47127"
 python-versions = "^3.8"
 
 [metadata.files]
@@ -247,10 +239,6 @@ django = [
 django-localflavor = [
     {file = "django-localflavor-3.0.1.tar.gz", hash = "sha256:24e9a03bc11ced92365821d3cfdd96eb4e2f3e44a6f40e86c645d3e0ec65ec53"},
     {file = "django_localflavor-3.0.1-py2.py3-none-any.whl", hash = "sha256:3c3034dc64a1f7e5efd9eb53d653af905c20482d438c0e8b825d02e3121b86fa"},
-]
-django-materializecss-form = [
-    {file = "django-materializecss-form-1.1.17.tar.gz", hash = "sha256:29cb4f1cb371d0f7a2b2c10af842e03d6e8b5de5b78aadf1416f24efd854494b"},
-    {file = "django_materializecss_form-1.1.17-py2.py3-none-any.whl", hash = "sha256:648e81cc801fda172c7405966b29877d1242d9712b3d52c7b20aa3a78833a96a"},
 ]
 django-phonenumber-field = [
     {file = "django-phonenumber-field-5.0.0.tar.gz", hash = "sha256:1eb7af3a108744665f7c3939d38aa15b3728c57d13d45d656b0a2aa11e8cdc3c"},

@@ -2,12 +2,12 @@
 {% load materializecss %}
 
 {% block content %}
-    <div class="container center-align">
+    <div class="">
         <h5>To register for the BMC please login or <a href="{% url "signup" %}">signup</a> for an account</h5>
         <h3>Login</h3>
-        <form method="post" class="left-align">{% csrf_token %}
+        <form method="post" class="">{% csrf_token %}
             {{ form|materializecss }}
-            <input type="submit" value="Login" class="btn waves-effect waves-light">
+            <input type="submit" value="Login" class="">
         </form>
     </div>
 {% endblock %}
