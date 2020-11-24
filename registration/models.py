@@ -32,3 +32,16 @@ class BMCRegistration(models.Model):
     relation_of_policy_holder = models.CharField(max_length=100)
     signature = models.CharField(max_length=3)
     todays_date = models.DateField()
+
+
+class SkagitClass(models.Model):
+    user = models.ManyToManyField(User)
+    name = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+
+
+class SkagitClassDates(models.Model):
+    skagit_class = models.ForeignKey(SkagitClass, models.CASCADE)
+    name = models.CharField(max_length=200)
+    start = models.DateTimeField()
+    end = models.DateTimeField()
