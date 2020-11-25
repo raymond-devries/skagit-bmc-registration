@@ -18,7 +18,11 @@ class Home(TemplateView):
     template_name = "bmc_registration/home.html"
 
 
-class BMCRegistrationView(LoginRequiredMixin, FormView):
+class RegistrationHome(LoginRequiredMixin, TemplateView):
+    template_name = "bmc_registration/registration_home.html"
+
+
+class RegistrationInfoForm(LoginRequiredMixin, FormView):
     template_name = "bmc_registration/bmc_registration.html"
     form_class = BMCRegistrationForm
     success_url = reverse_lazy("home")
