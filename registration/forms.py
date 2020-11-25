@@ -22,7 +22,7 @@ class SignUpForm(UserCreationForm):
 
 class BMCRegistrationForm(forms.ModelForm):
     class Meta:
-        model = models.BMCRegistration
+        model = models.RegistrationForm
         exclude = ["user"]
         labels = {
             "physical_fitness": "Describe your current physical fitness and level of activity",

@@ -29,10 +29,10 @@ class RegistrationInfoForm(LoginRequiredMixin, FormView):
 
     def get_form(self, form_class=None):
         try:
-            instance = models.BMCRegistration.objects.get(user=self.request.user)
+            instance = models.RegistrationForm.objects.get(user=self.request.user)
             form = self.get_form_class()
             return form(instance=instance, **self.get_form_kwargs())
-        except models.BMCRegistration.DoesNotExist:
+        except models.RegistrationForm.DoesNotExist:
             return super().get_form(form_class=form_class)
 
     def form_valid(self, form):

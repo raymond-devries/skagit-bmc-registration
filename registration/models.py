@@ -6,7 +6,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 GENDER_CHOICES = [("M", "Male"), ("F", "Female"), ("O", "Other")]
 
 
-class BMCRegistration(models.Model):
+class RegistrationForm(models.Model):
     user = models.OneToOneField(User, models.CASCADE)
     address = models.CharField(max_length=300)
     address_2 = models.CharField(max_length=300, blank=True)
