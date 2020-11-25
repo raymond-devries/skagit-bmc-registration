@@ -34,13 +34,21 @@ class RegistrationForm(models.Model):
     todays_date = models.DateField()
 
 
+class ClassType(models.Model):
+    type = models.CharField(max_length=300)
+    requirement = models.ForeignKey(
+        "self", on_delete=models.PROTECT, null=True, blank=True
+    )
+
+
 class SkagitClass(models.Model):
+    type = models.ForeignKey(ClassType, on_delete=models.CASCADE)
     user = models.ManyToManyField(User)
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
 
 
-class SkagitClassDates(models.Model):
+class SkagitClassDate(models.Model):
     skagit_class = models.ForeignKey(SkagitClass, models.CASCADE)
     name = models.CharField(max_length=200)
     start = models.DateTimeField()
