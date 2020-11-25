@@ -1,5 +1,19 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h2 class="title is-2 has-text-centered">Registration Home</h2>
+    <h1 class="title is-2 has-text-centered is-size-3-mobile">Registration Home</h1>
+    <div class="tile is-ancestor">
+        <div class="tile">
+            <div class="tile is-parent">
+                <article class="tile is-child notification is-warning">
+                    <h1 class="title">Registration Status</h1>
+                </article>
+            </div>
+            <div class="tile is-parent is-vertical">
+                <div class="tile is-child notification is-dark">
+                    <h1 class="title">Available Classes</h1>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
