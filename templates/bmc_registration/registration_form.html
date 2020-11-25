@@ -2,7 +2,7 @@
 {% load bulma_tags %}
 
 {% block content %}
-    <h1 class="title is-1">BMC Registration</h1>
+    <h1 class="title is-1 is-size-4-mobile">BMC Registration</h1>
     <form method="post" class="">{% csrf_token %}
         {{ form|bulma }}
         <input type="submit" value="Submit Form" class="button is-primary is-large mt-5">

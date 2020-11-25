@@ -5,7 +5,7 @@ from registration import views
 urlpatterns = [
     path("", views.Home.as_view(), name="home"),
     path(
-        "bmc_registration_form/",
+        "registration_form/",
         views.RegistrationInfoForm.as_view(),
         name="registration_info_form",
     ),
