@@ -23,3 +23,6 @@ profile = "black"
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "SkagitRegistration.settings"
