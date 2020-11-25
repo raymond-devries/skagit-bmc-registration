@@ -2,8 +2,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>BMC Registration</title>
 </head>
 <body>
@@ -14,7 +16,8 @@
                 <img src="{% static "logo.png" %}" alt="Skagit Alpine Club logo">
             </a>
 
-            <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false"
+            <a role="button" class="navbar-burger burger" aria-label="menu"
+               aria-expanded="false"
                data-target="navbarBasicExample">
                 <span aria-hidden="true"></span>
                 <span aria-hidden="true"></span>
@@ -25,19 +28,23 @@
         <div id="navbarBasicExample" class="navbar-menu">
             <div class="navbar-start">
                 <a class="navbar-item" href="{% url "home" %}">Home</a>
-                <a class="navbar-item" href="{% url "BMCRegistration" %}">Register for the BMC</a>
+                <a class="navbar-item" href="{% url "BMCRegistration" %}">Register
+                    for the BMC</a>
             </div>
 
             <div class="navbar-end">
                 <div class="navbar-item">
                     {% if user.is_authenticated %}
                         <div class="buttons">
-                            <a class="button is-primary" href="{% url "logout" %}"><strong>Logout</strong></a>
+                            <a class="button is-primary"
+                               href="{% url "logout" %}"><strong>Logout</strong></a>
                         </div>
                     {% else %}
                         <div class="buttons">
-                            <a class="button is-primary" href="{% url "signup" %}"><strong>Sign up</strong></a>
-                            <a class="button is-light" href="{% url "login" %}">Log in</a>
+                            <a class="button is-primary"
+                               href="{% url "signup" %}"><strong>Sign up</strong></a>
+                            <a class="button is-light" href="{% url "login" %}">Log
+                                in</a>
                         </div>
                     {% endif %}
                 </div>
