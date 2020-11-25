@@ -15,10 +15,11 @@ django-bulma = "^0.8.1"
 [tool.poetry.dev-dependencies]
 pytest = "^6.1.2"
 pre-commit = "^2.9.0"
+pytest-django = "^4.1.0"
+
+[tool.isort]
+profile = "black"
 
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
-
-[tool.isort]
-profile = "black"
