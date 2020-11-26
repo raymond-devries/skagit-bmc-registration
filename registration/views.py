@@ -4,7 +4,7 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, FormView, TemplateView
 
 from registration import models
-from registration.forms import BMCRegistrationForm, SignUpForm
+from registration.forms import RegistrationForm, SignUpForm
 
 
 class UserRegistrationView(SuccessMessageMixin, CreateView):
@@ -35,7 +35,7 @@ class RegistrationHome(LoginRequiredMixin, TemplateView):
 
 class RegistrationInfoForm(LoginRequiredMixin, FormView):
     template_name = "bmc_registration/registration_form.html"
-    form_class = BMCRegistrationForm
+    form_class = RegistrationForm
     success_url = reverse_lazy("registration_home")
 
     def get_form(self, form_class=None):

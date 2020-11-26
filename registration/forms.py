@@ -20,7 +20,7 @@ class SignUpForm(UserCreationForm):
         ]
 
 
-class BMCRegistrationForm(forms.ModelForm):
+class RegistrationForm(forms.ModelForm):
     class Meta:
         model = models.RegistrationForm
         exclude = ["user"]
