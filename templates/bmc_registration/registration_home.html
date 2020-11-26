@@ -30,12 +30,18 @@
             <div class="tile is-parent">
                 <article class="tile is-child notification is-dark">
                     <h1 class="title">Your Classes</h1>
+                    {% if registration_complete %}
+                        <p>You can signup for classes.</p>
+                    {% else %}
+                        <p>Once your complete your registration form you will be able to
+                            sign up for classes here.</p>
+                    {% endif %}
                 </article>
             </div>
         </div>
         <div class="tile">
             <div class="tile is-parent">
-                <article class="tile is-child notification is-primary">
+                <article class="tile is-child notification is-link">
                     <h1 class="title is-3">Available Classes</h1>
                     {% for class_type in available_classes %}
                         <hr>
@@ -48,6 +54,10 @@
                             {% endif %}
                             {% for class in class_type.skagitclass_set.all|dictsort:"specifics" %}
                                 <p class="is-size-4">{{ class.specifics }}</p>
+                                <p><b>
+                                    {{ class.participants.count }}/{{ class.capacity }}
+                                    spots filled.
+                                </b></p>
                                 <ul>
                                     {% for date in class.skagitclassdate_set.all %}
                                         <li>{{ date.name }}: {{ date.start.date }}
