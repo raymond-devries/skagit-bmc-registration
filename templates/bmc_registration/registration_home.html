@@ -32,7 +32,7 @@
                     <h1 class="title">Your Courses</h1>
                     {% if registration_complete %}
                         <p class="mb-4">You can sign up for courses.</p>
-                        <a href="#" class="button is-medium">Sign Up For Courses</a>
+                        <a href="{% url "course_signup" %}" class="button is-medium">Sign Up For Courses</a>
                     {% else %}
                         <p>Once you complete your registration form you will be able to
                             sign up for courses here.</p>
