@@ -43,6 +43,7 @@ class ClassType(models.Model):
         "self", on_delete=models.PROTECT, null=True, blank=True
     )
     description = models.TextField(blank=True)
+    visible = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
