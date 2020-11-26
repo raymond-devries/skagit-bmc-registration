@@ -2,17 +2,66 @@
 
 {% block content %}
     <h1 class="title is-2 has-text-centered is-size-3-mobile">Registration Home</h1>
-    <div class="tile is-ancestor">
+    <div class="tile is-ancestor is-vertical">
         <div class="tile">
             <div class="tile is-parent">
-                <article class="tile is-child notification is-warning">
-                    <h1 class="title">Registration Status</h1>
+                {% if registration_complete %}
+                    <article class="tile is-child notification is-success">
+                        <h1 class="subtitle is-3">Registration Form Status:
+                            <b class="is-primary">Completed</b></h1>
+                        <p class="mb-4">You have completed your registration form and
+                            can now sign up for classes.
+                            You may edit your registration form at any time.</p>
+                        <a href="{% url "registration_info_form" %}"
+                           class="button is-medium">Edit Registration Form</a>
+                    </article>
+                {% else %}
+                    <article class="tile is-child notification is-warning">
+                        <h1 class="subtitle is-3">Registration Form Status:
+                            <b>Incomplete</b>
+                        </h1>
+                        <p class="mb-4">Complete your registration form to signup for
+                            classes.</p>
+                        <a href="{% url "registration_info_form" %}"
+                           class="button is-medium">Complete Registration Form</a>
+                    </article>
+                {% endif %}
+            </div>
+            <div class="tile is-parent">
+                <article class="tile is-child notification is-dark">
+                    <h1 class="title">Your Classes</h1>
                 </article>
             </div>
-            <div class="tile is-parent is-vertical">
-                <div class="tile is-child notification is-dark">
-                    <h1 class="title">Available Classes</h1>
-                </div>
+        </div>
+        <div class="tile">
+            <div class="tile is-parent">
+                <article class="tile is-child notification is-primary">
+                    <h1 class="title is-3">Available Classes</h1>
+                    {% for class_type in available_classes %}
+                        <hr>
+                        <div>
+                            <h1 class="subtitle is-4 mb-0">{{ class_type.name }}</h1>
+                            <p class="mb-3">{{ class_type.description }}</p>
+                            {% if class_type.requirement %}
+                                <p><b>Prerequisite
+                                    class: {{ class_type.requirement }}</b></p>
+                            {% endif %}
+                            {% for class in class_type.skagitclass_set.all|dictsort:"specifics" %}
+                                <p class="is-size-4">{{ class.specifics }}</p>
+                                <ul>
+                                    {% for date in class.skagitclassdate_set.all %}
+                                        <li>{{ date.name }}: {{ date.start.date }}
+                                            {% if date.start.date != date.end.date %}
+                                                - {{ date.end.date }}
+                                            {% endif %}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+
+                </article>
             </div>
         </div>
     </div>
