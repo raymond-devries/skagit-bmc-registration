@@ -44,6 +44,7 @@ class CourseType(models.Model):
     )
     description = models.TextField(blank=True)
     visible = models.BooleanField(default=True)
+    cost = models.PositiveIntegerField()
 
     def __str__(self):
         return self.name
@@ -79,3 +80,18 @@ class CourseDate(models.Model):
             f"{self.skagit_class.type}/{self.skagit_class.specifics}/{self.name}: "
             f"{self.start.date()} - {self.end.date()}"
         )
+
+
+class Cart(models.Model):
+    user = models.ForeignKey(User, models.CASCADE)
+    course = models.ForeignKey(Course, models.CASCADE)
+
+
+class PaymentRecord(models.Model):
+    user = models.ForeignKey(User, models.PROTECT)
+    payment_id = models.CharField(max_length=100)
+
+
+class CourseBought(models.Model):
+    payment_record = models.ForeignKey(PaymentRecord, models.CASCADE)
+    course = models.ForeignKey(Course, models.PROTECT)
