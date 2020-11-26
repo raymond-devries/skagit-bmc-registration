@@ -26,7 +26,7 @@ class RegistrationHome(LoginRequiredMixin, TemplateView):
         context["registration_complete"] = models.RegistrationForm.objects.filter(
             user=self.request.user
         ).exists()
-        context["available_classes"] = models.ClassType.objects.filter(
+        context["available_courses"] = models.CourseType.objects.filter(
             visible=True
         ).order_by("requirement")
 

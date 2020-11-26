@@ -43,23 +43,23 @@
             <div class="tile is-parent">
                 <article class="tile is-child notification is-link">
                     <h1 class="title is-3">Available Classes</h1>
-                    {% for class_type in available_classes %}
+                    {% for course_type in available_courses %}
                         <hr>
                         <div>
-                            <h1 class="subtitle is-4 mb-0">{{ class_type.name }}</h1>
-                            <p class="mb-3">{{ class_type.description }}</p>
-                            {% if class_type.requirement %}
+                            <h1 class="subtitle is-4 mb-0">{{ course_type.name }}</h1>
+                            <p class="mb-3">{{ course_type.description }}</p>
+                            {% if course_type.requirement %}
                                 <p><b>Prerequisite
-                                    class: {{ class_type.requirement }}</b></p>
+                                    course: {{ course_type.requirement }}</b></p>
                             {% endif %}
-                            {% for class in class_type.skagitclass_set.all|dictsort:"specifics" %}
-                                <p class="is-size-4">{{ class.specifics }}</p>
+                            {% for course in course_type.course_set.all|dictsort:"specifics" %}
+                                <p class="is-size-4">{{ course.specifics }}</p>
                                 <p><b>
-                                    {{ class.participants.count }}/{{ class.capacity }}
+                                    {{ course.participants.count }}/{{ course.capacity }}
                                     spots filled.
                                 </b></p>
                                 <ul>
-                                    {% for date in class.skagitclassdate_set.all %}
+                                    {% for date in course.coursedate_set.all %}
                                         <li>{{ date.name }}: {{ date.start.date }}
                                             {% if date.start.date != date.end.date %}
                                                 - {{ date.end.date }}
