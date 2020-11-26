@@ -50,3 +50,7 @@ class RegistrationInfoForm(LoginRequiredMixin, FormView):
         form.instance.user = self.request.user
         form.save()
         return super().form_valid(form)
+
+
+class CourseSignUp(LoginRequiredMixin, TemplateView):
+    template_name = "bmc_registration/course_sign_up.html"

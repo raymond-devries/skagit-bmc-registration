@@ -10,7 +10,8 @@ urlpatterns = [
         name="registration_info_form",
     ),
     path(
-        "registration_home", views.RegistrationHome.as_view(), name="registration_home"
+        "registration_home/", views.RegistrationHome.as_view(), name="registration_home"
     ),
+    path("course_signup/", views.CourseSignUp.as_view(), name="course_signup"),
     path("signup/", views.UserRegistrationView.as_view(), name="signup"),
 ]
