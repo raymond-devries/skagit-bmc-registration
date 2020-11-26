@@ -33,19 +33,41 @@ class RegistrationForm(models.Model):
     signature = models.CharField(max_length=3)
     todays_date = models.DateField()
 
+    def __str__(self):
+        return f"{self.user.first_name} {self.user.last_name} " f"registration form"
+
 
 class ClassType(models.Model):
-    type = models.CharField(max_length=300)
+    name = models.CharField(max_length=300)
     requirement = models.ForeignKey(
         "self", on_delete=models.PROTECT, null=True, blank=True
     )
+    description = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.name
 
 
 class SkagitClass(models.Model):
+    class Meta:
+        verbose_name_plural = "Skagit classes"
+
     type = models.ForeignKey(ClassType, on_delete=models.CASCADE)
-    user = models.ManyToManyField(User)
-    name = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
+    specifics = models.TextField()
+    capacity = models.PositiveSmallIntegerField()
+    participants = models.ManyToManyField(User, blank=True, related_name="participants")
+    wait_list = models.ManyToManyField(User, blank=True, related_name="wait_list")
+    instructors = models.ManyToManyField(User, blank=True, related_name="instructors")
+
+    def __str__(self):
+        dates = SkagitClassDate.objects.filter(skagit_class=self)
+        if dates.exists():
+            start = dates.earliest("start").start.date()
+            end = dates.latest("end").end.date()
+        else:
+            start = None
+            end = None
+        return f"{self.type}/{self.specifics}/{start} - {end}"
 
 
 class SkagitClassDate(models.Model):
@@ -53,3 +75,9 @@ class SkagitClassDate(models.Model):
     name = models.CharField(max_length=200)
     start = models.DateTimeField()
     end = models.DateTimeField()
+
+    def __str__(self):
+        return (
+            f"{self.skagit_class.type}/{self.skagit_class.specifics}/{self.name}: "
+            f"{self.start.date()} - {self.end.date()}"
+        )
