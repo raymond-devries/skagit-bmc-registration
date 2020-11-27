@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Sum
 from django.db.models.signals import m2m_changed
 from localflavor.us import models as us_model
 from phonenumber_field.modelfields import PhoneNumberField
@@ -97,8 +98,22 @@ class CourseDate(models.Model):
         )
 
 
-class Cart(models.Model):
+class Discount(models.Model):
+    number_of_courses = models.PositiveSmallIntegerField()
+    discount = models.PositiveIntegerField()
+
+
+class UserCart(models.Model):
     user = models.ForeignKey(User, models.CASCADE)
+
+    @property
+    def cost(self):
+        cost = CartItem.objects.filter(cart=self).aggregate(Sum("course__type__cost"))
+        return cost["course__type__cost__sum"]
+
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(UserCart, models.CASCADE)
     course = models.ForeignKey(Course, models.CASCADE)
 
 

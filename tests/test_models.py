@@ -66,3 +66,21 @@ def test_course_add_too_many_participants(generate_course):
         course.participants.add(baker.make(User))
 
     assert course.participants.count() == 9
+
+
+@pytest.mark.parametrize(
+    ["prices", "expected_price"],
+    [
+        ([5000], 5000),
+        ([10000, 5000], 15000),
+        ([10000, 3000, 4000, 2000], 19000),
+    ],
+)
+def test_user_cart_price_property(prices, expected_price):
+    course_types = [baker.make(models.CourseType, cost=price) for price in prices]
+    courses = [
+        baker.make(models.Course, type=course_type) for course_type in course_types
+    ]
+    cart = baker.make(models.UserCart)
+    [baker.make(models.CartItem, cart=cart, course=course) for course in courses]
+    assert cart.cost == expected_price
