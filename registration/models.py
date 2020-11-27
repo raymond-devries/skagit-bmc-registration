@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models.signals import m2m_changed
 from localflavor.us import models as us_model
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -58,8 +60,12 @@ class Course(models.Model):
     wait_list = models.ManyToManyField(User, blank=True, related_name="wait_list")
     instructors = models.ManyToManyField(User, blank=True, related_name="instructors")
 
+    @property
+    def is_full(self):
+        return self.participants.count() == self.capacity
+
     def __str__(self):
-        dates = CourseDate.objects.filter(skagit_class=self)
+        dates = CourseDate.objects.filter(course=self)
         if dates.exists():
             start = dates.earliest("start").start.date()
             end = dates.latest("end").end.date()
@@ -67,6 +73,15 @@ class Course(models.Model):
             start = None
             end = None
         return f"{self.type}/{self.specifics}/{start} - {end}"
+
+
+def added_participant(action, instance, **kwargs):
+    if action == "pre_add":
+        if instance.participants.count() >= instance.capacity:
+            raise ValidationError("There is already too many participants")
+
+
+m2m_changed.connect(added_participant, sender=Course.participants.through)
 
 
 class CourseDate(models.Model):

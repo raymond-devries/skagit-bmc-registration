@@ -153,6 +153,17 @@ version = "1.1.1"
 
 [[package]]
 category = "dev"
+description = "Smart object creation facility for Django."
+name = "model-bakery"
+optional = false
+python-versions = "*"
+version = "1.2.1"
+
+[package.dependencies]
+django = ">=1.11.0"
+
+[[package]]
+category = "dev"
 description = "Node.js virtual environment builder"
 name = "nodeenv"
 optional = false
@@ -331,8 +342,7 @@ docs = ["proselint (>=0.10.2)", "sphinx (>=3)", "sphinx-argparse (>=0.2.5)", "sp
 testing = ["coverage (>=4)", "coverage-enable-subprocess (>=1)", "flaky (>=3)", "pytest (>=4)", "pytest-env (>=0.6.2)", "pytest-freezegun (>=0.4.1)", "pytest-mock (>=2)", "pytest-randomly (>=1)", "pytest-timeout (>=1)", "pytest-xdist (>=1.31.0)", "packaging (>=20.0)", "xonsh (>=0.9.16)"]
 
 [metadata]
-content-hash = "b0e71754dbaf33bc443facf045d181a937eeaeddaff891c1e68e51dab6ef68f8"
-lock-version = "1.0"
+content-hash = "4946508aa66c427d9b120beb458f750324c6b4bd1d5eccd5b789b53d063cd550"
 python-versions = "3.8"
 
 [metadata.files]
@@ -391,6 +401,10 @@ identify = [
 iniconfig = [
     {file = "iniconfig-1.1.1-py2.py3-none-any.whl", hash = "sha256:011e24c64b7f47f6ebd835bb12a743f2fbe9a26d4cecaa7f53bc4f35ee9da8b3"},
     {file = "iniconfig-1.1.1.tar.gz", hash = "sha256:bc3af051d7d14b2ee5ef9969666def0cd1a000e121eaea580d4a313df4b37f32"},
+]
+model-bakery = [
+    {file = "model_bakery-1.2.1-py2.py3-none-any.whl", hash = "sha256:d3260bd055c25998b54eda2082a507ba7fd113fe071156bdad065da426b14851"},
+    {file = "model_bakery-1.2.1.tar.gz", hash = "sha256:c2b3521a866b2b25ee0b5f953bfa385ef7d27ad75f30abf5e2de6dd61160c404"},
 ]
 nodeenv = [
     {file = "nodeenv-1.5.0-py2.py3-none-any.whl", hash = "sha256:5304d424c529c997bc888453aeaa6362d242b6b4631e90f3d4bf1b290f1c84a9"},
