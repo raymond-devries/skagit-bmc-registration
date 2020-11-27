@@ -70,14 +70,14 @@ class Course(models.Model):
 
 
 class CourseDate(models.Model):
-    skagit_class = models.ForeignKey(Course, models.CASCADE)
+    course = models.ForeignKey(Course, models.CASCADE)
     name = models.CharField(max_length=200)
     start = models.DateTimeField()
     end = models.DateTimeField()
 
     def __str__(self):
         return (
-            f"{self.skagit_class.type}/{self.skagit_class.specifics}/{self.name}: "
+            f"{self.course.type}/{self.course.specifics}/{self.name}: "
             f"{self.start.date()} - {self.end.date()}"
         )
 
