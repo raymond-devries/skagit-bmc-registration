@@ -103,3 +103,13 @@ def test_user_cart_price_property(prices, expected_price):
 def test_automatic_new_user_cart_creation():
     user = baker.make(User)
     assert models.UserCart.objects.filter(user=user).exists()
+
+
+def test_add_full_course_to_cart():
+    participants = baker.prepare(models.User, _quantity=5)
+    course = baker.make(models.Course, capacity=5, participants=participants)
+    user = baker.make(User)
+    cart = models.UserCart.objects.get(user=user)
+    with pytest.raises(ValidationError) as e:
+        models.CartItem.objects.create(cart=cart, course=course)
+    assert str(course) in str(e.value)

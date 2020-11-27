@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Sum
-from django.db.models.signals import m2m_changed, post_save
+from django.db.models.signals import m2m_changed, post_save, pre_save
 from django.dispatch import receiver
 from localflavor.us import models as us_model
 from phonenumber_field.modelfields import PhoneNumberField
@@ -129,6 +129,14 @@ def add_new_user_cart(instance, created, **kwargs):
 class CartItem(models.Model):
     cart = models.ForeignKey(UserCart, models.CASCADE)
     course = models.ForeignKey(Course, models.CASCADE)
+
+
+@receiver(pre_save, sender=CartItem)
+def add_full_course_to_cart(instance, **kwargs):
+    if instance.course.is_full:
+        raise ValidationError(
+            f"A cart item cannot be created with course: {instance.course}, it is full"
+        )
 
 
 class PaymentRecord(models.Model):
