@@ -68,6 +68,16 @@ def test_course_add_too_many_participants(generate_course):
     assert course.participants.count() == 9
 
 
+def test_delete_item_from_cart_when_course_is_full():
+    participants = baker.prepare(models.User, _quantity=4)
+    course = baker.make(models.Course, capacity=5, participants=participants)
+    baker.make(models.CartItem, course=course)
+    assert models.CartItem.objects.filter(course=course).exists() is True
+    added_participant = baker.make(User)
+    course.participants.add(added_participant)
+    assert models.CartItem.objects.filter(course=course).exists() is False
+
+
 @pytest.mark.parametrize(
     ["prices", "expected_price"],
     [

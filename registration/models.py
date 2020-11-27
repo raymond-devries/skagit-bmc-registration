@@ -81,6 +81,10 @@ def added_participant(action, instance, **kwargs):
         if instance.participants.count() >= instance.capacity:
             raise ValidationError("There is already too many participants")
 
+    if action == "post_add":
+        if instance.is_full:
+            CartItem.objects.filter(course=instance).delete()
+
 
 m2m_changed.connect(added_participant, sender=Course.participants.through)
 
