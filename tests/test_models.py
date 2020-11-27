@@ -10,15 +10,23 @@ from registration import models
 pytestmark = pytest.mark.django_db
 
 
-def test_registration_form___str__():
+@pytest.fixture
+def create_registration_form():
+    def _create_registration_form(user):
+        return baker.make(
+            models.RegistrationForm,
+            zip_code=98101,
+            phone_1="+155555555555",
+            emergency_contact_phone_number="+155555555555",
+            user=user,
+        )
+
+    return _create_registration_form
+
+
+def test_registration_form___str__(create_registration_form):
     user = baker.make(User, first_name="test", last_name="user")
-    registration_form = baker.make(
-        models.RegistrationForm,
-        zip_code=98273,
-        phone_1="+155555555555",
-        emergency_contact_phone_number="+155555555555",
-        user=user,
-    )
+    registration_form = create_registration_form(user)
     assert str(registration_form) == "test user registration form"
 
 
@@ -69,10 +77,11 @@ def test_course_add_too_many_participants(generate_course):
     assert course.participants.count() == 9
 
 
-def test_delete_item_from_cart_when_course_is_full():
+def test_delete_item_from_cart_when_course_is_full(create_registration_form):
     participants = baker.prepare(models.User, _quantity=4)
     course = baker.make(models.Course, capacity=5, participants=participants)
     user = baker.make(User)
+    create_registration_form(user)
     cart = models.UserCart.objects.get(user=user)
     baker.make(models.CartItem, course=course, cart=cart)
     assert models.CartItem.objects.filter(course=course).exists()
@@ -90,12 +99,13 @@ def test_delete_item_from_cart_when_course_is_full():
         ([10000, 3000, 4000, 2000], 19000),
     ],
 )
-def test_user_cart_price_property(prices, expected_price):
+def test_user_cart_price_property(prices, expected_price, create_registration_form):
     course_types = [baker.make(models.CourseType, cost=price) for price in prices]
     courses = [
         baker.make(models.Course, type=course_type) for course_type in course_types
     ]
     user = baker.make(User)
+    create_registration_form(user)
     cart = models.UserCart.objects.get(user=user)
     [baker.make(models.CartItem, cart=cart, course=course) for course in courses]
     assert cart.cost == expected_price
@@ -114,3 +124,15 @@ def test_add_full_course_to_cart():
     with pytest.raises(ValidationError) as e:
         models.CartItem.objects.create(cart=cart, course=course)
     assert str(course) in str(e.value)
+
+
+def test_add_item_to_cart_registration_form_validation(create_registration_form):
+    user = baker.make(User)
+    cart = models.UserCart.objects.get(user=user)
+    with pytest.raises(ValidationError):
+        baker.make(models.CartItem, cart=cart)
+    assert models.CartItem.objects.filter(cart=cart).exists() is False
+
+    create_registration_form(user)
+    baker.make(models.CartItem, cart=cart)
+    assert models.CartItem.objects.filter(cart=cart).exists()

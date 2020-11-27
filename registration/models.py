@@ -135,10 +135,15 @@ class CartItem(models.Model):
 
 
 @receiver(pre_save, sender=CartItem)
-def add_full_course_to_cart(instance, **kwargs):
+def cart_item_validation(instance, **kwargs):
     if instance.course.is_full:
         raise ValidationError(
             f"A cart item cannot be created with course: {instance.course}, it is full"
+        )
+
+    if not RegistrationForm.objects.filter(user=instance.cart.user).exists():
+        raise ValidationError(
+            "A cart item cannot be added until the user fills out a registration form"
         )
 
 
