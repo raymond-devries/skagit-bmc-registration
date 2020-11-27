@@ -58,8 +58,11 @@ def test_course_is_full(generate_course):
     assert course.is_full is True
 
 
+@pytest.mark.django_db(transaction=True)
 def test_course_add_too_many_participants(generate_course):
     course = generate_course
     course.participants.add(baker.make(User))
     with pytest.raises(ValidationError):
         course.participants.add(baker.make(User))
+
+    assert course.participants.count() == 9
