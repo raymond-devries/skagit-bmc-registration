@@ -62,9 +62,10 @@ def test_course_is_full(generate_course):
 def test_course_add_too_many_participants(generate_course):
     course = generate_course
     course.participants.add(baker.make(User))
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValidationError) as e:
         course.participants.add(baker.make(User))
 
+    assert str(course) in str(e.value)
     assert course.participants.count() == 9
 
 

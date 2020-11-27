@@ -80,7 +80,10 @@ class Course(models.Model):
 def added_participant(action, instance, **kwargs):
     if action == "pre_add":
         if instance.participants.count() >= instance.capacity:
-            raise ValidationError("There is already too many participants")
+            raise ValidationError(
+                f"There is already too many participants in {instance}, "
+                f"an additional participant cannot be added"
+            )
 
     if action == "post_add":
         if instance.is_full:
