@@ -55,7 +55,7 @@ def test_course_is_full(generate_course):
     course = generate_course
     assert course.is_full is False
     course.participants.add(baker.make(User))
-    assert course.is_full is True
+    assert course.is_full
 
 
 @pytest.mark.django_db(transaction=True)
@@ -71,8 +71,10 @@ def test_course_add_too_many_participants(generate_course):
 def test_delete_item_from_cart_when_course_is_full():
     participants = baker.prepare(models.User, _quantity=4)
     course = baker.make(models.Course, capacity=5, participants=participants)
-    baker.make(models.CartItem, course=course)
-    assert models.CartItem.objects.filter(course=course).exists() is True
+    user = baker.make(User)
+    cart = models.UserCart.objects.get(user=user)
+    baker.make(models.CartItem, course=course, cart=cart)
+    assert models.CartItem.objects.filter(course=course).exists()
     added_participant = baker.make(User)
     course.participants.add(added_participant)
     assert models.CartItem.objects.filter(course=course).exists() is False
@@ -81,6 +83,7 @@ def test_delete_item_from_cart_when_course_is_full():
 @pytest.mark.parametrize(
     ["prices", "expected_price"],
     [
+        ([], 0),
         ([5000], 5000),
         ([10000, 5000], 15000),
         ([10000, 3000, 4000, 2000], 19000),
@@ -91,6 +94,12 @@ def test_user_cart_price_property(prices, expected_price):
     courses = [
         baker.make(models.Course, type=course_type) for course_type in course_types
     ]
-    cart = baker.make(models.UserCart)
+    user = baker.make(User)
+    cart = models.UserCart.objects.get(user=user)
     [baker.make(models.CartItem, cart=cart, course=course) for course in courses]
     assert cart.cost == expected_price
+
+
+def test_automatic_new_user_cart_creation():
+    user = baker.make(User)
+    assert models.UserCart.objects.filter(user=user).exists()

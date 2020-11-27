@@ -2,7 +2,8 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Sum
-from django.db.models.signals import m2m_changed
+from django.db.models.signals import m2m_changed, post_save
+from django.dispatch import receiver
 from localflavor.us import models as us_model
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -108,12 +109,21 @@ class Discount(models.Model):
 
 
 class UserCart(models.Model):
-    user = models.ForeignKey(User, models.CASCADE)
+    user = models.OneToOneField(User, models.CASCADE)
 
     @property
     def cost(self):
-        cost = CartItem.objects.filter(cart=self).aggregate(Sum("course__type__cost"))
-        return cost["course__type__cost__sum"]
+        cost_sum = CartItem.objects.filter(cart=self).aggregate(
+            Sum("course__type__cost")
+        )
+        cost = cost_sum["course__type__cost__sum"]
+        return 0 if cost is None else cost
+
+
+@receiver(post_save, sender=User)
+def add_new_user_cart(instance, created, **kwargs):
+    if created:
+        UserCart.objects.create(user=instance)
 
 
 class CartItem(models.Model):
