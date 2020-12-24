@@ -160,9 +160,7 @@ def verify_requirements(instance, **kwargs):
         course__type=requirement
     ).exists()
 
-    if requirement_in_cart or user_registered_for_requirement:
-        return
-    else:
+    if not requirement_in_cart and not user_registered_for_requirement:
         raise ValidationError(
             f"The user does not have the pre_requisite course ({requirement.name}) "
             f"in their cart or they are not registered for the course",
