@@ -168,6 +168,20 @@ def verify_requirements(instance, **kwargs):
         )
 
 
+@receiver(pre_delete, sender=CartItem)
+def verify_requirements_before_delete(instance, **kwargs):
+    cart_items_with_instance_as_requirement = instance.cart.cartitem_set.filter(
+        course__type__requirement=instance.course.type
+    )
+
+    if cart_items_with_instance_as_requirement.exists():
+        raise ValidationError(
+            f"Cannot delete {instance.course} from cart, "
+            f"other courses in the cart have it as a requirement",
+            cart_items_with_instance_as_requirement,
+        )
+
+
 class PaymentRecord(models.Model):
     user = models.ForeignKey(User, models.PROTECT)
     payment_id = models.CharField(max_length=100)

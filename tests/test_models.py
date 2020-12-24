@@ -158,6 +158,7 @@ def test_verify_course_requirements(course_pre_req_setup):
     with pytest.raises(ValidationError) as e:
         baker.make(models.CartItem, cart=cart, course=course)
     assert pre_req_course.type.name in str(e.value)
+    assert pre_req_course.type is e.value.args[1]
 
 
 def test_verify_course_requirement_requirement_in_cart(course_pre_req_setup):
@@ -176,3 +177,31 @@ def test_verify_course_requirement_user_signed_up_for_requirement(course_pre_req
     # If it doesn't raise an error test is successful
     pre_req_course.participants.add(cart.user)
     baker.make(models.CartItem, cart=cart, course=course)
+
+
+@pytest.mark.django_db(transaction=True)
+def test_verify_course_requirement_delete_when_not_in_cart_or_signed_up(
+    course_pre_req_setup,
+):
+    cart, pre_req_course, course = course_pre_req_setup
+
+    cart_item_added = baker.make(models.CartItem, cart=cart, course=pre_req_course)
+    cart_item_with_requirement = baker.make(models.CartItem, cart=cart, course=course)
+
+    with pytest.raises(ValidationError) as e:
+        cart_item_added.delete()
+
+    assert str(cart_item_added.course) in str(e.value)
+    assert cart_item_with_requirement in e.value.args[1]
+
+
+def test_verify_course_requirement_delete_valid(course_pre_req_setup):
+    cart, pre_req_course, course = course_pre_req_setup
+
+    cart_item_added = baker.make(models.CartItem, cart=cart, course=pre_req_course)
+    cart_item_with_requirement = baker.make(models.CartItem, cart=cart, course=course)
+
+    # delete item with requirement before the pre req course
+    # and ensure no error is thrown
+    cart_item_with_requirement.delete()
+    cart_item_added.delete()
