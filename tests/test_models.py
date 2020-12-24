@@ -136,3 +136,43 @@ def test_add_item_to_cart_registration_form_validation(create_registration_form)
     create_registration_form(user)
     baker.make(models.CartItem, cart=cart)
     assert models.CartItem.objects.filter(cart=cart).exists()
+
+
+@pytest.fixture
+def course_pre_req_setup(create_registration_form):
+    user = baker.make(User)
+    cart = models.UserCart.objects.get(user=user)
+    create_registration_form(user)
+
+    pre_req_course_type = baker.make(models.CourseType)
+    course_type = baker.make(models.CourseType, requirement=pre_req_course_type)
+    pre_req_course = baker.make(models.Course, type=pre_req_course_type)
+    course = baker.make(models.Course, type=course_type)
+
+    return cart, pre_req_course, course
+
+
+def test_verify_course_requirements(course_pre_req_setup):
+    cart, pre_req_course, course = course_pre_req_setup
+
+    with pytest.raises(ValidationError) as e:
+        baker.make(models.CartItem, cart=cart, course=course)
+    assert pre_req_course.type.name in str(e.value)
+
+
+def test_verify_course_requirement_requirement_in_cart(course_pre_req_setup):
+    cart, pre_req_course, course = course_pre_req_setup
+
+    # Add appropriate pre_req course and then add course.
+    # If it doesn't raise an error test is successful
+    baker.make(models.CartItem, cart=cart, course=pre_req_course)
+    baker.make(models.CartItem, cart=cart, course=course)
+
+
+def test_verify_course_requirement_user_signed_up_for_requirement(course_pre_req_setup):
+    cart, pre_req_course, course = course_pre_req_setup
+
+    # Add user to participants of a pre_req course and then add course.
+    # If it doesn't raise an error test is successful
+    pre_req_course.participants.add(cart.user)
+    baker.make(models.CartItem, cart=cart, course=course)

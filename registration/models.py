@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Sum
-from django.db.models.signals import m2m_changed, post_save, pre_save
+from django.db.models.signals import m2m_changed, post_save, pre_delete, pre_save
 from django.dispatch import receiver
 from localflavor.us import models as us_model
 from phonenumber_field.modelfields import PhoneNumberField
@@ -144,6 +144,29 @@ def cart_item_validation(instance, **kwargs):
     if not RegistrationForm.objects.filter(user=instance.cart.user).exists():
         raise ValidationError(
             "A cart item cannot be added until the user fills out a registration form"
+        )
+
+
+@receiver(pre_save, sender=CartItem)
+def verify_requirements(instance, **kwargs):
+    requirement = instance.course.type.requirement
+    if requirement is None:
+        return
+
+    user_registered_for_requirement = CourseType.objects.filter(
+        course__participants=instance.cart.user
+    ).exists()
+    requirement_in_cart = instance.cart.cartitem_set.filter(
+        course__type=requirement
+    ).exists()
+
+    if requirement_in_cart or user_registered_for_requirement:
+        return
+    else:
+        raise ValidationError(
+            f"The user does not have the pre_requisite course ({requirement.name}) "
+            f"in their cart or they are not registered for the course",
+            requirement,
         )
 
 
