@@ -2,4 +2,30 @@
 
 {% block content %}
     <h1 class="title is-1 is-size-4-mobile">Course Sign Up</h1>
+    <div id="courses">
+
+    </div>
+    <script type="text/javascript">
+        getCourses()
+
+        function addElement(parent, element_tag, content, el_classes=[], id="") {
+            let el = document.createElement(element_tag)
+            el.textContent = content
+            el.classList.add(...el_classes)
+            el.id = id
+            parent.appendChild(el)
+            return el
+        }
+
+        function getCourses() {
+            const coursesDiv = document.getElementById("courses")
+            fetch("http://127.0.0.1:8000/api/eligible_courses/")
+                .then(response => response.json())
+                .then(function (data) {
+                    for (const courseType of data) {
+                        addElement(coursesDiv, "h1", courseType.name, ["title"])
+                    }
+                })
+        }
+    </script>
 {% endblock %}
