@@ -17,13 +17,17 @@ from django.contrib import admin
 from django.contrib.auth import urls as auth_urls
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import include, path
+from rest_framework import urls
 
+from registration import rest_router
 from registration import urls as reg_urls
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include(reg_urls)),
     path("accounts/", include(auth_urls)),
+    path("api-auth/", include(urls)),
+    path("api/", include(rest_router.router.urls)),
 ]
 
 urlpatterns += staticfiles_urlpatterns()

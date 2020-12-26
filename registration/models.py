@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Sum
+from django.db.models import Case, Q, Sum, Value, When
 from django.db.models.signals import m2m_changed, post_save, pre_delete, pre_save
 from django.dispatch import receiver
 from localflavor.us import models as us_model
@@ -116,11 +116,27 @@ class UserCart(models.Model):
 
     @property
     def cost(self):
-        cost_sum = CartItem.objects.filter(cart=self).aggregate(
-            Sum("course__type__cost")
-        )
+        cost_sum = self.cartitem_set.aggregate(Sum("course__type__cost"))
         cost = cost_sum["course__type__cost__sum"]
         return 0 if cost is None else cost
+
+    @property
+    def eligible_courses(self):
+        course_types_in_cart_or_signed_up_for = CourseType.objects.filter(
+            Q(course__cartitem__cart=self) | Q(course__participants=self.user)
+        )
+        courses = CourseType.objects.all().annotate(
+            eligible=Case(
+                When(
+                    Q(requirement=None)
+                    | Q(requirement__in=course_types_in_cart_or_signed_up_for),
+                    then=Value(True),
+                ),
+                default=Value(False),
+                output_field=models.BooleanField(),
+            )
+        )
+        return courses
 
 
 @receiver(post_save, sender=User)
@@ -174,12 +190,7 @@ def verify_requirements_before_delete(instance, **kwargs):
         course__type__requirement=instance.course.type
     )
 
-    if cart_items_with_instance_as_requirement.exists():
-        raise ValidationError(
-            f"Cannot delete {instance.course} from cart, "
-            f"other courses in the cart have it as a requirement",
-            cart_items_with_instance_as_requirement,
-        )
+    cart_items_with_instance_as_requirement.delete()
 
 
 class PaymentRecord(models.Model):

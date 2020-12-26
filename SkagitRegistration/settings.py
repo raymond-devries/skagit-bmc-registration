@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "phonenumber_field",
     "bulma",
     "registration",
+    "rest_framework",
 ]
 
 MIDDLEWARE = [
