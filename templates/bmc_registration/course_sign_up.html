@@ -1,31 +1,47 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1 class="title is-1 is-size-4-mobile">Course Sign Up</h1>
-    <div id="courses">
-
+    <h1 class="title is-size-1 is-size-4-mobile">Course Sign Up</h1>
+    <div id="app">
+        <article v-for="course in eligibleCourses" class="media">
+            <figure class="media-left">
+                <div class="box has-background-info-dark">
+                    <strong class="is-size-3 has-text-primary">
+                        [[ course.abbreviation ]]
+                    </strong>
+                </div>
+            </figure>
+            <div class="media-content">
+                <div class="content">
+                    <p>
+                        <strong class="is-size-5">[[ course.name ]]</strong>
+                        <br>
+                        [[ course.description ]]
+                    </p>
+                    <p v-if="course.requirement">
+                        <b>Requirement: [[ course.requirement.name ]]</b>
+                    </p>
+                </div>
+            </div>
+        </article>
     </div>
     <script type="text/javascript">
-        getCourses()
-
-        function addElement(parent, element_tag, content, el_classes=[], id="") {
-            let el = document.createElement(element_tag)
-            el.textContent = content
-            el.classList.add(...el_classes)
-            el.id = id
-            parent.appendChild(el)
-            return el
-        }
-
-        function getCourses() {
-            const coursesDiv = document.getElementById("courses")
-            fetch("http://127.0.0.1:8000/api/eligible_courses/")
-                .then(response => response.json())
-                .then(function (data) {
-                    for (const courseType of data) {
-                        addElement(coursesDiv, "h1", courseType.name, ["title"])
-                    }
-                })
-        }
+        let app = new Vue({
+            el: '#app',
+            delimiters: ['[[', ']]'],
+            data: {
+                eligibleCourses: {}
+            },
+            created() {
+                this.getEligbleCourses()
+            },
+            methods: {
+                getEligbleCourses: function () {
+                    fetch("http://127.0.0.1:8000/api/eligible_courses/")
+                        .then(response => response.json())
+                        .then(data => this.eligibleCourses = data)
+                }
+            }
+        })
     </script>
 {% endblock %}

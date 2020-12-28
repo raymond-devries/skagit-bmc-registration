@@ -17,9 +17,16 @@ class CourseSerializer(serializers.ModelSerializer):
         fields = ["id", "specifics", "capacity", "coursedate_set"]
 
 
+class RequirementSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.CourseType
+        fields = ["name"]
+
+
 class CourseTypeSerializer(serializers.ModelSerializer):
     eligible = serializers.BooleanField()
     course_set = CourseSerializer(many=True)
+    requirement = RequirementSerializer()
 
     class Meta:
         model = models.CourseType
