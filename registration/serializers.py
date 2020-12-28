@@ -26,6 +26,7 @@ class CourseTypeSerializer(serializers.ModelSerializer):
         fields = [
             "eligible",
             "name",
+            "abbreviation",
             "description",
             "visible",
             "cost",

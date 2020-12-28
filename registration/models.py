@@ -43,6 +43,7 @@ class RegistrationForm(models.Model):
 
 class CourseType(models.Model):
     name = models.CharField(max_length=300)
+    abbreviation = models.CharField(max_length=5)
     requirement = models.ForeignKey(
         "self", on_delete=models.PROTECT, null=True, blank=True
     )
