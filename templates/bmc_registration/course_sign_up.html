@@ -3,28 +3,44 @@
 {% block content %}
     <h1 class="title is-size-1 is-size-4-mobile">Course Sign Up</h1>
     <div id="app">
-        <article v-for="course in eligibleCourses" class="media">
+        <article v-for="courseType in eligibleCourses" class="media">
             <figure class="media-left">
                 <div class="box has-background-info-dark">
-                    <strong class="is-size-3 has-text-primary">
-                        [[ course.abbreviation ]]
+                    <strong class="is-size-3 is-size-6-mobile has-text-primary">
+                        [[ courseType.abbreviation ]]
                     </strong>
                 </div>
             </figure>
             <div class="media-content">
                 <div class="content">
                     <p>
-                        <strong class="is-size-5">[[ course.name ]]</strong>
+                        <strong class="is-size-5">[[ courseType.name ]]</strong>
                         <br>
-                        [[ course.description ]]
+                        [[ courseType.description ]]
                     </p>
-                    <p v-if="course.requirement">
-                        <b>Requirement: [[ course.requirement.name ]]</b>
+                    <p v-if="courseType.requirement">
+                        <b>Requirement: [[ courseType.requirement.name ]]</b>
                     </p>
                 </div>
+                <article v-for="course in courseType.course_set" class="media">
+                    <div class="media-left">
+                        <strong>[[ course.specifics ]]</strong>
+                    </div>
+                    <div class="media-content">
+                        <article v-for="courseDate in course.coursedate_set">
+                            <p>
+                                <b>[[ courseDate.name ]]:</b> 
+                                [[ getDates(courseDate.start, courseDate.end) ]]
+                            </p>
+                        </article>
+                    </div>
+                </article>
             </div>
         </article>
     </div>
+
+
+
     <script type="text/javascript">
         let app = new Vue({
             el: '#app',
@@ -40,6 +56,19 @@
                     fetch("http://127.0.0.1:8000/api/eligible_courses/")
                         .then(response => response.json())
                         .then(data => this.eligibleCourses = data)
+                },
+                getDates: function (date1, date2) {
+                    date1 = new Date(date1)
+                    date2 = new Date(date2)
+
+                    date1 = date1.toDateString()
+                    date2 = date2.toDateString()
+
+                    if (date1 === date2) {
+                        return date1
+                    } else {
+                        return date1 + " - " + date2
+                    }
                 }
             }
         })
