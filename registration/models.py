@@ -10,6 +10,25 @@ from phonenumber_field.modelfields import PhoneNumberField
 GENDER_CHOICES = [("M", "Male"), ("F", "Female"), ("O", "Other")]
 
 
+class RegistrationSettings(models.Model):
+    early_registration_open = models.DateTimeField()
+    early_signup_code = models.CharField(max_length=15)
+    registration_open = models.DateTimeField()
+    registration_close = models.DateTimeField()
+
+    def save(self, *args, **kwargs):
+        if not self.pk and RegistrationSettings.objects.exists():
+            raise ValidationError("There can be only one RegistrationSettings instance")
+        return super(RegistrationSettings, self).save(*args, **kwargs)
+
+
+class EarlySignupEmail(models.Model):
+    email = models.EmailField()
+
+    def __str__(self):
+        return self.email
+
+
 class RegistrationForm(models.Model):
     user = models.OneToOneField(User, models.CASCADE)
     address = models.CharField(max_length=300)
