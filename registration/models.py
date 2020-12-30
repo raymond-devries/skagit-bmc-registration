@@ -126,13 +126,19 @@ class UserCart(models.Model):
         course_types_in_cart_or_signed_up_for = CourseType.objects.filter(
             Q(course__cartitem__cart=self) | Q(course__participants=self.user)
         )
+        # eligible courses to add to their cart include:
+        # 1. Course types with no prerequisites
+        # 2. Course types with prerequisites that the user has in their cart
+        # 3. Course types with prerequisites that the user has registered for
+        # 4. Course types that they do not already have in their cart
+        # 5. Course types they have not already registered for
+        #     - This in practice allows a user to only signup for course types once
         courses = CourseType.objects.all().annotate(
             eligible=Case(
                 When(
                     (
                         Q(requirement=None)
                         | Q(requirement__in=course_types_in_cart_or_signed_up_for)
-                        | Q(coursetype__in=course_types_in_cart_or_signed_up_for)
                     )
                     & ~Q(id__in=course_types_in_cart_or_signed_up_for),
                     then=Value(True),
