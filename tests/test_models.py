@@ -138,6 +138,27 @@ def test_add_item_to_cart_registration_form_validation(create_registration_form)
     assert models.CartItem.objects.filter(cart=cart).exists()
 
 
+def test_add_item_to_cart_duplicate_course_type_sign_up(create_registration_form):
+    user = baker.make(User)
+    cart = models.UserCart.objects.get(user=user)
+    create_registration_form(user)
+
+    course_type = baker.make(models.CourseType)
+    course1 = baker.make(models.Course, type=course_type)
+    course2 = baker.make(models.Course, type=course_type)
+
+    cart_item1 = baker.make(models.CartItem, cart=cart, course=course1)
+    with pytest.raises(ValidationError):
+        baker.make(models.CartItem, cart=cart, course=course2)
+
+    cart_item1.delete()
+    course1.participants.add(user)
+    with pytest.raises(ValidationError):
+        baker.make(models.CartItem, cart=cart, course=course1)
+    with pytest.raises(ValidationError):
+        baker.make(models.CartItem, cart=cart, course=course2)
+
+
 @pytest.fixture
 def course_pre_req_setup(create_registration_form):
     user = baker.make(User, id=40)

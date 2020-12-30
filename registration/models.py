@@ -192,6 +192,18 @@ def cart_item_validation(instance, **kwargs):
             "A cart item cannot be added until the user fills out a registration form"
         )
 
+    course_types_in_cart_or_signed_up_for = CourseType.objects.filter(
+        Q(course__cartitem__cart=instance.cart)
+        | Q(course__participants=instance.cart.user)
+    )
+
+    if instance.course.type in course_types_in_cart_or_signed_up_for:
+        raise ValidationError(
+            "A cart item cannot be added with this course type since the user already "
+            "has this course type in their cart or they are already signed up for"
+            f"this course type ({instance.course.type})"
+        )
+
 
 @receiver(pre_save, sender=CartItem)
 def verify_requirements(instance, **kwargs):
