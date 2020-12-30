@@ -129,8 +129,12 @@ class UserCart(models.Model):
         courses = CourseType.objects.all().annotate(
             eligible=Case(
                 When(
-                    Q(requirement=None)
-                    | Q(requirement__in=course_types_in_cart_or_signed_up_for),
+                    (
+                        Q(requirement=None)
+                        | Q(requirement__in=course_types_in_cart_or_signed_up_for)
+                        | Q(coursetype__in=course_types_in_cart_or_signed_up_for)
+                    )
+                    & ~Q(id__in=course_types_in_cart_or_signed_up_for),
                     then=Value(True),
                 ),
                 default=Value(False),

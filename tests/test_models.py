@@ -160,13 +160,22 @@ def test_cart_eligible_courses(course_pre_req_setup):
     assert course.type in cart.eligible_courses.filter(eligible=False)
 
     pre_req_cart_item = baker.make(models.CartItem, cart=cart, course=pre_req_course)
-    assert pre_req_course.type in cart.eligible_courses.filter(eligible=True)
+    assert pre_req_course.type in cart.eligible_courses.filter(eligible=False)
     assert course.type in cart.eligible_courses.filter(eligible=True)
 
     pre_req_cart_item.delete()
     pre_req_course.participants.add(cart.user)
-    assert pre_req_course.type in cart.eligible_courses.filter(eligible=True)
+    assert pre_req_course.type in cart.eligible_courses.filter(eligible=False)
     assert course.type in cart.eligible_courses.filter(eligible=True)
+
+    course_cart_item = baker.make(models.CartItem, cart=cart, course=course)
+    assert pre_req_course.type in cart.eligible_courses.filter(eligible=False)
+    assert course.type in cart.eligible_courses.filter(eligible=False)
+
+    course_cart_item.delete()
+    course.participants.add(cart.user)
+    assert pre_req_course.type in cart.eligible_courses.filter(eligible=False)
+    assert course.type in cart.eligible_courses.filter(eligible=False)
 
 
 def test_verify_course_requirements(course_pre_req_setup):
