@@ -14,7 +14,7 @@ class CourseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Course
-        fields = ["id", "specifics", "capacity", "coursedate_set"]
+        fields = ["id", "specifics", "capacity", "spots_left", "coursedate_set"]
 
 
 class RequirementSerializer(serializers.ModelSerializer):
