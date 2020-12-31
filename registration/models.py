@@ -98,7 +98,10 @@ class Course(models.Model):
         return WaitList.objects.filter(course=self).count()
 
     def user_on_wait_list(self, user):
-        return WaitList.objects.filter(course=self, user=user).exists()
+        try:
+            return WaitList.objects.get(course=self, user=user)
+        except WaitList.DoesNotExist:
+            return None
 
     def __str__(self):
         dates = CourseDate.objects.filter(course=self)

@@ -9,3 +9,4 @@ router.register(
     basename="eligible_courses",
 )
 router.register("cart_item", rest_views.CartItemView, basename="cart_item")
+router.register("wait_list", rest_views.WaitListView, basename="wait_list")

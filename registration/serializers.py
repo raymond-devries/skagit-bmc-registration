@@ -9,6 +9,12 @@ class CourseDateSerializer(serializers.ModelSerializer):
         fields = ["name", "start", "end"]
 
 
+class WaitListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.WaitList
+        fields = ["id", "course"]
+
+
 class CourseSerializer(serializers.ModelSerializer):
     coursedate_set = CourseDateSerializer(many=True)
     user_on_wait_list = serializers.SerializerMethodField("_user_on_wait_list")
@@ -27,7 +33,7 @@ class CourseSerializer(serializers.ModelSerializer):
 
     def _user_on_wait_list(self, obj):
         user = self.context.get("user")
-        return obj.user_on_wait_list(user)
+        return WaitListSerializer(obj.user_on_wait_list(user)).data
 
 
 class RequirementSerializer(serializers.ModelSerializer):

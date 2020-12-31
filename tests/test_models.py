@@ -82,9 +82,9 @@ def test_course_wait_list():
 def test_user_on_wait_list():
     course = baker.make(models.Course, capacity=0)
     user = baker.make(User)
-    assert course.user_on_wait_list(user) is False
-    baker.make(models.WaitList, course=course, user=user)
-    assert course.user_on_wait_list(user) is True
+    assert course.user_on_wait_list(user) is None
+    wait_list = baker.make(models.WaitList, course=course, user=user, id=45)
+    assert course.user_on_wait_list(user).id == wait_list.id
 
 
 @pytest.mark.django_db(transaction=True)

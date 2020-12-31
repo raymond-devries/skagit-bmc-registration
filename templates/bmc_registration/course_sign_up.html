@@ -79,13 +79,33 @@
                                 [[ getDates(courseDate.start, courseDate.end) ]]
                             </p>
                         </article>
-                        <button :disabled="!courseType.eligible"
+                        <div v-if="course.is_full">
+                            <div v-if="course.user_on_wait_list.id">
+                                <button @click="leaveWaitList(course.user_on_wait_list.id)"
+                                        class="button is-danger">
+                                    <span class="icon">
+                                        <i class="fas fa-times"></i>
+                                    </span>
+                                    <span>Leave Wait List</span>
+                                </button>
+                            </div>
+                            <div v-else>
+                                <button @click="joinWaitList(course.id)"
+                                        class="button is-warning">
+                            <span class="icon">
+                                <i class="fas fa-list"></i>
+                            </span>
+                                    <span>Join Wait List</span>
+                                </button>
+                            </div>
+                        </div>
+                        <button v-else :disabled="!courseType.eligible"
                                 @click="addToCart(course.id)"
                                 class="button is-primary mt-2 px-5">
                             <span class="icon">
-                                <i v-if="courseType.eligible"
+                                <i v-if="courseType.eligible && !course.is_full"
                                    class="fas fa-cart-plus"></i>
-                                <i v-if="!courseType.eligible" class="fas fa-ban"></i>
+                                <i v-else class="fas fa-ban"></i>
                             </span>
                             <span>Add To Cart</span>
                         </button>
@@ -95,8 +115,6 @@
             </div>
         </article>
     </div>
-
-
 
     <script type="text/javascript">
         let app = new Vue({
@@ -114,15 +132,36 @@
                         .then(response => response.json())
                         .then(data => this.eligibleCourses = data)
                 },
-                addToCart: function (course_id) {
+                addToCart: function (courseId) {
                     let formData = new FormData()
-                    formData.append("course", course_id)
+                    formData.append("course", courseId)
                     formData.append("csrfmiddlewaretoken", "{{ csrf_token }}")
 
                     fetch("{% url "api:cart_item-list" %}", {
                         method: "POST",
                         body: formData
                     }).then(this.getEligbleCourses)
+                },
+                joinWaitList: function (courseId) {
+                    let formData = new FormData()
+                    formData.append("course", courseId)
+                    formData.append("csrfmiddlewaretoken", "{{ csrf_token }}")
+
+                    fetch("{% url "api:wait_list-list" %}", {
+                        method: "POST",
+                        body: formData
+                    }).then(this.getEligbleCourses)
+                },
+                leaveWaitList: function (waitListId) {
+                    let formData = new FormData()
+                    formData.append("csrfmiddlewaretoken", "{{ csrf_token }}")
+
+                    fetch("{% url "api:wait_list-list" %}" + waitListId + "/",
+                        {
+                            method: "DELETE",
+                            headers: {"X-CSRFToken": "{{ csrf_token }}"}
+                        })
+                        .then(this.getEligbleCourses)
                 },
                 getDates: function (date1, date2) {
                     date1 = new Date(date1)

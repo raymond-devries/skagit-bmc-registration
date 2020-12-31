@@ -36,3 +36,20 @@ class CartItemView(
         if self.action == "list":
             return serializers.CartItemListSerializer
         return serializers.CartItemSerializer
+
+
+class WaitListView(
+    mixins.ListModelMixin,
+    mixins.DestroyModelMixin,
+    mixins.CreateModelMixin,
+    viewsets.GenericViewSet,
+):
+    serializer_class = serializers.WaitListSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return models.WaitList.objects.filter(user=user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
