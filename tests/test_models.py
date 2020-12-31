@@ -74,13 +74,13 @@ def test_course_is_full(generate_course):
 
 
 def test_course_wait_list():
-    course = baker.make(models.Course)
+    course = baker.make(models.Course, capacity=0)
     baker.make(models.WaitList, course=course, _quantity=20)
     assert course.num_on_wait_list == 20
 
 
 def test_user_on_wait_list():
-    course = baker.make(models.Course)
+    course = baker.make(models.Course, capacity=0)
     user = baker.make(User)
     assert course.user_on_wait_list(user) is False
     baker.make(models.WaitList, course=course, user=user)
@@ -96,6 +96,14 @@ def test_course_add_too_many_participants(generate_course):
 
     assert str(course) in str(e.value)
     assert course.participants.count() == 9
+
+
+def test_only_allow_wait_list_after_course_is_full():
+    course = baker.make(models.Course, capacity=1)
+    with pytest.raises(ValidationError):
+        baker.make(models.WaitList, course=course)
+    course.participants.add(baker.make(User))
+    baker.make(models.WaitList, course=course)
 
 
 def test_delete_item_from_cart_when_course_is_full(create_registration_form):

@@ -136,6 +136,15 @@ class WaitList(models.Model):
         unique_together = ("course", "user")
 
 
+@receiver(pre_save, sender=WaitList)
+def only_allow_wait_list_after_course_is_full(instance, **kwargs):
+    if not instance.course.is_full:
+        raise ValidationError(
+            "The user cannot be added to the wait list since the"
+            f"course ({instance.course}) is not full"
+        )
+
+
 class CourseDate(models.Model):
     course = models.ForeignKey(Course, models.CASCADE)
     name = models.CharField(max_length=200)
