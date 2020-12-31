@@ -40,3 +40,19 @@ class CourseTypeSerializer(serializers.ModelSerializer):
             "requirement",
             "course_set",
         ]
+
+
+class CartCourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Course
+        fields = ["id", "specifics"]
+
+
+class CartItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.CartItem
+        fields = ["id", "course"]
+
+
+class CartItemListSerializer(CartItemSerializer):
+    course = CartCourseSerializer()

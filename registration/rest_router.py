@@ -4,5 +4,8 @@ from registration import rest_views
 
 router = DefaultRouter()
 router.register(
-    "eligible_courses", rest_views.ListEligibleCourses, basename="list_eligible_courses"
+    "eligible_courses",
+    rest_views.ListEligibleCoursesView,
+    basename="list_eligible_courses",
 )
+router.register("cart_item", rest_views.CartItemView, basename="cart_item")
