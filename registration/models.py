@@ -83,8 +83,16 @@ class Course(models.Model):
     instructors = models.ManyToManyField(User, blank=True, related_name="instructors")
 
     @property
+    def num_of_participants(self):
+        return self.participants.count()
+
+    @property
     def is_full(self):
-        return self.participants.count() == self.capacity
+        return self.num_of_participants >= self.capacity
+
+    @property
+    def spots_left(self):
+        return self.capacity - self.num_of_participants
 
     def __str__(self):
         dates = CourseDate.objects.filter(course=self)

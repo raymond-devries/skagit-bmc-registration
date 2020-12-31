@@ -59,6 +59,13 @@ def test_course___str__(generate_course):
     assert str(generate_course) == "test course/Class 1/2021-05-20 - 2021-05-22"
 
 
+def test_course_num_of_participants_and_spots_left():
+    participants_set = baker.prepare(User, _quantity=6)
+    course = baker.make(models.Course, capacity=10, participants=participants_set)
+    assert course.num_of_participants == 6
+    assert course.spots_left == 4
+
+
 def test_course_is_full(generate_course):
     course = generate_course
     assert course.is_full is False
