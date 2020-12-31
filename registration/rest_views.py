@@ -11,6 +11,11 @@ class ListEligibleCoursesView(viewsets.ReadOnlyModelViewSet):
         user = self.request.user
         return models.UserCart.objects.get(user=user).eligible_courses
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["user"] = self.request.user
+        return context
+
 
 class CartItemView(
     mixins.ListModelMixin,
