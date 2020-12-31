@@ -54,3 +54,7 @@ class RegistrationInfoForm(LoginRequiredMixin, FormView):
 
 class CourseSignUp(LoginRequiredMixin, TemplateView):
     template_name = "bmc_registration/course_sign_up.html"
+
+
+class CartView(LoginRequiredMixin, TemplateView):
+    template_name = "bmc_registration/cart.html"
