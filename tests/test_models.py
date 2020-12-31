@@ -73,6 +73,20 @@ def test_course_is_full(generate_course):
     assert course.is_full
 
 
+def test_course_wait_list():
+    course = baker.make(models.Course)
+    baker.make(models.WaitList, course=course, _quantity=20)
+    assert course.num_on_wait_list == 20
+
+
+def test_user_on_wait_list():
+    course = baker.make(models.Course)
+    user = baker.make(User)
+    assert course.user_on_wait_list(user) is False
+    baker.make(models.WaitList, course=course, user=user)
+    assert course.user_on_wait_list(user) is True
+
+
 @pytest.mark.django_db(transaction=True)
 def test_course_add_too_many_participants(generate_course):
     course = generate_course

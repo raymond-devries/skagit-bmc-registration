@@ -64,7 +64,7 @@ class CourseType(models.Model):
     name = models.CharField(max_length=300)
     abbreviation = models.CharField(max_length=5)
     requirement = models.ForeignKey(
-        "self", on_delete=models.PROTECT, null=True, blank=True
+        "self", on_delete=models.SET_NULL, null=True, blank=True
     )
     description = models.TextField(blank=True)
     visible = models.BooleanField(default=True)
@@ -79,7 +79,6 @@ class Course(models.Model):
     specifics = models.TextField()
     capacity = models.PositiveSmallIntegerField()
     participants = models.ManyToManyField(User, blank=True, related_name="participants")
-    wait_list = models.ManyToManyField(User, blank=True, related_name="wait_list")
     instructors = models.ManyToManyField(User, blank=True, related_name="instructors")
 
     @property
@@ -93,6 +92,13 @@ class Course(models.Model):
     @property
     def spots_left(self):
         return self.capacity - self.num_of_participants
+
+    @property
+    def num_on_wait_list(self):
+        return WaitList.objects.filter(course=self).count()
+
+    def user_on_wait_list(self, user):
+        return WaitList.objects.filter(course=self, user=user).exists()
 
     def __str__(self):
         dates = CourseDate.objects.filter(course=self)
@@ -119,6 +125,15 @@ def added_participant(action, instance, **kwargs):
 
 
 m2m_changed.connect(added_participant, sender=Course.participants.through)
+
+
+class WaitList(models.Model):
+    date_added = models.DateTimeField(auto_now_add=True)
+    course = models.ForeignKey(Course, models.CASCADE)
+    user = models.ForeignKey(User, models.CASCADE)
+
+    class Meta:
+        unique_together = ("course", "user")
 
 
 class CourseDate(models.Model):
@@ -250,4 +265,4 @@ class PaymentRecord(models.Model):
 
 class CourseBought(models.Model):
     payment_record = models.ForeignKey(PaymentRecord, models.CASCADE)
-    course = models.ForeignKey(Course, models.PROTECT)
+    course = models.ForeignKey(Course, models.CASCADE)
