@@ -3,6 +3,40 @@
 
 {% block content %}
     <h1 class="title is-size-1 is-size-4-mobile">Course Sign Up</h1>
+    <article class="message">
+        <div class="message-header">
+            <div>
+                <span class="icon">
+                    <i class="fas fa-info-circle"></i>
+                </span>
+                <span>Cart Policies</span>
+            </div>
+        </div>
+        <div class="message-body">
+            Classes can only be added to your cart when:
+            <div class="content">
+                <ul>
+                    <li>The course has no prerequisite courses.</li>
+                    <li>
+                        The course has prerequisites and you have the prerequisite
+                        courses in
+                        your cart.
+                    </li>
+                    <li>
+                        The course has prerequisites and you are already enrolled in the
+                        prerequisite course.
+                    </li>
+                    <li>
+                        A course of the same type is not already in the cart. You cannot
+                        sign
+                        up for the same course twice. i.e. You cannot sign up for two
+                        sessions
+                        of Snow Travel 1.
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </article>
     <div id="app">
         <article v-for="courseType in eligibleCourses" class="media">
             <figure class="media-left is-hidden-mobile">
@@ -32,10 +66,12 @@
                     </div>
                     <div class="media-content">
                         <span v-if="!course.is_full" class="tag is-dark">
-                            [[ course.spots_left ]] spots left
+                            <span class="icon"><i class="fas fa-users mr"></i></span>
+                            <span>[[ course.spots_left ]] spots left</span>
                         </span>
                         <span v-if="course.is_full" class="tag is-danger">
-                            Full
+                            <span class="icon"><i class="fas fa-circle mr"></i></span>
+                            <span>Full</span>
                         </span>
                         <article v-for="courseDate in course.coursedate_set">
                             <p>
@@ -46,7 +82,12 @@
                         <button :disabled="!courseType.eligible"
                                 @click="addToCart(course.id)"
                                 class="button is-primary mt-2 px-5">
-                            Add To Cart
+                            <span class="icon">
+                                <i v-if="courseType.eligible"
+                                   class="fas fa-cart-plus"></i>
+                                <i v-if="!courseType.eligible" class="fas fa-ban"></i>
+                            </span>
+                            <span>Add To Cart</span>
                         </button>
                     </div>
                     <br>
