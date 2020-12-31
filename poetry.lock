@@ -95,6 +95,14 @@ django = ">=2.2,<3.2"
 
 [[package]]
 category = "main"
+description = "Extensions for Django"
+name = "django-extensions"
+optional = false
+python-versions = ">=3.5"
+version = "3.1.0"
+
+[[package]]
+category = "main"
 description = "Country-specific Django helpers"
 name = "django-localflavor"
 optional = false
@@ -366,7 +374,7 @@ docs = ["proselint (>=0.10.2)", "sphinx (>=3)", "sphinx-argparse (>=0.2.5)", "sp
 testing = ["coverage (>=4)", "coverage-enable-subprocess (>=1)", "flaky (>=3)", "pytest (>=4)", "pytest-env (>=0.6.2)", "pytest-freezegun (>=0.4.1)", "pytest-mock (>=2)", "pytest-randomly (>=1)", "pytest-timeout (>=1)", "pytest-xdist (>=1.31.0)", "packaging (>=20.0)", "xonsh (>=0.9.16)"]
 
 [metadata]
-content-hash = "76f8776e94e086a671c1b18755ab1fca3071fd13d220f7c48bc34576de9d817f"
+content-hash = "7695235815dfb9b47bf533f090c7bd6f040942bb5f1ad816f85e0e1f9d268aa5"
 lock-version = "1.0"
 python-versions = "3.8"
 
@@ -406,6 +414,10 @@ django = [
 django-bulma = [
     {file = "django-bulma-0.8.1.tar.gz", hash = "sha256:438ce96cb95228bb3fa30e959255f27bf9443ff5c441843b1e150103cc3205ec"},
     {file = "django_bulma-0.8.1-py3-none-any.whl", hash = "sha256:369270933a3150ba7e5f85a160405a1713b405950b6082d72e003548d3403f1e"},
+]
+django-extensions = [
+    {file = "django-extensions-3.1.0.tar.gz", hash = "sha256:7cd002495ff0a0e5eb6cdd6be759600905b4e4079232ea27618fc46bdd853651"},
+    {file = "django_extensions-3.1.0-py3-none-any.whl", hash = "sha256:c7f88625a53f631745d4f2bef9ec4dcb999ed59476393bdbbe99db8596778846"},
 ]
 django-localflavor = [
     {file = "django-localflavor-3.0.1.tar.gz", hash = "sha256:24e9a03bc11ced92365821d3cfdd96eb4e2f3e44a6f40e86c645d3e0ec65ec53"},

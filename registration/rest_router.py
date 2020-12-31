@@ -6,6 +6,6 @@ router = DefaultRouter()
 router.register(
     "eligible_courses",
     rest_views.ListEligibleCoursesView,
-    basename="list_eligible_courses",
+    basename="eligible_courses",
 )
 router.register("cart_item", rest_views.CartItemView, basename="cart_item")

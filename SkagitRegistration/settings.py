@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "bulma",
     "registration",
     "rest_framework",
+    "django_extensions",
 ]
 
 MIDDLEWARE = [

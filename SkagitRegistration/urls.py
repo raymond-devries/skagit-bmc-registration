@@ -27,7 +27,7 @@ urlpatterns = [
     path("", include(reg_urls)),
     path("accounts/", include(auth_urls)),
     path("api-auth/", include(urls)),
-    path("api/", include(rest_router.router.urls)),
+    path("api/", include((rest_router.router.urls, "registration"), namespace="api")),
 ]
 
 urlpatterns += staticfiles_urlpatterns()
