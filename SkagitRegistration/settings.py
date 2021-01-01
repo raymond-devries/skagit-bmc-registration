@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -126,7 +126,4 @@ LOGIN_REDIRECT_URL = reverse_lazy("home")
 
 PHONENUMBER_DEFAULT_REGION = "US"
 
-STRIPE_API_KEY = (
-    "sk_test_51Hqp9LAi7ePWhZdMZd3oIHjx6XqwbLCg5btCaf"
-    "2T6DCiwXuKDBSb40zBtR0MNyMvmZYSAMt442QXsexaGcdsBrUW00JEo6ahAg"
-)
+STRIPE_API_KEY = os.environ["STRIPE_API_KEY"]
