@@ -164,28 +164,33 @@ class CourseDate(models.Model):
 class Discount(models.Model):
     number_of_courses = models.PositiveSmallIntegerField(unique=True)
     discount = models.PositiveIntegerField()
+    stripe_id = models.CharField(max_length=50)
 
 
 class UserCart(models.Model):
     user = models.OneToOneField(User, models.CASCADE)
 
     @property
+    def num_of_items(self):
+        return CartItem.objects.filter(cart=self).count()
+
+    @property
     def discount(self):
-        number_of_courses_in_cart = CartItem.objects.filter(cart=self).count()
         try:
-            discount = Discount.objects.get(number_of_courses=number_of_courses_in_cart)
-            return {
-                "discount": discount.discount,
-                "number_of_courses": number_of_courses_in_cart,
-            }
+            discount = Discount.objects.get(number_of_courses=self.num_of_items)
+            return discount
         except Discount.DoesNotExist:
-            return {"discount": 0, "number_of_courses": number_of_courses_in_cart}
+            return None
 
     @property
     def cost(self):
         cost_sum = self.cartitem_set.aggregate(Sum("course__type__cost"))
         cost = cost_sum["course__type__cost__sum"]
-        return 0 if cost is None else cost - self.discount["discount"]
+        if (discount := self.discount) is None:
+            discount = 0
+        else:
+            discount = discount.discount
+        return 0 if cost is None else cost - discount
 
     @property
     def eligible_courses(self):

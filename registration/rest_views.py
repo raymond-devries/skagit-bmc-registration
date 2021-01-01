@@ -1,7 +1,13 @@
-from rest_framework import mixins, permissions, views, viewsets
+import stripe
+from django.urls import reverse
+from rest_framework import mixins, permissions, viewsets
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from registration import models, serializers
+from SkagitRegistration import settings
+
+stripe.api_key = settings.STRIPE_API_KEY
 
 
 class ListEligibleCoursesView(viewsets.ReadOnlyModelViewSet):
@@ -63,3 +69,39 @@ class WaitListView(
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+
+@api_view(["POST"])
+def create_checkout_session(request):
+    if request.method == "POST":
+        cart = models.UserCart.objects.get(user=request.user)
+        cart_items = models.CartItem.objects.filter(cart=cart)
+        if cart.discount is not None:
+            discounts = [{"coupon": cart.discount.stripe_id}]
+        else:
+            discounts = []
+        line_items = []
+        for item in cart_items:
+            line_items.append(
+                {
+                    "price_data": {
+                        "currency": "usd",
+                        "unit_amount": item.course.type.cost,
+                        "product_data": {
+                            "name": item.course.type.name,
+                        },
+                    },
+                    "quantity": 1,
+                }
+            )
+
+        checkout_session = stripe.checkout.Session.create(
+            customer_email=request.user.email,
+            payment_method_types=["card"],
+            line_items=line_items,
+            mode="payment",
+            discounts=discounts,
+            success_url=request.build_absolute_uri(reverse("registration_home")),
+            cancel_url=request.build_absolute_uri(reverse("cart")),
+        )
+        return Response({"id": checkout_session.id})

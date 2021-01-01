@@ -1,3 +1,4 @@
+from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from registration import rest_views
@@ -11,3 +12,11 @@ router.register(
 router.register("cart_item", rest_views.CartItemView, basename="cart_item")
 router.register("wait_list", rest_views.WaitListView, basename="wait_list")
 router.register("cart_cost", rest_views.CartCostView, basename="cart_cost")
+
+urlpatterns = [
+    path(
+        "create_checkout_session/",
+        rest_views.create_checkout_session,
+        name="checkout_session",
+    )
+]

@@ -88,7 +88,15 @@ class CartItemListSerializer(CartItemSerializer):
     course = CartCourseSerializer()
 
 
+class DiscountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Discount
+        fields = ["discount", "number_of_courses"]
+
+
 class CartCostSerializer(serializers.ModelSerializer):
+    discount = DiscountSerializer()
+
     class Meta:
         model = models.UserCart
         fields = ["cost", "discount"]
