@@ -3,21 +3,25 @@
     <div>
         <h1 class="title is-size-1">Cart</h1>
         <article class="message is-info">
-        <div class="message-header">
-            <div>
+            <div class="message-header">
+                <div>
                 <span class="icon">
                     <i class="fas fa-info-circle"></i>
                 </span>
-                <span>Cart Policies</span>
+                    <span>Cart Policies</span>
+                </div>
             </div>
-        </div>
-        <div class="message-body">
-            <p>If you delete a course from your cart and it a prerequisite for another
-            course, the prerequisite course and the course that proceeds it will both
-            be deleted. i.e. If you have Snow Travel 1 and Snow Travel 2 in your cart
-            and you delete Snow Travel 1, Snow Travel 2 will also be deleted.</p>
-        </div>
-    </article>
+            <div class="message-body">
+                <p>If you delete a course from your cart and it a prerequisite for
+                    another
+                    course, the prerequisite course and the course that proceeds it will
+                    both
+                    be deleted. i.e. If you have Snow Travel 1 and Snow Travel 2 in your
+                    cart
+                    and you delete Snow Travel 1, Snow Travel 2 will also be
+                    deleted.</p>
+            </div>
+        </article>
         <div id="app">
             <article v-for="item in cart" class="message">
                 <div class="message-header">
@@ -54,6 +58,13 @@
                     </button>
                 </div>
             </article>
+            <article class="message">
+                <div class="message-body">
+                    <h3 class="title is-size-3">
+                        Total Cost: [[ readableCost(cost.cost) ]]
+                    </h3>
+                </div>
+            </article>
         </div>
     </div>
     <script type="text/javascript">
@@ -61,10 +72,12 @@
             el: '#app',
             delimiters: ['[[', ']]'],
             data: {
-                cart: []
+                cart: [],
+                cost: {}
             },
             created() {
                 this.getCartList()
+                this.getCartCost()
             },
             methods: {
                 getCartList: function () {
@@ -81,7 +94,23 @@
                             method: "DELETE",
                             headers: {"X-CSRFToken": "{{ csrf_token }}"}
                         })
-                        .then(this.getCartList)
+                        .then(
+                            this.getCartList,
+                            this.getCartCost
+                        )
+                },
+                getCartCost: function () {
+                    fetch("{% url "api:cart_cost-list" %}")
+                        .then(response => response.json())
+                        .then(data => this.cost = data)
+                },
+                readableCost: function (cents) {
+                    let dollars = cents / 100;
+                    dollars = dollars.toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "USD"
+                    });
+                    return dollars
                 },
                 getDates: function (date1, date2) {
                     date1 = new Date(date1)
