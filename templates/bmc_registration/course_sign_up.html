@@ -2,6 +2,12 @@
 {% load rest_framework %}
 
 {% block content %}
+    <a href="{% url "registration_home" %}" class="button mb-3">
+        <span class="icon">
+            <i class="fas fa-chevron-circle-left"></i>
+        </span>
+            <span>Back to Registration Home</span>
+        </a>
     <h1 class="title is-size-1 is-size-4-mobile">Course Sign Up</h1>
     <article class="message is-info">
         <div class="message-header">
@@ -114,6 +120,16 @@
                 </article>
             </div>
         </article>
+        <div class="columns is-centered">
+            <a href="{% url "cart" %}"
+               class="button is-dark is-large is-fullwidth"
+               style="margin-top: 100px">
+                <span class="icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </span>
+                <span>Proceed to Cart</span>
+            </a>
+        </div>
     </div>
 
     <script type="text/javascript">

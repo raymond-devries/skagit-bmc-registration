@@ -119,16 +119,28 @@ def test_delete_item_from_cart_when_course_is_full(create_registration_form):
     assert models.CartItem.objects.filter(course=course).exists() is False
 
 
+def test_cart_discount(create_registration_form):
+    user = baker.make(User)
+    create_registration_form(user)
+    cart = models.UserCart.objects.get(user=user)
+    baker.make(models.CartItem, cart=cart, _quantity=2)
+    baker.make(models.Discount, number_of_courses=2, discount=500)
+    assert cart.discount == {"discount": 500, "number_of_courses": 2}
+    baker.make(models.CartItem, cart=cart)
+    assert cart.discount == {"discount": 0, "number_of_courses": 3}
+
+
 @pytest.mark.parametrize(
     ["prices", "expected_price"],
     [
         ([], 0),
         ([5000], 5000),
-        ([10000, 5000], 15000),
+        ([10000, 5000], 14500),
         ([10000, 3000, 4000, 2000], 19000),
     ],
 )
 def test_user_cart_price_property(prices, expected_price, create_registration_form):
+    baker.make(models.Discount, number_of_courses=2, discount=500)
     course_types = [baker.make(models.CourseType, cost=price) for price in prices]
     courses = [
         baker.make(models.Course, type=course_type) for course_type in course_types

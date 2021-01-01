@@ -91,4 +91,4 @@ class CartItemListSerializer(CartItemSerializer):
 class CartCostSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.UserCart
-        fields = ["cost"]
+        fields = ["cost", "discount"]

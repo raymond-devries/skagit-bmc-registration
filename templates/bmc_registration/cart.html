@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
     <div>
+        <a href="{% url "course_signup" %}" class="button mb-3">
+        <span class="icon">
+            <i class="fas fa-chevron-circle-left"></i>
+        </span>
+            <span>Back to Course Sign Up</span>
+        </a>
         <h1 class="title is-size-1">Cart</h1>
         <article class="message is-info">
             <div class="message-header">
@@ -12,7 +18,7 @@
                 </div>
             </div>
             <div class="message-body">
-                <p>If you delete a course from your cart and it a prerequisite for
+                <p>If you delete a course from your cart and it is a prerequisite for
                     another
                     course, the prerequisite course and the course that proceeds it will
                     both
@@ -63,6 +69,10 @@
                     <h3 class="title is-size-3">
                         Total Cost: [[ readableCost(cost.cost) ]]
                     </h3>
+                    <h6 v-if="cost.discount.discount" class="title is-size-6">
+                        [[cost.discount.number_of_courses ]] course discount:
+                        [[ readableCost(cost.discount.discount) ]]
+                    </h6>
                 </div>
             </article>
         </div>
@@ -80,6 +90,10 @@
                 this.getCartCost()
             },
             methods: {
+                updateData: function () {
+                    this.getCartCost()
+                    this.getCartList()
+                },
                 getCartList: function () {
                     fetch("{% url "api:cart_item-list" %}")
                         .then(response => response.json())
@@ -94,10 +108,7 @@
                             method: "DELETE",
                             headers: {"X-CSRFToken": "{{ csrf_token }}"}
                         })
-                        .then(
-                            this.getCartList,
-                            this.getCartCost
-                        )
+                        .then(this.updateData)
                 },
                 getCartCost: function () {
                     fetch("{% url "api:cart_cost-list" %}")
