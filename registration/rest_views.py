@@ -1,4 +1,5 @@
-from rest_framework import mixins, permissions, viewsets
+from rest_framework import mixins, permissions, views, viewsets
+from rest_framework.response import Response
 
 from registration import models, serializers
 
@@ -36,6 +37,15 @@ class CartItemView(
         if self.action == "list":
             return serializers.CartItemListSerializer
         return serializers.CartItemSerializer
+
+
+class CartCostView(mixins.ListModelMixin, viewsets.GenericViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def list(self, request, *args, **kwargs):
+        cart = models.UserCart.objects.get(user=request.user)
+        serialized_data = serializers.CartCostSerializer(cart).data
+        return Response(serialized_data)
 
 
 class WaitListView(

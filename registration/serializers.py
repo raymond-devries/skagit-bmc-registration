@@ -86,3 +86,9 @@ class CartItemSerializer(serializers.ModelSerializer):
 
 class CartItemListSerializer(CartItemSerializer):
     course = CartCourseSerializer()
+
+
+class CartCostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.UserCart
+        fields = ["cost"]
