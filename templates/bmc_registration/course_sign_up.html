@@ -3,7 +3,7 @@
 
 {% block content %}
     <h1 class="title is-size-1 is-size-4-mobile">Course Sign Up</h1>
-    <article class="message">
+    <article class="message is-info">
         <div class="message-header">
             <div>
                 <span class="icon">
@@ -13,7 +13,7 @@
             </div>
         </div>
         <div class="message-body">
-            Classes can only be added to your cart when:
+            A course can only be added to your cart when:
             <div class="content">
                 <ul>
                     <li>The course has no prerequisite courses.</li>
@@ -121,7 +121,7 @@
             el: '#app',
             delimiters: ['[[', ']]'],
             data: {
-                eligibleCourses: {}
+                eligibleCourses: []
             },
             created() {
                 this.getEligbleCourses()

@@ -1,11 +1,102 @@
 {% extends "base.html" %}
-
 {% block content %}
+    <div>
+        <h1 class="title is-size-1">Cart</h1>
+        <article class="message is-info">
+        <div class="message-header">
+            <div>
+                <span class="icon">
+                    <i class="fas fa-info-circle"></i>
+                </span>
+                <span>Cart Policies</span>
+            </div>
+        </div>
+        <div class="message-body">
+            <p>If you delete a course from your cart and it a prerequisite for another
+            course, the prerequisite course and the course that proceeds it will both
+            be deleted. i.e. If you have Snow Travel 1 and Snow Travel 2 in your cart
+            and you delete Snow Travel 1, Snow Travel 2 will also be deleted.</p>
+        </div>
+    </article>
+        <div id="app">
+            <article v-for="item in cart" class="message">
+                <div class="message-header">
+                    <div>
+                        <span class="icon">
+                            <i class="fas fa-grip-horizontal"></i>
+                        </span>
+                        <span>
+                            [[ item.course.type.name ]]
+                        </span>
+                    </div>
+                </div>
+                <div class="message-body">
+                    <strong class="mr-4">[[ item.course.specifics ]]</strong>
+                    <span class="tag is-success">
+                        <span class="icon"><i class="fas fa-users"></i></span>
+                        <span>[[ item.course.spots_left ]] spots left</span>
+                    </span>
+                    <div class="content">
+                        <ul>
+                            <li><b>Cost:</b> $[[ item.course.type.cost/100 ]]</li>
+                            <li v-for="courseDate in item.course.coursedate_set">
+                                <b>[[ courseDate.name ]]:</b>
+                                [[ getDates(courseDate.start, courseDate.end) ]]
+                            </li>
+                        </ul>
+                    </div>
+                    <button @click="deleteFromCart(item.id)"
+                            class="button is-danger">
+                                <span class="icon">
+                                    <i class="fas fa-times"></i>
+                                </span>
+                        <span>Remove From Cart</span>
+                    </button>
+                </div>
+            </article>
+        </div>
+    </div>
     <script type="text/javascript">
         let app = new Vue({
             el: '#app',
             delimiters: ['[[', ']]'],
-            data: {}
+            data: {
+                cart: []
+            },
+            created() {
+                this.getCartList()
+            },
+            methods: {
+                getCartList: function () {
+                    fetch("{% url "api:cart_item-list" %}")
+                        .then(response => response.json())
+                        .then(data => this.cart = data)
+                },
+                deleteFromCart: function (cartItemId) {
+                    let formData = new FormData()
+                    formData.append("csrfmiddlewaretoken", "{{ csrf_token }}")
+
+                    fetch("{% url "api:cart_item-list" %}" + cartItemId + "/",
+                        {
+                            method: "DELETE",
+                            headers: {"X-CSRFToken": "{{ csrf_token }}"}
+                        })
+                        .then(this.getCartList)
+                },
+                getDates: function (date1, date2) {
+                    date1 = new Date(date1)
+                    date2 = new Date(date2)
+
+                    date1 = date1.toDateString()
+                    date2 = date2.toDateString()
+
+                    if (date1 === date2) {
+                        return date1
+                    } else {
+                        return date1 + " - " + date2
+                    }
+                }
+            }
         })
 
     </script>

@@ -71,10 +71,11 @@ class CartCourseTypeSerializer(serializers.ModelSerializer):
 
 class CartCourseSerializer(serializers.ModelSerializer):
     type = CartCourseTypeSerializer()
+    coursedate_set = CourseDateSerializer(many=True)
 
     class Meta:
         model = models.Course
-        fields = ["specifics", "spots_left", "type"]
+        fields = ["specifics", "spots_left", "coursedate_set", "type"]
 
 
 class CartItemSerializer(serializers.ModelSerializer):
