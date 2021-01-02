@@ -10,6 +10,17 @@ from phonenumber_field.modelfields import PhoneNumberField
 GENDER_CHOICES = [("M", "Male"), ("F", "Female"), ("O", "Other")]
 
 
+class Profile(models.Model):
+    user = models.OneToOneField(User, models.CASCADE)
+
+
+@receiver(post_save, sender=User)
+def add_new_user_items(instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+        UserCart.objects.create(user=instance)
+
+
 class RegistrationSettings(models.Model):
     early_registration_open = models.DateTimeField()
     early_signup_code = models.CharField(max_length=15)
@@ -219,12 +230,6 @@ class UserCart(models.Model):
             )
         )
         return courses
-
-
-@receiver(post_save, sender=User)
-def add_new_user_cart(instance, created, **kwargs):
-    if created:
-        UserCart.objects.create(user=instance)
 
 
 class CartItem(models.Model):

@@ -160,9 +160,10 @@ def test_user_cart_price_property(prices, expected_price, create_registration_fo
     assert cart.cost == expected_price
 
 
-def test_automatic_new_user_cart_creation():
+def test_automatic_new_user_item_creation():
     user = baker.make(User)
     assert models.UserCart.objects.filter(user=user).exists()
+    assert models.Profile.objects.filter(user=user).exists()
 
 
 def test_add_full_course_to_cart():
