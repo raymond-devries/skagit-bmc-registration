@@ -1,5 +1,7 @@
 import stripe
+from django.http import HttpResponse
 from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import mixins, permissions, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -89,6 +91,10 @@ def create_checkout_session(request):
                         "unit_amount": item.course.type.cost,
                         "product_data": {
                             "name": item.course.type.name,
+                            "metadata": {
+                                "course_id": item.course.id,
+                                "cart_item_id": item.id,
+                            },
                         },
                     },
                     "quantity": 1,
@@ -97,6 +103,7 @@ def create_checkout_session(request):
 
         checkout_session = stripe.checkout.Session.create(
             customer_email=request.user.email,
+            metadata={"user_id": request.user.id},
             payment_method_types=["card"],
             line_items=line_items,
             mode="payment",
@@ -105,3 +112,25 @@ def create_checkout_session(request):
             cancel_url=request.build_absolute_uri(reverse("cart")),
         )
         return Response({"id": checkout_session.id})
+
+
+@csrf_exempt
+def stripe_checkout_webhook(request):
+    payload = request.body
+    sig_header = request.META["HTTP_STRIPE_SIGNATURE"]
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, settings.STRIPE_ENDPOINT_SECRET
+        )
+    except ValueError:
+        return HttpResponse(status=400)
+    except stripe.error.SignatureVerificationError:
+        return HttpResponse(status=400)
+
+    if event["type"] == "checkout.session.completed":
+        session = event["data"]["object"]
+
+        print(session)
+
+    return HttpResponse(status=200)

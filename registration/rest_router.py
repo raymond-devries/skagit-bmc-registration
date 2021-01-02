@@ -18,5 +18,6 @@ urlpatterns = [
         "create_checkout_session/",
         rest_views.create_checkout_session,
         name="checkout_session",
-    )
+    ),
+    path("stripe_webhook/", rest_views.stripe_checkout_webhook, name="stripe_webhook"),
 ]
