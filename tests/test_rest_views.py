@@ -1,6 +1,4 @@
 import pytest
-from django.contrib.auth.models import User
-from django.db.models import Q
 from model_bakery import baker
 
 from registration import models, rest_views

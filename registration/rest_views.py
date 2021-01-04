@@ -1,10 +1,11 @@
+import datetime
+
 import stripe
 from django.contrib.auth.models import User
-from django.db.models import Q
 from django.http import HttpResponse
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework import mixins, permissions, viewsets
+from rest_framework import mixins, permissions, views, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -158,3 +159,44 @@ def fulfill_order(course_ids, user_id, stripe_id):
     for course in courses:
         course.participants.add(user)
         models.CourseBought.objects.create(payment_record=payment_record, course=course)
+
+
+class AddCoursesView(views.APIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    def post(self, request, *args, **kwargs):
+        for course_type in request.data:
+            try:
+                requirement = models.CourseType.objects.get(
+                    name=course_type["requirement"]
+                )
+            except models.CourseType.DoesNotExist:
+                requirement = None
+
+            created_course_type = models.CourseType.objects.create(
+                name=course_type["name"],
+                description=course_type["description"],
+                abbreviation=course_type["abbreviation"],
+                requirement=requirement,
+                cost=course_type["cost"],
+            )
+
+            for course in course_type["courses"]:
+                created_course = models.Course.objects.create(
+                    type=created_course_type,
+                    specifics=course["specifics"],
+                    capacity=course["capacity"],
+                )
+
+                for date in course["course_dates"]:
+                    start = datetime.datetime.strptime(
+                        date["start"], "%Y-%m-%dT%H:%M:%S.%fZ"
+                    )
+                    end = datetime.datetime.strptime(
+                        date["end"], "%Y-%m-%dT%H:%M:%S.%fZ"
+                    )
+                    models.CourseDate.objects.create(
+                        course=created_course, name=date["name"], start=start, end=end
+                    )
+
+        return Response("Added the courses")

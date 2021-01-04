@@ -20,4 +20,5 @@ urlpatterns = [
         name="checkout_session",
     ),
     path("stripe_webhook/", rest_views.stripe_checkout_webhook, name="stripe_webhook"),
+    path("add_courses/", rest_views.AddCoursesView.as_view(), name="add_courses"),
 ]
