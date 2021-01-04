@@ -10,20 +10,6 @@ from registration import models
 pytestmark = pytest.mark.django_db
 
 
-@pytest.fixture
-def create_registration_form():
-    def _create_registration_form(user):
-        return baker.make(
-            models.RegistrationForm,
-            zip_code=98101,
-            phone_1="+155555555555",
-            emergency_contact_phone_number="+155555555555",
-            user=user,
-        )
-
-    return _create_registration_form
-
-
 def test_registration_form___str__(create_registration_form):
     user = baker.make(User, first_name="test", last_name="user")
     registration_form = create_registration_form(user)

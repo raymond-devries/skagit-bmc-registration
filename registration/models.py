@@ -298,5 +298,5 @@ class PaymentRecord(models.Model):
 
 
 class CourseBought(models.Model):
-    payment_record = models.ForeignKey(PaymentRecord, models.CASCADE)
-    course = models.ForeignKey(Course, models.CASCADE)
+    payment_record = models.ForeignKey(PaymentRecord, models.PROTECT)
+    course = models.ForeignKey(Course, models.PROTECT)

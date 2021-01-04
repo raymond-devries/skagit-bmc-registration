@@ -1,4 +1,6 @@
 import stripe
+from django.contrib.auth.models import User
+from django.db.models import Q
 from django.http import HttpResponse
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
@@ -18,7 +20,9 @@ class ListEligibleCoursesView(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        return models.UserCart.objects.get(user=user).eligible_courses
+        return models.UserCart.objects.get(user=user).eligible_courses.filter(
+            visible=True
+        )
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -131,6 +135,26 @@ def stripe_checkout_webhook(request):
     if event["type"] == "checkout.session.completed":
         session = event["data"]["object"]
 
-        print(session)
+        line_items = stripe.checkout.Session.list_line_items(session.stripe_id)
+        product_ids = [item.price.product for item in line_items]
+        course_ids = [
+            int(stripe.Product.retrieve(product_id).metadata["course_id"])
+            for product_id in product_ids
+        ]
+
+        fulfill_order(course_ids, session.metadata.user_id, session.stripe_id)
 
     return HttpResponse(status=200)
+
+
+def fulfill_order(course_ids, user_id, stripe_id):
+    user = User.objects.get(id=user_id)
+    cart = models.UserCart.objects.get(user=user)
+    models.CartItem.objects.filter(cart=cart).delete()
+    courses = models.Course.objects.filter(id__in=course_ids)
+    payment_record = models.PaymentRecord.objects.create(
+        user=user, payment_id=stripe_id
+    )
+    for course in courses:
+        course.participants.add(user)
+        models.CourseBought.objects.create(payment_record=payment_record, course=course)
