@@ -1,5 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, FormView, TemplateView
 
@@ -69,6 +70,11 @@ class RegistrationInfoForm(LoginRequiredMixin, FormView):
 
 class CourseSignUp(LoginRequiredMixin, TemplateView):
     template_name = "bmc_registration/course_sign_up.html"
+
+    def get(self, request, *args, **kwargs):
+        if not models.RegistrationForm.objects.filter(user=self.request.user).exists():
+            return redirect(reverse_lazy("registration_home"))
+        return super().get(request, *args, **kwargs)
 
 
 class CartView(LoginRequiredMixin, TemplateView):

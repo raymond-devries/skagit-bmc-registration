@@ -7,7 +7,7 @@ URLS = [
     ("/", (200, 200)),
     ("/registration_form/", (302, 200)),
     ("/registration_home/", (302, 200)),
-    ("/course_signup/", (302, 200)),
+    ("/course_signup/", (302, 302)),
     ("/cart/", (302, 200)),
     ("/signup/", (200, 200)),
     ("/accounts/login/", (200, 200)),
