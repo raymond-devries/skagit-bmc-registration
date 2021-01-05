@@ -56,6 +56,7 @@ class CourseTypeSerializer(serializers.ModelSerializer):
             "description",
             "visible",
             "cost",
+            "cost_human",
             "requirement",
             "course_set",
         ]

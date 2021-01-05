@@ -32,46 +32,12 @@
                     <h1 class="title">Your Courses</h1>
                     {% if registration_complete %}
                         <p class="mb-4">You can sign up for courses.</p>
-                        <a href="{% url "course_signup" %}" class="button is-medium">Sign Up For Courses</a>
+                        <a href="{% url "course_signup" %}" class="button is-medium">Sign
+                            Up For Courses</a>
                     {% else %}
                         <p>Once you complete your registration form you will be able to
                             sign up for courses here.</p>
                     {% endif %}
-                </article>
-            </div>
-        </div>
-        <div class="tile">
-            <div class="tile is-parent">
-                <article class="tile is-child notification is-link">
-                    <h1 class="title is-3">Available Classes</h1>
-                    {% for course_type in available_courses %}
-                        <hr>
-                        <div>
-                            <h1 class="subtitle is-4 mb-0">{{ course_type.name }}</h1>
-                            <p class="mb-3">{{ course_type.description }}</p>
-                            {% if course_type.requirement %}
-                                <p><b>Prerequisite
-                                    course: {{ course_type.requirement }}</b></p>
-                            {% endif %}
-                            {% for course in course_type.course_set.all|dictsort:"specifics" %}
-                                <p class="is-size-4">{{ course.specifics }}</p>
-                                <p><b>
-                                    {{ course.participants.count }}/{{ course.capacity }}
-                                    spots filled.
-                                </b></p>
-                                <ul>
-                                    {% for date in course.coursedate_set.all %}
-                                        <li>{{ date.name }}: {{ date.start.date }}
-                                            {% if date.start.date != date.end.date %}
-                                                - {{ date.end.date }}
-                                            {% endif %}
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            {% endfor %}
-                        </div>
-                    {% endfor %}
-
                 </article>
             </div>
         </div>

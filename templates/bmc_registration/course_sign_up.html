@@ -47,7 +47,7 @@
         <article v-for="courseType in eligibleCourses" class="media">
             <figure class="media-left is-hidden-mobile">
                 <div class="box has-background-info-dark">
-                    <strong class="is-size-3 is-size-6-mobile has-text-primary">
+                    <strong class="is-size-3 has-text-primary">
                         [[ courseType.abbreviation ]]
                     </strong>
                 </div>
@@ -57,7 +57,7 @@
                     <p>
                         <strong class="is-size-5">[[ courseType.name ]]</strong>
                         <br>
-                        <b class="is-size-5">$[[ courseType.cost/100 ]]</b>
+                        <b class="is-size-5">[[ courseType.cost_human ]]</b>
                         <br>
                         [[ courseType.description ]]
                     </p>

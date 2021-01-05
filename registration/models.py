@@ -84,6 +84,10 @@ class CourseType(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def cost_human(self):
+        return "${:,.2f}".format(self.cost / 100)
+
 
 class Course(models.Model):
     type = models.ForeignKey(CourseType, on_delete=models.CASCADE)

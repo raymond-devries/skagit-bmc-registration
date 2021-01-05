@@ -18,6 +18,18 @@ class Home(TemplateView):
     template_name = "bmc_registration/home.html"
 
 
+class AvailableCoursesView(TemplateView):
+    template_name = "bmc_registration/available_courses.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["available_courses"] = models.CourseType.objects.filter(
+            visible=True
+        ).order_by("requirement")
+
+        return context
+
+
 class RegistrationHome(LoginRequiredMixin, TemplateView):
     template_name = "bmc_registration/registration_home.html"
 
@@ -26,9 +38,6 @@ class RegistrationHome(LoginRequiredMixin, TemplateView):
         context["registration_complete"] = models.RegistrationForm.objects.filter(
             user=self.request.user
         ).exists()
-        context["available_courses"] = models.CourseType.objects.filter(
-            visible=True
-        ).order_by("requirement")
 
         return context
 

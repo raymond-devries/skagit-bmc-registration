@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1 class="title is-2 has-text-centered is-size-3-mobile">Available Courses</h1>
+    {% for course_type in available_courses %}
+        <article class="media">
+            <figure class="media-left is-hidden-mobile">
+                <div class="box has-background-info-dark">
+                    <strong class="has-text-white is-size-3 has-text-primary">
+                        {{ course_type.abbreviation }}
+                    </strong>
+                </div>
+            </figure>
+            <div class="media-content">
+                <div class="content">
+                    <strong class="is-size-5">
+                        {{ course_type.name }}
+                    </strong>
+                    <br>
+                    <b class="is-size-5">
+                        {{ course_type.cost_human }}
+                    </b>
+                    <br>
+                    {{ course_type.description }}
+                    <br>
+                    {% if course_type.requirement %}
+                        <b>Requirement: {{ course_type.requirement }}</b>
+                    {% endif %}
+                </div>
+                {% for course in course_type.course_set.all %}
+                    <article class="media">
+                        <div class="media-left">
+                            <strong>{{ course.specifics }}</strong>
+                        </div>
+                        <div class="media-content">
+                            {% if not course.is_full %}
+                                <span class="tag is-dark">
+                                    <span class="icon"><i
+                                            class="fas fa-users mr"></i></span>
+                                    <span>{{ course.spots_left }} spots left</span>
+                                </span>
+                            {% else %}
+                                <span class="tag is-danger">
+                                    <span class="icon">
+                                        <i class="fas fa-circle mr"></i>
+                                    </span>
+                                    <span>Full</span>
+                                </span>
+                            {% endif %}
+                            {% for course_date in course.coursedate_set.all %}
+                                <article>
+                                    <p>
+                                        <b>{{ course_date.name }}:</b>
+                                        {{ course_date.start|date:"D M d Y"}}
+                                        {% if course_date.start.date != course_date.end.date %}
+                                            - {{ course_date.end.date }}
+                                        {% endif %}
+                                    </p>
+                                </article>
+                            {% endfor %}
+                        </div>
+                    </article>{% endfor %}
+            </div>
+        </article>
+    {% endfor %}
+{% endblock %}
