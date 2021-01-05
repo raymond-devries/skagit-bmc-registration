@@ -6,7 +6,6 @@ from django.views.generic import CreateView, FormView, TemplateView
 
 from registration import models
 from registration.forms import RegistrationForm, SignUpForm
-from registration.models import Discount
 
 
 class UserRegistrationView(SuccessMessageMixin, CreateView):
@@ -45,6 +44,12 @@ class RegistrationHome(LoginRequiredMixin, TemplateView):
         context["registration_complete"] = models.RegistrationForm.objects.filter(
             user=self.request.user
         ).exists()
+        context["user_courses"] = models.Course.objects.filter(
+            participants=self.request.user
+        )
+        context["user_waitlist"] = models.Course.objects.filter(
+            waitlist__user=self.request.user
+        )
 
         return context
 

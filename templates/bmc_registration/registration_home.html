@@ -41,5 +41,69 @@
                 </article>
             </div>
         </div>
+        <div class="tile">
+            <div class="tile is-parent">
+                <article class="tile is-child notification is-info">
+                    <h3 class="title is-size-3 has-text-centered">
+                        Your Courses
+                    </h3>
+                    <hr>
+                    {% if user_courses.exists %}
+                        {% for course in user_courses %}
+                            <div class="content">
+                            <span class="tag is-dark is-large">
+                                <span>
+                                    <strong>{{ course.type }}: </strong>
+                                    {{ course.specifics }}
+                                </span>
+                            </span>
+                                <ul>
+                                    {% for course_date in course.coursedate_set.all %}
+                                        <li>
+                                            <b>{{ course_date.name }}:</b>
+                                            {{ course_date.start|date:"D M d Y" }}
+                                            {% if course_date.start.date != course_date.end.date %}
+                                                - {{ course_date.end.date }}
+                                            {% endif %}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>Once you sign up for courses they will be here.</p>
+                    {% endif %}
+                </article>
+            </div>
+            {% if user_waitlist.exists %}
+                <div class="tile is-parent">
+                    <article class="tile is-child notification is-warning has-text-dark">
+                        <h3 class="title is-size-3 has-text-centered">Your Wait List</h3>
+                        <hr class="has-background-dark">
+                        {% for course in user_waitlist %}
+                            <div class="content">
+                            <span class="tag is-dark is-large">
+                                <span>
+                                    <strong>{{ course.type }}: </strong>
+                                    {{ course.specifics }}
+                                </span>
+                            </span>
+                                <ul>
+                                    {% for course_date in course.coursedate_set.all %}
+                                        <li>
+                                            <b>{{ course_date.name }}:</b>
+                                            {{ course_date.start|date:"D M d Y" }}
+                                            {% if course_date.start.date != course_date.end.date %}
+                                                - {{ course_date.end.date }}
+                                            {% endif %}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endfor %}
+                    </article>
+                </div>
+            {% endif %}
+        </div>
     </div>
 {% endblock %}
