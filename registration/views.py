@@ -15,6 +15,10 @@ class UserRegistrationView(SuccessMessageMixin, CreateView):
     success_message = "You have successfully created an account you can now login"
 
 
+class ProfileView(LoginRequiredMixin, TemplateView):
+    template_name = "bmc_registration/profile.html"
+
+
 class Home(TemplateView):
     template_name = "bmc_registration/home.html"
 

@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2 class="title is-size-2">Profile</h2>
+    <strong>{{ user.first_name }} {{ user.last_name }}</strong>
+    <hr>
+    <a href="{% url "password_change" %}" class="button is-info">Change Password</a>
+{% endblock %}

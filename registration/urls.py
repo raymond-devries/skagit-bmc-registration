@@ -19,5 +19,6 @@ urlpatterns = [
     ),
     path("registration/signup/", views.CourseSignUp.as_view(), name="course_signup"),
     path("registration/cart/", views.CartView.as_view(), name="cart"),
+    path("profile/", views.ProfileView.as_view(), name="profile"),
     path("signup/", views.UserRegistrationView.as_view(), name="signup"),
 ]

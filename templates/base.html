@@ -36,6 +36,9 @@
                 Home</a>
             <a class="navbar-item" href="{% url "available_courses" %}">Available
             Courses</a>
+            {% if user.is_authenticated %}
+            <a class="navbar-item" href="{% url "profile" %}">Profile</a>
+            {% endif %}
         </div>
         <div class="navbar-end">
             <div class="navbar-item">
