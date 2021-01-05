@@ -219,18 +219,22 @@ class UserCart(models.Model):
         # 4. Course types that they do not already have in their cart
         # 5. Course types they have not already registered for
         #     - This in practice allows a user to only signup for course types once
-        courses = CourseType.objects.all().annotate(
-            eligible=Case(
-                When(
-                    (
-                        Q(requirement=None)
-                        | Q(requirement__in=course_types_in_cart_or_signed_up_for)
-                    )
-                    & ~Q(id__in=course_types_in_cart_or_signed_up_for),
-                    then=Value(True),
-                ),
-                default=Value(False),
-                output_field=models.BooleanField(),
+        courses = (
+            CourseType.objects.all()
+            .order_by("name")
+            .annotate(
+                eligible=Case(
+                    When(
+                        (
+                            Q(requirement=None)
+                            | Q(requirement__in=course_types_in_cart_or_signed_up_for)
+                        )
+                        & ~Q(id__in=course_types_in_cart_or_signed_up_for),
+                        then=Value(True),
+                    ),
+                    default=Value(False),
+                    output_field=models.BooleanField(),
+                )
             )
         )
         return courses

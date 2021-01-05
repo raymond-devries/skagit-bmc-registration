@@ -25,7 +25,7 @@ class AvailableCoursesView(TemplateView):
         context = super().get_context_data(**kwargs)
         context["available_courses"] = models.CourseType.objects.filter(
             visible=True
-        ).order_by("requirement")
+        ).order_by("name")
 
         return context
 
