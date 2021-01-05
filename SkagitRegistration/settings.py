@@ -30,7 +30,7 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 try:
     DEBUG = strtobool(os.getenv("DEBUG"))
-except:
+except AttributeError:
     DEBUG = False
 
 ALLOWED_HOSTS = [os.getenv("ALLOWED_HOST")]
@@ -128,6 +128,24 @@ STATIC_URL = "/static/"
 
 LOGOUT_REDIRECT_URL = reverse_lazy("home")
 LOGIN_REDIRECT_URL = reverse_lazy("home")
+
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
+
+try:
+    USE_AWS_EMAIL = strtobool(os.getenv("USE_AWS_EMAIL"))
+except AttributeError:
+    USE_AWS_EMAIL = False
+
+
+if USE_AWS_EMAIL:
+    EMAIL_USE_TLS = True
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    EMAIL_HOST = "email-smtp.us-west-2.amazonaws.com"
+    EMAIL_PORT = 587
+    EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+    EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 PHONENUMBER_DEFAULT_REGION = "US"
 
