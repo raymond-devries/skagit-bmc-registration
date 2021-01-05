@@ -5,10 +5,11 @@ pytestmark = pytest.mark.django_db
 
 URLS = [
     ("/", (200, 200)),
-    ("/registration_form/", (302, 200)),
-    ("/registration_home/", (302, 200)),
-    ("/course_signup/", (302, 302)),
-    ("/cart/", (302, 200)),
+    ("/available-courses/", (200, 200)),
+    ("/registration/form/", (302, 200)),
+    ("/registration/home/", (302, 200)),
+    ("/registration/signup/", (302, 302)),
+    ("/registration/cart/", (302, 200)),
     ("/signup/", (200, 200)),
     ("/accounts/login/", (200, 200)),
     ("/accounts/password_change/", (302, 200)),
