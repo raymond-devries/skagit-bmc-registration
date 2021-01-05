@@ -5,6 +5,7 @@ from django.views.generic import CreateView, FormView, TemplateView
 
 from registration import models
 from registration.forms import RegistrationForm, SignUpForm
+from registration.models import Discount
 
 
 class UserRegistrationView(SuccessMessageMixin, CreateView):
@@ -16,6 +17,11 @@ class UserRegistrationView(SuccessMessageMixin, CreateView):
 
 class Home(TemplateView):
     template_name = "bmc_registration/home.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["discounts"] = models.Discount.objects.all()
+        return context
 
 
 class AvailableCoursesView(TemplateView):

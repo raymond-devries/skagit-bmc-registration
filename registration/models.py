@@ -71,6 +71,10 @@ class RegistrationForm(models.Model):
         return f"{self.user.first_name} {self.user.last_name} " f"registration form"
 
 
+def human_readable_cost(value):
+    return "${:,.2f}".format(value / 100)
+
+
 class CourseType(models.Model):
     name = models.CharField(max_length=300)
     abbreviation = models.CharField(max_length=5)
@@ -86,7 +90,7 @@ class CourseType(models.Model):
 
     @property
     def cost_human(self):
-        return "${:,.2f}".format(self.cost / 100)
+        return human_readable_cost(self.cost)
 
 
 class Course(models.Model):
@@ -180,6 +184,10 @@ class Discount(models.Model):
     number_of_courses = models.PositiveSmallIntegerField(unique=True)
     discount = models.PositiveIntegerField()
     stripe_id = models.CharField(max_length=50)
+
+    @property
+    def discount_human(self):
+        return human_readable_cost(self.discount)
 
 
 class UserCart(models.Model):
