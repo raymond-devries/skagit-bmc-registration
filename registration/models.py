@@ -51,6 +51,7 @@ class RegistrationForm(models.Model):
     phone_2 = PhoneNumberField(blank=True)
     date_of_birth = models.DateField()
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
+    pronouns = models.CharField(max_length=30, blank=True)
     emergency_contact_name = models.CharField(max_length=200)
     emergency_contact_relationship_to_you = models.CharField(max_length=200)
     emergency_contact_phone_number = PhoneNumberField()

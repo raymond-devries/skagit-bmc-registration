@@ -25,6 +25,7 @@ class RegistrationForm(forms.ModelForm):
         model = models.RegistrationForm
         exclude = ["user"]
         labels = {
+            "pronouns": "Pronouns (He/him), (She, her), (They, them), etc.",
             "physical_fitness": "Describe your current physical fitness and level of activity",
             "medical_conditions": "Check this box if you have any medical conditions",
             "medical_condition_description": "If you checked the box, explain your medical conditions",
