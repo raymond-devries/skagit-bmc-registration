@@ -183,6 +183,11 @@ class CourseDate(models.Model):
         )
 
 
+class GearItem(models.Model):
+    type = models.ForeignKey(CourseType, models.CASCADE)
+    item = models.CharField(max_length=300)
+
+
 class Discount(models.Model):
     number_of_courses = models.PositiveSmallIntegerField(unique=True)
     discount = models.PositiveIntegerField()
