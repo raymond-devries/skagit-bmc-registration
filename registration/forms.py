@@ -25,14 +25,11 @@ class RegistrationForm(forms.ModelForm):
         model = models.RegistrationForm
         exclude = ["user"]
         labels = {
-            "pronouns": "Pronouns (He/him), (She, her), (They, them), etc.",
+            "pronouns": "Pronouns (He/him), (She/her), (They/them), etc.",
             "physical_fitness": "Describe your current physical fitness and level of activity",
-            "medical_conditions": "Check this box if you have any medical conditions",
-            "medical_condition_description": "If you checked the box, explain your medical conditions",
-            "allergy_conditions": "Check this box if you have any allergies",
-            "allergy_condition_description": "If you checked the box, explain your allergies",
-            "medications": "Check this box if you are taking any medications",
-            "medications_descriptions": "If you checked the box, what medications are you taking?",
+            "medical_condition_description": "If you have any medical conditions please describe them below",
+            "allergy_condition_description": "If you have any allergies please describe them below",
+            "medications_descriptions": "If you are taking any medications please describe them below",
             "medical_insurance": "Check this box if you have medical insurance "
             "(medical insurance is required to take this course)",
             "relation_of_policy_holder": "Relation of policy holder to you",

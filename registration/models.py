@@ -7,7 +7,12 @@ from django.dispatch import receiver
 from localflavor.us import models as us_model
 from phonenumber_field.modelfields import PhoneNumberField
 
-GENDER_CHOICES = [("M", "Male"), ("F", "Female"), ("O", "Other")]
+GENDER_CHOICES = [
+    ("M", "Male"),
+    ("F", "Female"),
+    ("N", "Non-Binary"),
+    ("U", "Does not wish to identify"),
+]
 
 
 class Profile(models.Model):
@@ -56,11 +61,8 @@ class RegistrationForm(models.Model):
     emergency_contact_relationship_to_you = models.CharField(max_length=200)
     emergency_contact_phone_number = PhoneNumberField()
     physical_fitness = models.TextField()
-    medical_conditions = models.BooleanField()
     medical_condition_description = models.TextField(blank=True)
-    allergy_conditions = models.BooleanField()
     allergy_condition_description = models.TextField(blank=True)
-    medications = models.BooleanField()
     medications_descriptions = models.TextField(blank=True)
     medical_insurance = models.BooleanField()
     name_of_policy_holder = models.CharField(max_length=200)
