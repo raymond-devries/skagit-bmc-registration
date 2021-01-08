@@ -77,6 +77,11 @@ class CourseSignUp(LoginRequiredMixin, TemplateView):
             return redirect(reverse_lazy("registration_home"))
         return super().get(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["discounts"] = models.Discount.objects.all()
+        return context
+
 
 class CartView(LoginRequiredMixin, TemplateView):
     template_name = "bmc_registration/cart.html"

@@ -6,8 +6,8 @@
         <span class="icon">
             <i class="fas fa-chevron-circle-left"></i>
         </span>
-            <span>Back to Registration Home</span>
-        </a>
+        <span>Back to Registration Home</span>
+    </a>
     <h1 class="title is-size-1 is-size-4-mobile">Course Sign Up</h1>
     <article class="message is-info">
         <div class="message-header">
@@ -19,7 +19,7 @@
             </div>
         </div>
         <div class="message-body">
-            A course can only be added to your cart when:
+            <p>A course can only be added to your cart when:</p>
             <div class="content">
                 <ul>
                     <li>The course has no prerequisite courses.</li>
@@ -39,6 +39,17 @@
                         sessions
                         of Snow Travel 1.
                     </li>
+                </ul>
+            </div>
+            <p>Discounts:</p>
+            <div class="content">
+                <ul>
+                    {% for discount in discounts %}
+                        <li>
+                            {{ discount.number_of_courses }} course discount:
+                            {{ discount.discount_human }} off total
+                        </li>
+                    {% endfor %}
                 </ul>
             </div>
         </div>
