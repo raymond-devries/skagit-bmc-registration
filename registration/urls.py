@@ -9,6 +9,7 @@ urlpatterns = [
         views.AvailableCoursesView.as_view(),
         name="available_courses",
     ),
+    path("gear-lists/", views.GearListsView.as_view(), name="gear_lists"),
     path(
         "registration/form/",
         views.RegistrationInfoForm.as_view(),
@@ -20,5 +21,4 @@ urlpatterns = [
     path("registration/signup/", views.CourseSignUp.as_view(), name="course_signup"),
     path("registration/cart/", views.CartView.as_view(), name="cart"),
     path("profile/", views.ProfileView.as_view(), name="profile"),
-    # path("signup/", views.UserRegistrationView.as_view(), name="signup"),
 ]

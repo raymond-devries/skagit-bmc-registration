@@ -73,12 +73,19 @@
                     {% else %}
                         <p>Once you sign up for courses they will be here.</p>
                     {% endif %}
+                    <p>
+                        Make sure to look at the
+                        <a href="{% url "gear_lists" %}">Gear Lists</a>
+                        to ensure you have all the required gear for your courses.
+                    </p>
                 </article>
             </div>
             {% if user_waitlist.exists %}
                 <div class="tile is-parent">
-                    <article class="tile is-child notification is-warning has-text-dark">
-                        <h3 class="title is-size-3 has-text-centered">Your Wait List</h3>
+                    <article
+                            class="tile is-child notification is-warning has-text-dark">
+                        <h3 class="title is-size-3 has-text-centered">Your Wait
+                            List</h3>
                         <hr class="has-background-dark">
                         {% for course in user_waitlist %}
                             <div class="content">

@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.views.generic import FormView, TemplateView
+from django.views.generic import FormView, ListView, TemplateView
 
 from registration import models
 from registration.forms import RegistrationForm
@@ -85,3 +85,15 @@ class CourseSignUp(LoginRequiredMixin, TemplateView):
 
 class CartView(LoginRequiredMixin, TemplateView):
     template_name = "bmc_registration/cart.html"
+
+
+class GearListsView(TemplateView):
+    template_name = "bmc_registration/gear_list.html"
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(object_list=None, **kwargs)
+        context["gear_item_all"] = models.GearItem.objects.filter(type=None)
+        context["courses"] = models.CourseType.objects.filter(visible=True).order_by(
+            "name"
+        )
+        return context

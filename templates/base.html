@@ -38,6 +38,7 @@
                 Home</a>
             <a class="navbar-item" href="{% url "available_courses" %}">Available
                 Courses</a>
+            <a class="navbar-item" href="{% url "gear_lists" %}">Gear Lists</a>
             {% if user.is_authenticated %}
                 <a class="navbar-item" href="{% url "profile" %}">Profile</a>
             {% endif %}

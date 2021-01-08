@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="title is-size-1">Gear Lists</h1>
+    <div class="content">
+        <p><strong>Gear required for all courses</strong></p>
+        <ul>
+            {% for item in gear_item_all %}
+                <li>{{ item.item }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% for course in courses %}
+        <div class="content">
+            <p><strong>{{ course.name }}</strong></p>
+            <ul>
+                {% for item in course.gearitem_set.all %}
+                    <li>{{ item.item }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endfor %}
+{% endblock content %}

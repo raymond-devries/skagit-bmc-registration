@@ -185,7 +185,7 @@ class CourseDate(models.Model):
 
 
 class GearItem(models.Model):
-    type = models.ForeignKey(CourseType, models.CASCADE)
+    type = models.ForeignKey(CourseType, models.CASCADE, null=True, blank=True)
     item = models.CharField(max_length=300)
 
 

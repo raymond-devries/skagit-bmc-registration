@@ -167,6 +167,14 @@ class AddCoursesView(views.APIView):
     def post(self, request, *args, **kwargs):
         for course_type in request.data:
             try:
+                gear = course_type["all_gear"]
+                for item in gear:
+                    models.GearItem.objects.create(type=None, item=item)
+                continue
+            except KeyError:
+                pass
+
+            try:
                 requirement = models.CourseType.objects.get(
                     name=course_type["requirement"]
                 )
@@ -198,5 +206,8 @@ class AddCoursesView(views.APIView):
                     models.CourseDate.objects.create(
                         course=created_course, name=date["name"], start=start, end=end
                     )
+
+            for item in course_type["gear_list"]:
+                models.GearItem.objects.create(type=created_course_type, item=item)
 
         return Response("Added the courses")
