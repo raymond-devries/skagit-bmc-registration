@@ -17,6 +17,7 @@ GENDER_CHOICES = [
 
 class Profile(models.Model):
     user = models.OneToOneField(User, models.CASCADE)
+    email_confirmed = models.BooleanField(default=False)
 
 
 @receiver(post_save, sender=User)

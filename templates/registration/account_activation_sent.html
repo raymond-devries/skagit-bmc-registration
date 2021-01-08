@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <a href="{% url "home" %}" class="button mb-3">
+        <span class="icon">
+            <i class="fas fa-chevron-circle-left"></i>
+        </span>
+        <span>Back to Home</span>
+    </a>
+    <hr>
+    <h3 class="title is-size-3">Please confirm your email to complete the registration.
+        If you do not find it, please check your spam.</h3>
+{% endblock %}

@@ -19,13 +19,14 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import include, path
 from rest_framework import urls
 
-from registration import rest_router
+from registration import rest_router, sign_up_urls
 from registration import urls as reg_urls
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include(reg_urls)),
     path("accounts/", include(auth_urls)),
+    path("accounts/", include(sign_up_urls)),
     path("api-auth/", include(urls)),
     path("api/", include((rest_router.router.urls, "registration"), namespace="api")),
     path("api/", include(rest_router)),
