@@ -4,9 +4,11 @@
 <head>
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    {#    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>#}
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+    {% if debug %}
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+    {% else %}
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
+    {% endif %}
     <script src="https://kit.fontawesome.com/e6e4c15ca6.js"
             crossorigin="anonymous"></script>
     <script src="https://js.stripe.com/v3/"></script>
@@ -35,9 +37,9 @@
             <a class="navbar-item" href="{% url "registration_home" %}">Registration
                 Home</a>
             <a class="navbar-item" href="{% url "available_courses" %}">Available
-            Courses</a>
+                Courses</a>
             {% if user.is_authenticated %}
-            <a class="navbar-item" href="{% url "profile" %}">Profile</a>
+                <a class="navbar-item" href="{% url "profile" %}">Profile</a>
             {% endif %}
         </div>
         <div class="navbar-end">
@@ -67,6 +69,18 @@
 </nav>
 <section class="section">
     <div class="container">
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <article
+                            {% if message.tags %}
+                                class="is-{{ message.tags }} message mb-3"
+                            {% endif %}>
+                        <div class="message-body">{{ message }}</div>
+                    </article>
+                {% endfor %}
+            </ul>
+        {% endif %}
         {% block content %}{% endblock %}
     </div>
 </section>

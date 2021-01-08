@@ -15,6 +15,7 @@ from distutils.util import strtobool
 from pathlib import Path
 
 import dj_database_url
+from django.contrib.messages import constants as messages
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 from django.urls import reverse_lazy
@@ -136,7 +137,6 @@ try:
 except AttributeError:
     USE_AWS_EMAIL = False
 
-
 if USE_AWS_EMAIL:
     EMAIL_USE_TLS = True
     EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
@@ -146,6 +146,8 @@ if USE_AWS_EMAIL:
     EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 else:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+MESSAGE_TAGS = {messages.ERROR: "danger"}
 
 PHONENUMBER_DEFAULT_REGION = "US"
 

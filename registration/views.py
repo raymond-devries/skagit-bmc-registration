@@ -1,18 +1,10 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, FormView, TemplateView
+from django.views.generic import FormView, TemplateView
 
 from registration import models
-from registration.forms import RegistrationForm, SignUpForm
-
-
-class UserRegistrationView(SuccessMessageMixin, CreateView):
-    template_name = "registration/signup.html"
-    form_class = SignUpForm
-    success_url = reverse_lazy("home")
-    success_message = "You have successfully created an account you can now login"
+from registration.forms import RegistrationForm
 
 
 class ProfileView(LoginRequiredMixin, TemplateView):
