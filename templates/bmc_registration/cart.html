@@ -98,8 +98,7 @@
         </div>
     </div>
     <script type="text/javascript">
-        stripe = Stripe("pk_test_51Hqp9LAi7ePWhZdMtYtjF4piIelqcBBhsrsjVreTLuQYv284V32" +
-            "nPGCJXQ0TX8eBf9PfobX2wfX4PsrQtLGzn5dg00DrY2AdkT")
+        stripe = Stripe("{{ stripe_public_api_key }}")
         const app = new Vue({
             el: '#app',
             delimiters: ['[[', ']]'],

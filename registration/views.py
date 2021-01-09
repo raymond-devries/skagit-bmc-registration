@@ -5,6 +5,7 @@ from django.views.generic import FormView, ListView, TemplateView
 
 from registration import models
 from registration.forms import RegistrationForm
+from SkagitRegistration import settings
 
 
 class ProfileView(LoginRequiredMixin, TemplateView):
@@ -90,6 +91,7 @@ class CartView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["registration_settings"] = models.RegistrationSettings.objects.first()
+        context["stripe_public_api_key"] = settings.STRIPE_PUBLIC_API_KEY
         return context
 
 
