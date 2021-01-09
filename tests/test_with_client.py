@@ -1,5 +1,8 @@
 import pytest
 from django.contrib.auth.models import User
+from model_bakery import baker
+
+from registration import models
 
 pytestmark = pytest.mark.django_db
 
@@ -17,14 +20,19 @@ URLS = [
 ]
 
 
+@pytest.fixture
+def fill_db():
+    baker.make(models.RegistrationSettings)
+
+
 @pytest.mark.parametrize(["url", "status_code"], URLS)
-def test_anonymous_access(client, url, status_code):
+def test_anonymous_access(fill_db, client, url, status_code):
     response = client.get(url)
     assert response.status_code == status_code[0]
 
 
 @pytest.mark.parametrize(["url", "status_code"], URLS)
-def test_logged_in_access(client, url, status_code):
+def test_logged_in_access(fill_db, client, url, status_code):
     client.force_login(User.objects.get_or_create(username="test_user")[0])
     response = client.get(url)
     assert response.status_code == status_code[1]

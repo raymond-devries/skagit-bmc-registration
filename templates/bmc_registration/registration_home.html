@@ -40,6 +40,17 @@
                     {% endif %}
                 </article>
             </div>
+            {% if user.profile.is_eligible_for_early_registration %}
+                <div class="tile is-parent">
+                    <article class="tile is-child notification is-primary">
+                        <h3 class="title is-size-3">
+                            You are eligible for early registration
+                        </h3>
+                        <p>Registration will open up for you on:
+                            {{ registration_settings.early_registration_open|date:"D M d Y" }}</p>
+                    </article>
+                </div>
+            {% endif %}
         </div>
         <div class="tile">
             <div class="tile is-parent">

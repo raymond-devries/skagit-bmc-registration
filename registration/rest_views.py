@@ -81,6 +81,8 @@ class WaitListView(
 @api_view(["POST"])
 def create_checkout_session(request):
     if request.method == "POST":
+        if not request.user.profile.is_eligible_for_registration:
+            return Response("User is not eligible for registration", status=403)
         cart = models.UserCart.objects.get(user=request.user)
         cart_items = models.CartItem.objects.filter(cart=cart)
         if cart.discount is not None:

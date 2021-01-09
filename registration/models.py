@@ -4,6 +4,7 @@ from django.db import models
 from django.db.models import Case, Q, Sum, Value, When
 from django.db.models.signals import m2m_changed, post_save, pre_delete, pre_save
 from django.dispatch import receiver
+from django.utils import timezone
 from localflavor.us import models as us_model
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -19,6 +20,29 @@ class Profile(models.Model):
     user = models.OneToOneField(User, models.CASCADE)
     email_confirmed = models.BooleanField(default=False)
 
+    @property
+    def is_eligible_for_early_registration(self):
+        return EarlySignupEmail.objects.filter(email__iexact=self.user.email).exists()
+
+    @property
+    def is_eligible_for_registration(self):
+        registration_settings = RegistrationSettings.objects.first()
+        after_early_sign_up = (
+            timezone.now() > registration_settings.early_registration_open
+        )
+        after_sign_up = timezone.now() > registration_settings.registration_open
+        before_close = timezone.now() < registration_settings.registration_close
+
+        if (
+            self.is_eligible_for_early_registration
+            and after_early_sign_up
+            and before_close
+        ):
+            return True
+        elif after_sign_up and before_close:
+            return True
+        return False
+
 
 @receiver(post_save, sender=User)
 def add_new_user_items(instance, created, **kwargs):
@@ -29,7 +53,7 @@ def add_new_user_items(instance, created, **kwargs):
 
 class RegistrationSettings(models.Model):
     early_registration_open = models.DateTimeField()
-    early_signup_code = models.CharField(max_length=15)
+    early_signup_code = models.CharField(max_length=15, blank=True)
     registration_open = models.DateTimeField()
     registration_close = models.DateTimeField()
 

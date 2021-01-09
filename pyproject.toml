@@ -25,6 +25,7 @@ pre-commit = "^2.9.0"
 pytest-django = "^4.1.0"
 model_bakery = "^1.2.1"
 isort = "^5.6.4"
+pytest-freezegun = "^0.4.2"
 
 [tool.isort]
 profile = "black"

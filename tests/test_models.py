@@ -10,6 +10,37 @@ from registration import models
 pytestmark = pytest.mark.django_db
 
 
+def test_is_eligible_for_early_registration():
+    user = baker.make(User, email="user@test.com")
+    assert not user.profile.is_eligible_for_early_registration
+    baker.make(models.EarlySignupEmail, email=user.email)
+    assert user.profile.is_eligible_for_early_registration
+
+
+@pytest.mark.parametrize(
+    ["date", "normal", "early_signup"],
+    (
+        ("2021-01-05", False, False),
+        ("2021-01-12", False, True),
+        ("2021-1-17", True, True),
+        ("2021-2-16", False, False),
+    ),
+)
+def test_is_eligible_for_registration(freezer, date, normal, early_signup):
+    user1 = baker.make(User, email="user1@gmail.com")
+    user2 = baker.make(User, email="user2@gmail.com")
+    baker.make(models.EarlySignupEmail, email=user2.email)
+    baker.make(
+        models.RegistrationSettings,
+        early_registration_open=datetime(2021, 1, 10),
+        registration_open=datetime(2021, 1, 15),
+        registration_close=datetime(2021, 2, 15),
+    )
+    freezer.move_to(date)
+    assert user1.profile.is_eligible_for_registration is normal
+    assert user2.profile.is_eligible_for_registration is early_signup
+
+
 def test_registration_form___str__(create_registration_form):
     user = baker.make(User, first_name="test", last_name="user")
     registration_form = create_registration_form(user)

@@ -40,6 +40,7 @@ class RegistrationHome(LoginRequiredMixin, TemplateView):
         context["registration_complete"] = models.RegistrationForm.objects.filter(
             user=self.request.user
         ).exists()
+        context["registration_settings"] = models.RegistrationSettings.objects.first()
         context["user_courses"] = models.Course.objects.filter(
             participants=self.request.user
         )
@@ -85,6 +86,11 @@ class CourseSignUp(LoginRequiredMixin, TemplateView):
 
 class CartView(LoginRequiredMixin, TemplateView):
     template_name = "bmc_registration/cart.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["registration_settings"] = models.RegistrationSettings.objects.first()
+        return context
 
 
 class GearListsView(TemplateView):

@@ -73,14 +73,25 @@
                         [[cost.discount.number_of_courses ]] course discount:
                         [[ readableCost(cost.discount.discount) ]]
                     </h6>
-                    <button @click="stripeCheckout"
-                            :disabled="cost.cost === 0"
-                            class="button is-primary is-fullwidth is-large">
+                    {% if user.profile.is_eligible_for_registration %}
+                        <button @click="stripeCheckout"
+                                :disabled="cost.cost === 0"
+                                class="button is-primary is-fullwidth is-large">
                         <span class="icon">
                             <i class="fab fa-cc-stripe"></i>
                         </span>
-                        <span>Checkout</span>
-                    </button>
+                            <span>Checkout</span>
+                        </button>
+                    {% else %}
+                        <h5 class="title is-size-5">Checkout is not open.
+                            Registration has not opened or registration has closed.
+                        </h5>
+                        <h5 class="title is-size-5">
+                            Normal registration is:
+                            {{ registration_settings.registration_open|date:"D M d Y" }} -
+                            {{ registration_settings.registration_close|date:"D M d Y" }}
+                        </h5>
+                    {% endif %}
                 </div>
 
             </article>
