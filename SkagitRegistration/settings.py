@@ -34,11 +34,12 @@ try:
 except AttributeError:
     DEBUG = False
 
-ALLOWED_HOSTS = [os.getenv("ALLOWED_HOST")]
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(",")
 
 INTERNAL_IPS = ["127.0.0.1", "0.0.0.0"]
 
 # Application definition
+
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -149,6 +150,20 @@ else:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 MESSAGE_TAGS = {messages.ERROR: "danger"}
+
+DEFAULT_RENDERER_CLASSES = ("rest_framework.renderers.JSONRenderer",)
+
+if DEBUG:
+    DEFAULT_RENDERER_CLASSES = DEFAULT_RENDERER_CLASSES + (
+        "rest_framework.renderers.BrowsableAPIRenderer",
+    )
+
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": (
+        "rest_framework.permissions.IsAuthenticatedOrReadOnly",
+    ),
+    "DEFAULT_RENDERER_CLASSES": DEFAULT_RENDERER_CLASSES,
+}
 
 PHONENUMBER_DEFAULT_REGION = "US"
 
