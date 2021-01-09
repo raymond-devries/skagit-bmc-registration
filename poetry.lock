@@ -523,9 +523,9 @@ version = "5.2.0"
 brotli = ["brotli"]
 
 [metadata]
-content-hash = "5ae9be35822b8de3e040bb716c0df2db1601a69e063b255c10f899ee83dbf139"
+content-hash = "5f475b266d2209b8e30da345ea89f75742bf8377da54e4b64a4385e783daf4ba"
 lock-version = "1.0"
-python-versions = "3.8.6"
+python-versions = "3.8.7"
 
 [metadata.files]
 appdirs = [
