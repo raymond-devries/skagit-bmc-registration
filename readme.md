@@ -16,3 +16,4 @@ Required Environment Variables:
 * `STRIPE_API_KEY`: Stripe private API key
 * `STRIPE_PUBLIC_API_KEY`: Stripe public API key
 * `STRIPE_ENDPOINT_SECRET`: Stripe API endpoint secret for end point (/api/stripe_webhook/) that fulfills orders
+* `SENTRY_DSN`: DSN link from sentry to track errors
