@@ -144,6 +144,6 @@ STRIPE_ENDPOINT_SECRET = os.getenv("STRIPE_ENDPOINT_SECRET")
 sentry_sdk.init(
     dsn=os.getenv("SENTRY_DSN"),
     integrations=[DjangoIntegration()],
-    traces_sample_rate=1.0,
+    traces_sample_rate=float(os.getenv("SENTRY_SAMPLE_RATE")),
     send_default_pii=True,
 )
