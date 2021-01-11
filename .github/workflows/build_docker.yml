@@ -46,4 +46,7 @@ jobs:
         host: ${{ secrets.SERVER_HOST }}
         username: ${{ secrets.SERVER_USERNAME }}
         key: ${{ secrets.SERVER_KEY }}
-        script: deploy
+        script: |
+          docker-compose pull web
+          docker-compose pull nginx
+          docker-compose up -d
