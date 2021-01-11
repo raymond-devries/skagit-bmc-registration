@@ -4,8 +4,8 @@ on:
     branches: 
       - production
 jobs:
-  push_to_registry:
-    name: Push Docker image to GitHub Packages
+  push_to_registry_and_deploy:
+    name: Push Docker image to GitHub Packages and deploy to server
     runs-on: ubuntu-latest
     steps:
     -
