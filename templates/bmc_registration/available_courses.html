@@ -2,6 +2,11 @@
 
 {% block content %}
     <h1 class="title is-2 has-text-centered is-size-3-mobile">Available Courses</h1>
+    <div class="message">
+        <div class="message-body"><p class="block">Classroom sessions are held from 6
+            p.m. to 9 p.m. Other outing
+            times are dependent on weather and conditions.</p></div>
+    </div>
     {% for course_type in available_courses %}
         <article class="media">
             <figure class="media-left is-hidden-mobile">
@@ -51,7 +56,7 @@
                                 <article>
                                     <p>
                                         <b>{{ course_date.name }}:</b>
-                                        {{ course_date.start|date:"D M d Y"}}
+                                        {{ course_date.start|date:"D M d Y" }}
                                         {% if course_date.start.date != course_date.end.date %}
                                             - {{ course_date.end.date }}
                                         {% endif %}
