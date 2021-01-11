@@ -2,8 +2,14 @@
 {% load bulma_tags %}
 
 {% block content %}
-    <h1 class="mb-3 title is-5">To register for the BMC please login or <a
-            href="{% url "signup" %}">sign up</a> for an account</h1>
+    <div class="block">
+        <h5 class="mb-3 title is-size-5">To register for the BMC please login or <a
+                href="{% url "signup" %}">sign up</a> for an account</h5>
+        <p>There is no carry over from previous years. Please
+            <a href="{% url "signup" %}">sign up</a> for an account even if you
+            registered
+            for previous years' courses.</p>
+    </div>
     <h1 class="title">Login</h1>
     <form method="post" class="mb-5">{% csrf_token %}
         {{ form|bulma }}
