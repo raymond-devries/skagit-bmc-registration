@@ -18,14 +18,37 @@
                 </div>
             </div>
             <div class="message-body">
-                <p>If you delete a course from your cart and it is a prerequisite for
-                    another
-                    course, the prerequisite course and the course that proceeds it will
-                    both
-                    be deleted. i.e. If you have Snow Travel 1 and Snow Travel 2 in your
-                    cart
-                    and you delete Snow Travel 1, Snow Travel 2 will also be
-                    deleted.</p>
+                <p>
+                    If you delete a course from your cart and it is a prerequisite for
+                    another course, the prerequisite course and the course that proceeds
+                    it will both be deleted. i.e. If you have Snow Travel 1 and Snow
+                    Travel 2 in your cart and you delete Snow Travel 1, Snow Travel 2
+                    will also be deleted.
+                </p>
+            </div>
+        </article>
+        <article class="message is-danger">
+            <div class="message-header">
+                <div>
+                <span class="icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </span>
+                    <span>Cancellation & Refund Policy</span>
+                </div>
+            </div>
+            <div class="message-body">
+                <p class="block">
+                    If courses are cancelled based on COVID restrictions, a full refund
+                    will be provided. Courses that do not meet the minimum enrollment
+                    may be cancelled with full refund or offer transfers to other course
+                    dates.
+                </p>
+                <p class="block">
+                    Cancellations by a participant more than 2 weeks before the start
+                    of a course will be refunded minus a $25 cancellation fee per
+                    course. Cancellations by a participant within 2 weeks of the start
+                    of a course will not receive a refund.
+                </p>
             </div>
         </article>
         <div id="app">
@@ -88,7 +111,8 @@
                         </h5>
                         <h5 class="title is-size-5">
                             Normal registration is:
-                            {{ registration_settings.registration_open|date:"D M d Y" }} -
+                            {{ registration_settings.registration_open|date:"D M d Y" }}
+                            -
                             {{ registration_settings.registration_close|date:"D M d Y" }}
                         </h5>
                     {% endif %}
