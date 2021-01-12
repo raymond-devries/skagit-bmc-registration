@@ -2,7 +2,7 @@
 
 ---
 
-This repository hosts the code used to run the Skagit Alpine Club Basic Mountaineering Course sign up website. This site uses django with Vue sprinkled in for interactivity. Stripe is used to process payments.
+This repository hosts the code used to run the [Skagit Alpine Club Basic Mountaineering Course sign up website](bmc.skagitalpineclub.com). This site uses django with Vue sprinkled in for interactivity. Stripe is used to process payments. The website is hosted through AWS Lightsail, allowing for a very affordable hosting solution. CI is handled through github actions and the website deploys with every push to production. 
 
 Required Environment Variables:
 * `DJANGO_SECRET_KEY`: Required django secret key
