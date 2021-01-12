@@ -1,7 +1,7 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.views.generic import FormView, ListView, TemplateView
+from django.views.generic import FormView, TemplateView
 
 from registration import models
 from registration.forms import RegistrationForm
@@ -105,3 +105,10 @@ class GearListsView(TemplateView):
             "name"
         )
         return context
+
+
+class CurrentRegistrationsView(UserPassesTestMixin, TemplateView):
+    template_name = "base.html"
+
+    def test_func(self):
+        return self.request.user.profile.is_instructor

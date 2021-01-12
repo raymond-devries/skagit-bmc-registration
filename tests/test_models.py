@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import pytest
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Group, User
 from django.core.exceptions import ValidationError
 from model_bakery import baker
 
@@ -39,6 +39,14 @@ def test_is_eligible_for_registration(freezer, date, normal, early_signup):
     freezer.move_to(date)
     assert user1.profile.is_eligible_for_registration is normal
     assert user2.profile.is_eligible_for_registration is early_signup
+
+
+def test_is_instructor():
+    user = baker.make(User)
+    group = baker.make(Group, name=models.INSTRUCTOR_GROUP)
+    assert not user.profile.is_instructor
+    user.groups.add(group)
+    assert user.profile.is_instructor
 
 
 def test_registration_form___str__(create_registration_form):

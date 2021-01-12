@@ -7,4 +7,6 @@ class RegistrationConfig(AppConfig):
     def ready(self):
         from django.contrib.auth.models import Group
 
-        Group.objects.get_or_create(name="instructor")
+        from registration.models import INSTRUCTOR_GROUP
+
+        Group.objects.get_or_create(INSTRUCTOR_GROUP)

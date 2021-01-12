@@ -15,6 +15,8 @@ GENDER_CHOICES = [
     ("U", "Does not wish to identify"),
 ]
 
+INSTRUCTOR_GROUP = "instructor"
+
 
 class Profile(models.Model):
     user = models.OneToOneField(User, models.CASCADE)
@@ -42,6 +44,10 @@ class Profile(models.Model):
         elif after_sign_up and before_close:
             return True
         return False
+
+    @property
+    def is_instructor(self):
+        return self.user.groups.filter(name=INSTRUCTOR_GROUP).exists()
 
 
 @receiver(post_save, sender=User)
