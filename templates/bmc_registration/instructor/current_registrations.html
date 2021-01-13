@@ -8,7 +8,6 @@
             <tr>
                 <th>Registrant</th>
                 <th>Email</th>
-                <th><abbr title="Number of Courses">NOC</abbr></th>
                 <th>Courses</th>
             </tr>
             </thead>
@@ -17,12 +16,11 @@
                 <tr>
                     <th>{{ user.first_name }} {{ user.last_name }}</th>
                     <td>{{ user.email }}</td>
-                    <td>{{ user.participants.count }}</td>
                     <td>
                         {% for course in user.participants.all|dictsort:"type.name" %}
                             <span class="tag is-info">
                             <b>{{ course.type.abbreviation }}:&nbsp;</b>
-                                {{ course.specifics }}:
+                                {{ course.specifics }}
                             </span>
                         {% endfor %}
                     </td>

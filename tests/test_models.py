@@ -43,9 +43,8 @@ def test_is_eligible_for_registration(freezer, date, normal, early_signup):
 
 def test_is_instructor():
     user = baker.make(User)
-    group = baker.make(Group, name=models.INSTRUCTOR_GROUP)
     assert not user.profile.is_instructor
-    user.groups.add(group)
+    user.groups.add(Group.objects.get(name=models.INSTRUCTOR_GROUP))
     assert user.profile.is_instructor
 
 
