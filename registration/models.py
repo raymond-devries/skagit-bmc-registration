@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Case, Q, Sum, Value, When
+from django.db.models import Case, Max, Min, Q, Sum, Value, When
 from django.db.models.signals import m2m_changed, post_save, pre_delete, pre_save
 from django.dispatch import receiver
 from django.utils import timezone
@@ -149,6 +149,10 @@ class Course(models.Model):
     @property
     def num_on_wait_list(self):
         return WaitList.objects.filter(course=self).count()
+
+    @property
+    def start_end_date(self):
+        return self.coursedate_set.aggregate(Min("start"), Max("end"))
 
     def user_on_wait_list(self, user):
         try:

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1 class="title is-size-1">Current Registrations</h1>
+    <div class="table-container">
+        <table class="table is-striped is-fullwidth">
+            <thead>
+            <tr>
+                <th>Registrant</th>
+                <th>Email</th>
+                <th><abbr title="Number of Courses">NOC</abbr></th>
+                <th>Courses</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for user in registered_users %}
+                <tr>
+                    <th>{{ user.first_name }} {{ user.last_name }}</th>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.participants.count }}</td>
+                    <td>
+                        {% for course in user.participants.all|dictsort:"type.name" %}
+                            <span class="tag is-info">
+                            <b>{{ course.type.abbreviation }}:&nbsp;</b>
+                                {{ course.specifics }}:
+                            </span>
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="content">
+        {% for course_type in course_types %}
+            <div class="message">
+                <div class="message-header">
+                    <span>{{ course_type.name }}</span>
+                </div>
+                <div class="message-body">
+                    <ul>
+                        {% for course in course_type.course_set.all %}
+                            <li class="has-text-info-dark">
+                                <b>{{ course.specifics }}:&nbsp;</b>
+                                {{ course.start_end_date.start__min|date:"D M d Y" }} -
+                                {{ course.start_end_date.end__max|date:"D M d Y" }}
+                            </li>
+                            <ul>
+                                {% for registrant in course.participants.all|dictsort:"first_name" %}
+                                    <li>
+                                        {{ registrant.first_name }}
+                                        {{ registrant.last_name }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

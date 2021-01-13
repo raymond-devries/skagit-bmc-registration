@@ -19,8 +19,9 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import include, path
 from rest_framework import urls
 
-from registration import instructor_urls, rest_router, sign_up_urls
+from registration import rest_router, sign_up_urls
 from registration import urls as reg_urls
+from registration.instructor import instructor_urls
 from registration.models import INSTRUCTOR_GROUP
 
 urlpatterns = [

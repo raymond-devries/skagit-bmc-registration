@@ -74,7 +74,7 @@
                                             <b>{{ course_date.name }}:</b>
                                             {{ course_date.start|date:"D M d Y" }}
                                             {% if course_date.start.date != course_date.end.date %}
-                                                - {{ course_date.end.date }}
+                                                - {{ course_date.end|date:"D M d Y" }}
                                             {% endif %}
                                         </li>
                                     {% endfor %}

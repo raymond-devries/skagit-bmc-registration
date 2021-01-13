@@ -1,11 +1,11 @@
 from django.urls import path
 
-from registration import views
+from registration.instructor import instructor_views
 
 url_patterns = [
     path(
         "current-registrations/",
-        views.CurrentRegistrationsView.as_view(),
+        instructor_views.CurrentRegistrationsView.as_view(),
         name="current_registrations",
     )
 ]
