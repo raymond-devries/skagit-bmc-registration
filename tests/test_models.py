@@ -1,7 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 import pytest
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Group, User
 from django.core.exceptions import ValidationError
 from model_bakery import baker
 
@@ -39,6 +39,14 @@ def test_is_eligible_for_registration(freezer, date, normal, early_signup):
     freezer.move_to(date)
     assert user1.profile.is_eligible_for_registration is normal
     assert user2.profile.is_eligible_for_registration is early_signup
+
+
+def test_is_instructor():
+    user = baker.make(User)
+    group = baker.make(Group, name=models.INSTRUCTOR_GROUP)
+    assert not user.profile.is_instructor
+    user.groups.add(group)
+    assert user.profile.is_instructor
 
 
 def test_registration_form___str__(create_registration_form):
@@ -94,6 +102,24 @@ def test_course_wait_list():
     course = baker.make(models.Course, capacity=0)
     baker.make(models.WaitList, course=course, _quantity=20)
     assert course.num_on_wait_list == 20
+
+
+def test_start_end_date():
+    course = baker.make(models.Course)
+    date1 = baker.make(
+        models.CourseDate,
+        course=course,
+        start=datetime(2021, 2, 1, tzinfo=timezone.utc),
+        end=datetime(2021, 2, 4, tzinfo=timezone.utc),
+    )
+    date2 = baker.make(
+        models.CourseDate,
+        course=course,
+        start=datetime(2021, 2, 3, tzinfo=timezone.utc),
+        end=datetime(2021, 2, 5, tzinfo=timezone.utc),
+    )
+    assert course.start_end_date["start__min"] == date1.start
+    assert course.start_end_date["end__max"] == date2.end
 
 
 def test_user_on_wait_list():

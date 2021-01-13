@@ -21,12 +21,20 @@ from rest_framework import urls
 
 from registration import rest_router, sign_up_urls
 from registration import urls as reg_urls
+from registration.instructor import instructor_urls
+from registration.models import INSTRUCTOR_GROUP
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include(reg_urls)),
     path("accounts/", include(auth_urls)),
     path("accounts/", include(sign_up_urls)),
+    path(
+        f"{INSTRUCTOR_GROUP}/",
+        include(
+            (instructor_urls.url_patterns, "registration"), namespace=INSTRUCTOR_GROUP
+        ),
+    ),
     path("api-auth/", include(urls)),
     path("api/", include((rest_router.router.urls, "registration"), namespace="api")),
     path("api/", include(rest_router)),

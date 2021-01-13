@@ -42,30 +42,43 @@
             {% if user.is_authenticated %}
                 <a class="navbar-item" href="{% url "profile" %}">Profile</a>
             {% endif %}
+            {% if user.profile.is_instructor %}
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <a class="navbar-link">
+                        Instructor
+                    </a>
+                    <div class="navbar-dropdown">
+                        <a class="navbar-item"
+                           href="{% url "instructor:current_registrations" %}">
+                            Current Registrations
+                        </a>
+                    </div>
+                </div>{% endif %}
         </div>
-        <div class="navbar-end">
-            <div class="navbar-item">
-                {% if user.is_authenticated %}
-                    <div class="buttons">
-                        <a href="{% url "cart" %}" class="button is-info">
+    </div>
+    <div class="navbar-end">
+        <div class="navbar-item">
+            {% if user.is_authenticated %}
+                <div class="buttons">
+                    <a href="{% url "cart" %}" class="button is-info">
                             <span class="icon">
                                 <i class="fas fa-shopping-cart"></i>
                             </span>
-                            <span><strong>Cart</strong></span>
-                        </a>
-                        <a class="button is-primary"
-                           href="{% url "logout" %}"><strong>Logout</strong></a>
-                    </div>
-                {% else %}
-                    <div class="buttons">
-                        <a class="button is-primary"
-                           href="{% url "signup" %}"><strong>Sign up</strong></a>
-                        <a class="button is-light" href="{% url "login" %}">Log
-                            in</a>
-                    </div>
-                {% endif %}
-            </div>
+                        <span><strong>Cart</strong></span>
+                    </a>
+                    <a class="button is-primary"
+                       href="{% url "logout" %}"><strong>Logout</strong></a>
+                </div>
+            {% else %}
+                <div class="buttons">
+                    <a class="button is-primary"
+                       href="{% url "signup" %}"><strong>Sign up</strong></a>
+                    <a class="button is-light" href="{% url "login" %}">Log
+                        in</a>
+                </div>
+            {% endif %}
         </div>
+    </div>
     </div>
 </nav>
 <section class="section">

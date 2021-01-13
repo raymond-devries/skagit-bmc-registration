@@ -1,7 +1,8 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.models import User
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.views.generic import FormView, ListView, TemplateView
+from django.views.generic import FormView, TemplateView
 
 from registration import models
 from registration.forms import RegistrationForm
