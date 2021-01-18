@@ -14,7 +14,11 @@
             <tbody>
             {% for user in registered_users %}
                 <tr>
-                    <th>{{ user.first_name }} {{ user.last_name }}</th>
+                    <th>
+                        <a href="{% url "instructor:registrant" username=user.username %}">
+                            {{ user.first_name }} {{ user.last_name }}
+                        </a>
+                    </th>
                     <td>{{ user.email }}</td>
                     <td>
                         {% for course in user.participants.all|dictsort:"type.name" %}
@@ -46,8 +50,9 @@
                             <ul>
                                 {% for registrant in course.participants.all|dictsort:"first_name" %}
                                     <li>
-                                        {{ registrant.first_name }}
-                                        {{ registrant.last_name }}
+                                        <a href="{% url "instructor:registrant" username=user.username %}">
+                                            {{ registrant.first_name }} {{ registrant.last_name }}
+                                        </a>
                                     </li>
                                 {% endfor %}
                             </ul>

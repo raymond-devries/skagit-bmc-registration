@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1 class="title is-size-1">
+        {{ registrant.first_name }} {{ registrant.last_name }}
+    </h1>
+    <hr>
+    <h3 class="title is-3">Courses</h3>
+    <div class="tags">
+        {% for course in courses|dictsort:"type.name" %}
+        <span class="tag is-info is-medium">
+            <b>{{ course.type.abbreviation }}:&nbsp;</b>
+                {{ course.specifics }}
+        </span>
+    {% endfor %}
+    </div>
+    {% if wait_list_courses %}
+        <div>
+        {% for course in wait_list_courses %}
+            <h3 class="title is-3">Wait list Courses</h3>
+            <span class="tag is-warning is-medium">
+            <b>{{ course.type.abbreviation }}:&nbsp;</b>
+                {{ course.specifics }}
+        </span>
+        {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}
