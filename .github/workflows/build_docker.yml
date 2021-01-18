@@ -31,7 +31,14 @@ jobs:
         push: true
         tags: ghcr.io/raymond-devries/skagit-bmc-registration-backend:latest
     -
+      uses: marceloprado/has-changed-path@v1
+      name: Check if nginx has changed
+      id: nginx-changed
+      with:
+        paths: nginx
+    -
       name: Build and push nginx
+      if: steps.nginx-changed.outputs.changed == 'true'
       uses: docker/build-push-action@v2
       with:
         context: ./nginx

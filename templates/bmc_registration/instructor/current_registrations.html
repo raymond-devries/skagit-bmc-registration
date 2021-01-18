@@ -8,21 +8,33 @@
             <tr>
                 <th>Registrant</th>
                 <th>Email</th>
-                <th>Courses</th>
+                <th><abbr title="Blue: registered & Yellow: on wait list">Courses</abbr></th>
             </tr>
             </thead>
             <tbody>
             {% for user in registered_users %}
                 <tr>
-                    <th>{{ user.first_name }} {{ user.last_name }}</th>
+                    <th>
+                        <a href="{% url "instructor:registrant" username=user.username %}">
+                            {{ user.first_name }} {{ user.last_name }}
+                        </a>
+                    </th>
                     <td>{{ user.email }}</td>
                     <td>
-                        {% for course in user.participants.all|dictsort:"type.name" %}
-                            <span class="tag is-info">
-                            <b>{{ course.type.abbreviation }}:&nbsp;</b>
-                                {{ course.specifics }}
-                            </span>
-                        {% endfor %}
+                        <div class="tags">
+                            {% for course in user.participants.all|dictsort:"type.name" %}
+                                <span class="tag is-info">
+                                    <b>{{ course.type.abbreviation }}:&nbsp;</b>
+                                    {{ course.specifics }}
+                                </span>
+                            {% endfor %}
+                            {% for wl in user.waitlist_set.all|dictsort:"course.type.name" %}
+                                <span class="tag is-warning">
+                                    <b>{{ wl.course.type.abbreviation }}:&nbsp;</b>
+                                    {{ wl.course.specifics }}
+                                </span>
+                            {% endfor %}
+                        </div>
                     </td>
                 </tr>
             {% endfor %}
@@ -46,8 +58,9 @@
                             <ul>
                                 {% for registrant in course.participants.all|dictsort:"first_name" %}
                                     <li>
-                                        {{ registrant.first_name }}
-                                        {{ registrant.last_name }}
+                                        <a href="{% url "instructor:registrant" username=user.username %}">
+                                            {{ registrant.first_name }} {{ registrant.last_name }}
+                                        </a>
                                     </li>
                                 {% endfor %}
                             </ul>
