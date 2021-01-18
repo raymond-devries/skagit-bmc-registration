@@ -39,5 +39,7 @@ class RegistrantView(UserPassesTestMixin, TemplateView):
         context["wait_list_courses"] = models.Course.objects.filter(
             waitlist__user=registrant
         )
-        context["registration_form"] = models.RegistrationForm(user=registrant)
+        context["registration_form"] = get_object_or_404(
+            models.RegistrationForm, user=registrant
+        )
         return context

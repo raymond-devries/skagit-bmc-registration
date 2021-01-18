@@ -8,21 +8,42 @@
     <h3 class="title is-3">Courses</h3>
     <div class="tags">
         {% for course in courses|dictsort:"type.name" %}
-        <span class="tag is-info is-medium">
-            <b>{{ course.type.abbreviation }}:&nbsp;</b>
-                {{ course.specifics }}
-        </span>
-    {% endfor %}
+            <span class="tag is-info is-medium">
+                <b>{{ course.type.abbreviation }}:&nbsp;</b>
+                    {{ course.specifics }}
+            </span>
+        {% endfor %}
     </div>
     {% if wait_list_courses %}
-        <div>
-        {% for course in wait_list_courses %}
-            <h3 class="title is-3">Wait list Courses</h3>
-            <span class="tag is-warning is-medium">
-            <b>{{ course.type.abbreviation }}:&nbsp;</b>
-                {{ course.specifics }}
-        </span>
-        {% endfor %}
+        <h3 class="title is-3">Wait List Courses</h3>
+        <div class="tags">
+            {% for course in wait_list_courses %}
+                <span class="tag is-warning is-medium">
+                    <b>{{ course.type.abbreviation }}:&nbsp;</b>
+                        {{ course.specifics }}
+                </span>
+            {% endfor %}
         </div>
     {% endif %}
+    <h3 class="title is-3">Registration Form</h3>
+    <p><b>Address:</b> {{ registration_form.address }}</p>
+    <p><b>Address 2:</b> {{ registration_form.address_2 }}</p>
+    <p><b>City:</b> {{ registration_form.city }}</p>
+    <p><b>State:</b> {{ registration_form.state}}</p>
+    <p><b>Zip Code:</b> {{ registration_form.zip_code }}</p>
+    <p><b>Phone 1:</b> {{ registration_form.phone_1 }}</p>
+    <p><b>Phone 2:</b> {{ registration_form.phone_2 }}</p>
+    <p><b>Date of Birth:</b> {{ registration_form.date_of_birth }}</p>
+    <p><b>Gender:</b> {{ registration_form.get_gender_display }}</p>
+    <p><b>Pronouns:</b> {{ registration_form.pronouns }}</p>
+    <p><b>Emergency Contact Name:</b> {{ registration_form.emergency_contact_name }}</p>
+    <p><b>Emergency Contact Relationship:</b> {{ registration_form.emergency_contact_relationship_to_you }}</p>
+    <p><b>Emergency Contact Phone Number:</b> {{ registration_form.emergency_contact_phone_number }}</p>
+    <p><b>Physical Fitness Response:</b> {{ registration_form.physical_fitness }}</p>
+    <p><b>Medical Conditions:</b> {{ registration_form.medical_condition_description }}</p>
+    <p><b>Allergy Conditions:</b> {{ registration_form.allergy_condition_description }}</p>
+    <p><b>Medications:</b> {{ registration_form.medications_description }}</p>
+    <p><b>Has Medical Insurance?:</b> {{ registration_form.medical_insurance }}</p>
+    <p><b>Name of Policy Holder:</b> {{ registration_form.name_of_policy_holder }}</p>
+    <p><b>Relation of Policy Holder:</b> {{ registration_form.relation_of_policy_holder}}</p>
 {% endblock %}

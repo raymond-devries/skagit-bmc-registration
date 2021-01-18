@@ -8,7 +8,7 @@
             <tr>
                 <th>Registrant</th>
                 <th>Email</th>
-                <th>Courses</th>
+                <th><abbr title="Blue: registered & Yellow: on wait list">Courses</abbr></th>
             </tr>
             </thead>
             <tbody>
@@ -21,12 +21,20 @@
                     </th>
                     <td>{{ user.email }}</td>
                     <td>
-                        {% for course in user.participants.all|dictsort:"type.name" %}
-                            <span class="tag is-info">
-                            <b>{{ course.type.abbreviation }}:&nbsp;</b>
-                                {{ course.specifics }}
-                            </span>
-                        {% endfor %}
+                        <div class="tags">
+                            {% for course in user.participants.all|dictsort:"type.name" %}
+                                <span class="tag is-info">
+                                    <b>{{ course.type.abbreviation }}:&nbsp;</b>
+                                    {{ course.specifics }}
+                                </span>
+                            {% endfor %}
+                            {% for wl in user.waitlist_set.all|dictsort:"course.type.name" %}
+                                <span class="tag is-warning">
+                                    <b>{{ wl.course.type.abbreviation }}:&nbsp;</b>
+                                    {{ wl.course.specifics }}
+                                </span>
+                            {% endfor %}
+                        </div>
                     </td>
                 </tr>
             {% endfor %}
