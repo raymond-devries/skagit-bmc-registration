@@ -58,7 +58,7 @@
                             <ul>
                                 {% for registrant in course.participants.all|dictsort:"first_name" %}
                                     <li>
-                                        <a href="{% url "instructor:registrant" username=user.username %}">
+                                        <a href="{% url "instructor:registrant" username=registrant.username %}">
                                             {{ registrant.first_name }} {{ registrant.last_name }}
                                         </a>
                                     </li>
