@@ -2,7 +2,7 @@
 name = "skagit-bmc-registration"
 version = "0.1.0"
 description = "A site to help with registration for the Skagit BMC."
-authors = ["Your Name <you@example.com>"]
+authors = ["Raymond DeVries"]
 license = "MIT"
 
 [tool.poetry.dependencies]
