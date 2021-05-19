@@ -32,7 +32,8 @@
                             {% for wl in user.waitlist_set.all|dictsort:"course.type.name" %}
                                 <span class="tag is-warning">
                                     <b>{{ wl.course.type.abbreviation }}:&nbsp;</b>
-                                    {{ wl.course.specifics }}
+                                    {{ wl.course.specifics }} |
+                                    &nbsp;<b>Place:&nbsp;</b>{{ wl.wait_list_place }}
                                 </span>
                             {% endfor %}
                         </div>

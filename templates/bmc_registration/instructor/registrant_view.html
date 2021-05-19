@@ -14,13 +14,14 @@
             </span>
         {% endfor %}
     </div>
-    {% if wait_list_courses %}
+    {% if wait_list_items %}
         <h3 class="title is-3">Wait List Courses</h3>
         <div class="tags">
-            {% for course in wait_list_courses %}
+            {% for item in wait_list_items %}
                 <span class="tag is-warning is-medium">
-                    <b>{{ course.type.abbreviation }}:&nbsp;</b>
-                        {{ course.specifics }}
+                    <b>{{ item.course.type.abbreviation }}:&nbsp;</b>
+                        {{ item.course.specifics }} |
+                        &nbsp;<b>Place:&nbsp;</b>{{ item.wait_list_place }}
                 </span>
             {% endfor %}
         </div>
