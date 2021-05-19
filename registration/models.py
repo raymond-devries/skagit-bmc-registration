@@ -195,6 +195,10 @@ class WaitList(models.Model):
     class Meta:
         unique_together = ("course", "user")
 
+    @property
+    def wait_list_place(self):
+        return WaitList.objects.filter(date_added__lte=self.date_added).count()
+
 
 @receiver(pre_save, sender=WaitList)
 def only_allow_wait_list_after_course_is_full(instance, **kwargs):

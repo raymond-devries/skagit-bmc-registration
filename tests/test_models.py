@@ -148,6 +148,14 @@ def test_only_allow_wait_list_after_course_is_full():
     baker.make(models.WaitList, course=course)
 
 
+def test_wait_list_place():
+    course = baker.make(models.Course, capacity=0)
+    wait_list_item1 = baker.make(models.WaitList, course=course)
+    wait_list_item2 = baker.make(models.WaitList, course=course)
+    assert wait_list_item1.wait_list_place == 1
+    assert wait_list_item2.wait_list_place == 2
+
+
 def test_delete_item_from_cart_when_course_is_full(create_registration_form):
     participants = baker.prepare(models.User, _quantity=4)
     course = baker.make(models.Course, capacity=5, participants=participants)
