@@ -106,7 +106,7 @@ class RegistrationForm(models.Model):
 
 
 def human_readable_cost(value):
-    return "${:,.2f}".format(value / 100)
+    return f"${value/100 :,.2f}"
 
 
 class CourseType(models.Model):
