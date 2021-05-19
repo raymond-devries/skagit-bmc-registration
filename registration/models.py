@@ -197,7 +197,9 @@ class WaitList(models.Model):
 
     @property
     def wait_list_place(self):
-        return WaitList.objects.filter(date_added__lte=self.date_added).count()
+        return WaitList.objects.filter(
+            date_added__lte=self.date_added, course=self.course
+        ).count()
 
 
 @receiver(pre_save, sender=WaitList)

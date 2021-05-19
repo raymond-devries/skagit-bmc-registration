@@ -150,6 +150,8 @@ def test_only_allow_wait_list_after_course_is_full():
 
 def test_wait_list_place():
     course = baker.make(models.Course, capacity=0)
+    course2 = baker.make(models.Course, capacity=0)
+    baker.make(models.WaitList, course=course2)
     wait_list_item1 = baker.make(models.WaitList, course=course)
     wait_list_item2 = baker.make(models.WaitList, course=course)
     assert wait_list_item1.wait_list_place == 1
