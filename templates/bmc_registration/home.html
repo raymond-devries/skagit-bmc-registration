@@ -2,80 +2,38 @@
 
 {% block content %}
     <div class="">
-        <h2 class="title is-size-2">Welcome to 2021 BMC Registration</h2>
+        <h2 class="title is-size-2">Welcome to 2022 BMC Registration</h2>
         <p class="block">
             <b>Overview</b>
             <br>
             The Skagit Alpine Club usually runs an 8 week Basic Mountaineering Course
             annually. The course typically covers basic rock climbing and mountaineering
-            skills. However, due to the global pandemic, our regular 8 week course will
-            not be offered. We will offer individual one-week courses that can be taken
-            separately or together, equal to the first four weeks of our typical course.
-            This is to provide increased safety for students and instructors and
-            continue to offer opportunities for students to learn basic rock and snow
-            skills in small groups.
-        </p>
-        <p class="block">
-            <b>Important Course Dates</b>
-            <br>
-            Registration Opens: January 15th at 10 am
-            <br>
-            <a href="https://fb.me/e/23cnqdOgM">Virtual Information session: Thursday,
-                February 25th at 7pm</a>
-            <br>
-            Registration Closes: April 10th
-            <br>
-            First Course starts: May 6th
-        </p>
-        <p class="block">
-            <b>Course Offerings</b>
-            <br>
-            Each course can be registered for separately, and includes one weekday
-            evening session to introduce skills and cover important information,
-            followed by a weekend day trip to practice skills in the field. Weekday
-            sessions will be located outdoors, and undercover as much as possible.
-            Weekend sessions will typically be planned for Saturday, but will be weather
-            dependent and may be moved to Sunday. Participants will be registered for
-            one session that includes a weekday session and weekend outing of the same
-            week. Participants must show basic skills competence during weekday session
-            prior to weekend outing.
+            skills. We are still developing the structure of the class for 2022. Updates
+            will be posted to this website as they become available.
         </p>
         <div class="block buttons">
             <a href="{% url "available_courses" %}"
                class="button is-info">
-                See Available Courses
+                See Courses From 2021
             </a>
-            <a href="{% url "registration_home" %}" class="button is-success">
-                Sign Up for Courses
-            </a>
+{#            Removing button until 2022 registration opens #}
+{#            <a href="{% url "registration_home" %}" class="button is-success">#}
+{#                Sign Up for Courses#}
+{#            </a>#}
         </div>
         <p class="block">
             <br>
             <b>Fitness Levels</b>
             Each outing will be physically demanding and requires strong hiking fitness
             and endurance. We recommend that all students have weeks of regular hiking
-            experience with more than 1,000ft of elevation gain each hike. Strength
+            experience with more than 1,500ft of elevation gain each hike. Strength
             training experience is also recommended.
         </p>
         <p class="block">
             <b>Course Fees</b>
-            Each course includes one weekday course and one weekend outing. All courses
-            begin at $200 per course. Registering for two or three courses will decrease
-            the cost of each course to $180. Registering for all four courses (Rock 1 &
-            2, Snow 1 & 2) will discount each course to $150/course. Discounts can only
-            be provided across one participant’s registration.
+            <br>
+            Course cost is still being determined.
         </p>
-        <div class="content">
-            <h6 class="has-text-grey-dark">Discounts:</h6>
-            <ul>
-                {% for discount in discounts %}
-                    <li>
-                        {{ discount.number_of_courses }} course discount:
-                        {{ discount.discount_human }} off total
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
         <p class="block">
             All Course registrations include a one-year membership to the Skagit Alpine
             Club meetings, newsletters, and events.
@@ -83,13 +41,10 @@
         <p class="block">
             <b>COVID Notice</b>
             <br>
-            All courses are subject to change based on Washington SafeStart protocols.
+            All courses are subject to change based on Washington protocols.
             If courses are cancelled based on COVID restrictions, a full refund will be
-            provided. COVID requirements will be strictly adhered to throughout courses,
-            including wearing masks when in proximity of other people to maintain safety
-            for instructors and students. Students may be asked to leave if not adhering
-            to policies. Students will be asked to complete a COVID Waiver for each
-            course.
+            provided. COVID requirements will be strictly adhered to throughout courses.
+            Students will be asked to complete a COVID Waiver for each course.
         </p>
         <p class="block">
             <b>Cancellation & Refund Policy</b>
