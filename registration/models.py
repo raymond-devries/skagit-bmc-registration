@@ -359,7 +359,8 @@ def verify_requirements_before_delete(instance, **kwargs):
 
 class PaymentRecord(models.Model):
     user = models.ForeignKey(User, models.PROTECT)
-    payment_id = models.CharField(max_length=100)
+    checkout_session_id = models.CharField(max_length=200)
+    payment_intent_id = models.CharField(max_length=200, blank=True)
 
 
 class CourseBought(models.Model):

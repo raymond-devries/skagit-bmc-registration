@@ -145,18 +145,25 @@ def stripe_checkout_webhook(request):
             for product_id in product_ids
         ]
 
-        fulfill_order(course_ids, session.metadata.user_id, session.stripe_id)
+        fulfill_order(
+            course_ids,
+            session.metadata.user_id,
+            session.stripe_id,
+            session.payment_intent,
+        )
 
     return HttpResponse(status=200)
 
 
-def fulfill_order(course_ids, user_id, stripe_id):
+def fulfill_order(course_ids, user_id, checkout_session_id, payment_intent_id):
     user = User.objects.get(id=user_id)
     cart = models.UserCart.objects.get(user=user)
     models.CartItem.objects.filter(cart=cart).delete()
     courses = models.Course.objects.filter(id__in=course_ids)
     payment_record = models.PaymentRecord.objects.create(
-        user=user, payment_id=stripe_id
+        user=user,
+        checkout_session_id=checkout_session_id,
+        payment_intent_id=payment_intent_id,
     )
     for course in courses:
         course.participants.add(user)
