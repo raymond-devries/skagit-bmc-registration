@@ -68,6 +68,9 @@
                                     {{ course.specifics }}
                                 </span>
                             </span>
+                                <a class="button" href="{% url "refund" %}">
+                                    Get Refund
+                                </a>
                                 <ul>
                                     {% for course_date in course.coursedate_set.all %}
                                         <li>

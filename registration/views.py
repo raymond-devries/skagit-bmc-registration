@@ -1,5 +1,6 @@
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import FormView, TemplateView
 
@@ -50,6 +51,12 @@ class RegistrationHome(LoginRequiredMixin, TemplateView):
         )
 
         return context
+
+
+@login_required
+def refund(request, course_pk):
+    course = get_object_or_404(models.Course, participants=request.user, pk=course_pk)
+    return render(request, "bmc_registration/refund.html")
 
 
 class RegistrationInfoForm(LoginRequiredMixin, FormView):
