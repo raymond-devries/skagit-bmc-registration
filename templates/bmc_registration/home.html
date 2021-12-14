@@ -1,33 +1,59 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div class="">
+    <div class="content">
         <h2 class="title is-size-2">Welcome to 2022 BMC Registration</h2>
         <p class="block">
             <b>Overview</b>
             <br>
-            The Skagit Alpine Club usually runs an 8 week Basic Mountaineering Course
-            annually. The course typically covers basic rock climbing and mountaineering
-            skills. We are still developing the structure of the class for 2022. Updates
-            will be posted to this website as they become available.
+            The Skagit Alpine Club will offer two types of courses this year:
+        <ol>
+            <li>
+                8-week Basic Mountaineering Course: The course covers basic climbing and mountaineering skills for
+                alpine environments. No previous experience necessary. Minimum fitness level and commitment to all
+                coursework required.
+            </li>
+            <li>
+                1-week Introduction to Snow Travel Course: This course will address basic skills and safety using ice
+                axes, basic avalanche awareness and snow travel practice. Open to all students, no previous experience
+                with snow travel necessary.
+            </li>
+        </ol>
+        <p>
+            <b>Basic Mountaineering Course- 8 week course</b>
+            This 8-week course provides an introduction to outdoor rock climbing, navigation, ice axe arrest, rope team
+            travel, lead belay, and crevasse rescue. The course utilizes Mountaineering: Freedom of the Hills as
+            foundational reading prior to experiential coursework. Each week includes readings, classroom practice, and
+            an outing that will provide recurring practice with skills a mountaineer will need to travel safely in the
+            alpine. Participants must show basic skills competence during weekday session prior to weekend outing.
         </p>
+        <p>
+            <b>Intro to Snow Travel & Ice Axe Arrest- 1 week course</b>
+            This course will address basic skills and safety using ice axes, basic avalanche awareness and snow travel
+            practice. Open to all students, no previous experience with snow travel necessary. Participants must show
+            basic skills competence during weekday session prior to weekend outing.
+        </p>
+        <p><b>Important Course Dates</b></p>
+        <ul>
+            <li>Registration Opens: January 2nd</li>
+            <li>Information session: January 19th- Location coming soon</li>
+            <li>Registration Closes: March 1st</li>
+            <li>First Course starts: March 23rd</li>
+        </ul>
         <div class="block buttons">
-            <a href="{% url "available_courses" %}"
-               class="button is-info">
-                See Courses From 2021
-            </a>
-{#            Removing button until 2022 registration opens #}
-{#            <a href="{% url "registration_home" %}" class="button is-success">#}
-{#                Sign Up for Courses#}
-{#            </a>#}
+            {#            Removing button until 2022 registration opens #}
+            {#            <a href="{% url "registration_home" %}" class="button is-success">#}
+            {#                Sign Up for Courses#}
+            {#            </a>#}
         </div>
         <p class="block">
-            <br>
             <b>Fitness Levels</b>
-            Each outing will be physically demanding and requires strong hiking fitness
-            and endurance. We recommend that all students have weeks of regular hiking
-            experience with more than 1,500ft of elevation gain each hike. Strength
-            training experience is also recommended.
+            <br>
+            Each outing will be physically demanding and requires strong hiking fitness and endurance. We recommend that
+            all students engage in several weeks of regular hiking experience with more than 1,000ft of elevation gain
+            each hike prior to starting the course. Strength training experience is also recommended. Participants
+            participating in the 8 week course should be able to carry 30lbs up the Pine & Cedar Trail in the Chuckanuts
+            in under 1 hour and 30 minutes.
         </p>
         <p class="block">
             <b>Course Fees</b>
@@ -41,30 +67,24 @@
         <p class="block">
             <b>COVID Notice</b>
             <br>
-            All courses are subject to change based on Washington protocols.
-            If courses are cancelled based on COVID restrictions, a full refund will be
-            provided. COVID requirements will be strictly adhered to throughout courses.
-            Students will be asked to complete a COVID Waiver for each course.
+            All courses are subject to change based on CDC guidelines. If courses are cancelled based on COVID
+            restrictions, a full refund will be provided. CDC guidelines will be followed throughout courses, and
+            students may be asked to leave without refund if not adhering to policies. Students will be asked to
+            complete a COVID Waiver to acknowledge policies prior to course start.
         </p>
         <p class="block">
             <b>Cancellation & Refund Policy</b>
             <br>
-            If courses are cancelled based on COVID restrictions, a full refund will be
-            provided. Courses that do not meet the minimum enrollment may be cancelled
-            with full refund or offer transfers to other course dates.
-        </p>
-        <p class="block">
-            Cancellations by a participant more than 2 weeks before to the start of a
-            course will be refunded minus a $25 cancellation fee per course.
-            Cancellations by a participant within 2 weeks of the start of a course will
-            not receive a refund.
-        </p>
-        <p class="block">
-            Students experiencing any possible symptoms of COVID or exposed to anyone
-            with COVID symptoms should report them immediately. Students will get a full
-            refund or transfer to a later course if an isolated quarantine period and
-            negative COVID test are confirmed.
-        </p>
+            Payment required in full at time of registration. After registration, full refunds are available until two
+            weeks prior to the start of the first course date. No refunds available after two weeks before first course
+            date. For the safety of all, students experiencing any possible symptoms of COVID or exposed to anyone with
+            COVID symptoms should report them immediately. Students will get a full refund or transfer to a later course
+            if an isolated quarantine period is required.
 
+        </p>
+        <p class="block">
+            If courses are cancelled based on COVID restrictions, a full refund will be provided. Courses that do not
+            meet the minimum enrollment may be cancelled with full refund or offer transfers to other course dates.
+        </p>
     </div>
 {% endblock %}
