@@ -1,3 +1,4 @@
+import datetime
 import uuid
 
 from django.contrib.auth.models import User
@@ -71,6 +72,7 @@ class RegistrationSettings(BaseModel):
     early_signup_code = models.CharField(max_length=15, blank=True)
     registration_open = models.DateTimeField()
     registration_close = models.DateTimeField()
+    refund_period = models.DurationField(default=datetime.timedelta(days=14))
 
     def save(self, *args, **kwargs):
         if not self.pk and RegistrationSettings.objects.exists():
@@ -375,3 +377,14 @@ class PaymentRecord(BaseModel):
 class CourseBought(BaseModel):
     payment_record = models.ForeignKey(PaymentRecord, models.PROTECT)
     course = models.ForeignKey(Course, models.PROTECT)
+
+    @property
+    def refund_eligible(self):
+        course_dates = self.course.coursedate_set
+        if not course_dates.exists():
+            return False
+        return (
+            datetime.datetime.now(tz=datetime.timezone.utc)
+            <= course_dates.earliest("start").start
+            - RegistrationSettings.objects.first().refund_period
+        )

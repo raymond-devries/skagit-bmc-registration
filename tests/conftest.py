@@ -1,7 +1,20 @@
+from datetime import datetime, timedelta
+
 import pytest
 from model_bakery import baker
 
 from registration import models
+
+
+@pytest.fixture
+def registration_settings():
+    baker.make(
+        models.RegistrationSettings,
+        early_registration_open=datetime(year=2022, month=1, day=1),
+        registration_open=datetime(year=2022, month=1, day=10),
+        registration_close=datetime(year=2022, month=3, day=1),
+        refund_period=timedelta(days=14),
+    )
 
 
 @pytest.fixture
