@@ -141,7 +141,7 @@ def stripe_checkout_webhook(request):
         line_items = stripe.checkout.Session.list_line_items(session.stripe_id)
         product_ids = [item.price.product for item in line_items]
         course_ids = [
-            int(stripe.Product.retrieve(product_id).metadata["course_id"])
+            stripe.Product.retrieve(product_id).metadata["course_id"]
             for product_id in product_ids
         ]
 
