@@ -1,3 +1,5 @@
+import uuid
+
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -18,7 +20,14 @@ GENDER_CHOICES = [
 INSTRUCTOR_GROUP = "instructor"
 
 
-class Profile(models.Model):
+class BaseModel(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    class Meta:
+        abstract = True
+
+
+class Profile(BaseModel):
     user = models.OneToOneField(User, models.CASCADE)
     email_confirmed = models.BooleanField(default=False)
 
@@ -57,7 +66,7 @@ def add_new_user_items(instance, created, **kwargs):
         UserCart.objects.create(user=instance)
 
 
-class RegistrationSettings(models.Model):
+class RegistrationSettings(BaseModel):
     early_registration_open = models.DateTimeField()
     early_signup_code = models.CharField(max_length=15, blank=True)
     registration_open = models.DateTimeField()
@@ -69,14 +78,14 @@ class RegistrationSettings(models.Model):
         return super(RegistrationSettings, self).save(*args, **kwargs)
 
 
-class EarlySignupEmail(models.Model):
+class EarlySignupEmail(BaseModel):
     email = models.EmailField()
 
     def __str__(self):
         return self.email
 
 
-class RegistrationForm(models.Model):
+class RegistrationForm(BaseModel):
     user = models.OneToOneField(User, models.CASCADE)
     address = models.CharField(max_length=300)
     address_2 = models.CharField(max_length=300, blank=True)
@@ -109,7 +118,7 @@ def human_readable_cost(value):
     return f"${value/100 :,.2f}"
 
 
-class CourseType(models.Model):
+class CourseType(BaseModel):
     name = models.CharField(max_length=300)
     abbreviation = models.CharField(max_length=5)
     requirement = models.ForeignKey(
@@ -127,7 +136,7 @@ class CourseType(models.Model):
         return human_readable_cost(self.cost)
 
 
-class Course(models.Model):
+class Course(BaseModel):
     type = models.ForeignKey(CourseType, on_delete=models.CASCADE)
     specifics = models.TextField()
     capacity = models.PositiveSmallIntegerField()
@@ -187,7 +196,7 @@ def added_participant(action, instance, **kwargs):
 m2m_changed.connect(added_participant, sender=Course.participants.through)
 
 
-class WaitList(models.Model):
+class WaitList(BaseModel):
     date_added = models.DateTimeField(auto_now_add=True)
     course = models.ForeignKey(Course, models.CASCADE)
     user = models.ForeignKey(User, models.CASCADE)
@@ -211,7 +220,7 @@ def only_allow_wait_list_after_course_is_full(instance, **kwargs):
         )
 
 
-class CourseDate(models.Model):
+class CourseDate(BaseModel):
     course = models.ForeignKey(Course, models.CASCADE)
     name = models.CharField(max_length=200)
     start = models.DateTimeField()
@@ -224,12 +233,12 @@ class CourseDate(models.Model):
         )
 
 
-class GearItem(models.Model):
+class GearItem(BaseModel):
     type = models.ForeignKey(CourseType, models.CASCADE, null=True, blank=True)
     item = models.CharField(max_length=300)
 
 
-class Discount(models.Model):
+class Discount(BaseModel):
     number_of_courses = models.PositiveSmallIntegerField(unique=True)
     discount = models.PositiveIntegerField()
     stripe_id = models.CharField(max_length=50)
@@ -239,7 +248,7 @@ class Discount(models.Model):
         return human_readable_cost(self.discount)
 
 
-class UserCart(models.Model):
+class UserCart(BaseModel):
     user = models.OneToOneField(User, models.CASCADE)
 
     @property
@@ -297,7 +306,7 @@ class UserCart(models.Model):
         return courses
 
 
-class CartItem(models.Model):
+class CartItem(BaseModel):
     cart = models.ForeignKey(UserCart, models.CASCADE)
     course = models.ForeignKey(Course, models.CASCADE)
 
@@ -357,12 +366,12 @@ def verify_requirements_before_delete(instance, **kwargs):
     cart_items_with_instance_as_requirement.delete()
 
 
-class PaymentRecord(models.Model):
+class PaymentRecord(BaseModel):
     user = models.ForeignKey(User, models.PROTECT)
     checkout_session_id = models.CharField(max_length=200)
     payment_intent_id = models.CharField(max_length=200, blank=True)
 
 
-class CourseBought(models.Model):
+class CourseBought(BaseModel):
     payment_record = models.ForeignKey(PaymentRecord, models.PROTECT)
     course = models.ForeignKey(Course, models.PROTECT)
