@@ -1,0 +1,1 @@
+This file exists to ensure the staticfiles stays committed in version control
