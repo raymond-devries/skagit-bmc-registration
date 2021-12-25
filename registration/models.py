@@ -166,6 +166,17 @@ class Course(BaseModel):
     def start_end_date(self):
         return self.coursedate_set.aggregate(Min("start"), Max("end"))
 
+    @property
+    def refund_eligble(self):
+        course_dates = self.coursedate_set
+        if not course_dates.exists():
+            return False
+        return (
+            datetime.datetime.now(tz=datetime.timezone.utc)
+            <= course_dates.earliest("start").start
+            - RegistrationSettings.objects.first().refund_period
+        )
+
     def user_on_wait_list(self, user):
         try:
             return WaitList.objects.get(course=self, user=user)
@@ -385,13 +396,6 @@ class CourseBought(BaseModel):
 
     @property
     def refund_eligible(self):
-        course_dates = self.course.coursedate_set
-        if not course_dates.exists():
-            return False
         if self.refunded:
             return False
-        return (
-            datetime.datetime.now(tz=datetime.timezone.utc)
-            <= course_dates.earliest("start").start
-            - RegistrationSettings.objects.first().refund_period
-        )
+        return self.course.refund_eligble
