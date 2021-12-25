@@ -5,6 +5,7 @@ from pathlib import Path
 
 import dj_database_url
 import sentry_sdk
+import stripe
 from django.contrib.messages import constants as messages
 from django.urls import reverse_lazy
 from sentry_sdk.integrations.django import DjangoIntegration
@@ -142,6 +143,7 @@ PHONENUMBER_DEFAULT_REGION = "US"
 STRIPE_API_KEY = os.getenv("STRIPE_API_KEY")
 STRIPE_PUBLIC_API_KEY = os.getenv("STRIPE_PUBLIC_API_KEY")
 STRIPE_ENDPOINT_SECRET = os.getenv("STRIPE_ENDPOINT_SECRET")
+stripe.api_key = STRIPE_API_KEY
 
 sentry_sdk.init(
     dsn=os.getenv("SENTRY_DSN"),

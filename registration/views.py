@@ -1,3 +1,4 @@
+import stripe
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, redirect, render
@@ -55,8 +56,36 @@ class RegistrationHome(LoginRequiredMixin, TemplateView):
 
 @login_required
 def refund(request, course_pk):
-    course = get_object_or_404(models.Course, participants=request.user, pk=course_pk)
-    return render(request, "bmc_registration/refund.html")
+    course_bought = get_object_or_404(
+        models.CourseBought,
+        course__participants=request.user,
+        course=course_pk,
+        refunded=False,
+    )
+    refund_eligible = course_bought.refund_eligible
+    context = {"refund_eligible": refund_eligible, "course": course_bought.course}
+
+    if refund_eligible:
+        purchase_price = stripe.Price.retrieve(course_bought.price_id)["unit_amount"]
+        context["purchase_price"] = models.human_readable_cost(purchase_price)
+        refund_amount = (
+            purchase_price
+            - models.RegistrationSettings.objects.first().cancellation_fee
+        )
+        context["refund_amount"] = models.human_readable_cost(refund_amount)
+
+        if request.method == "POST":
+            refund = stripe.Refund.create(
+                payment_intent=course_bought.payment_record.payment_intent_id,
+                idempotency_key=str(course_bought.id),
+            )
+            course_bought.refund_id = refund["id"]
+            course_bought.refunded = True
+            course_bought.save()
+            course_bought.course.participants.remove(request.user)
+            redirect("registration_home")
+
+    return render(request, "bmc_registration/refund.html", context)
 
 
 class RegistrationInfoForm(LoginRequiredMixin, FormView):

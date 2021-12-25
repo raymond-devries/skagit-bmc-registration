@@ -1,9 +1,16 @@
 from datetime import datetime, timedelta
 
 import pytest
+from faker import Faker
 from model_bakery import baker
 
 from registration import models
+
+
+@pytest.fixture
+def fake() -> Faker:
+    Faker.seed(0)
+    return Faker()
 
 
 @pytest.fixture

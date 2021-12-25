@@ -73,6 +73,7 @@ class RegistrationSettings(BaseModel):
     registration_open = models.DateTimeField()
     registration_close = models.DateTimeField()
     refund_period = models.DurationField(default=datetime.timedelta(days=14))
+    cancellation_fee = models.PositiveIntegerField()
 
     def save(self, *args, **kwargs):
         if not self.pk and RegistrationSettings.objects.exists():
@@ -377,11 +378,17 @@ class PaymentRecord(BaseModel):
 class CourseBought(BaseModel):
     payment_record = models.ForeignKey(PaymentRecord, models.PROTECT)
     course = models.ForeignKey(Course, models.PROTECT)
+    product_id = models.CharField(max_length=200)
+    price_id = models.CharField(max_length=200)
+    refunded = models.BooleanField(default=False)
+    refund_id = models.CharField(max_length=200, blank=True)
 
     @property
     def refund_eligible(self):
         course_dates = self.course.coursedate_set
         if not course_dates.exists():
+            return False
+        if self.refunded:
             return False
         return (
             datetime.datetime.now(tz=datetime.timezone.utc)

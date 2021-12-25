@@ -68,7 +68,7 @@
                                     {{ course.specifics }}
                                 </span>
                             </span>
-                                <a class="button" href="{% url "refund" %}">
+                                <a class="button" href="{% url "refund" course_pk=course.pk %}">
                                     Get Refund
                                 </a>
                                 <ul>

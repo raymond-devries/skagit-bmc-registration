@@ -4,5 +4,23 @@
     <div class="content">
         <h1>Refunds</h1>
         <hr>
+        <h4>Course: {{ course.type.name }}</h4>
+        {% if refund_eligible %}
+            <p>You purchased this course for <b>${{ purchase_price }}</b> and you will receive a refund of
+                <b>{{ refund_amount }}</b>.</p>
+            <form method="post" class="mb-4">
+                {% csrf_token %}
+                <button type="submit" class="button is-warning">Disenroll from {{ course.type.name }} and receive
+                    refund
+                </button>
+            </form>
+            <small>This cannot be undone</small>
+        {% else %}
+            <p>
+                This course is not eligible for a refund. Please read the cancellation and refund policy on the
+                <a href="{% url "home" %}">homepage</a>.
+            </p>
+        {% endif %}
+
     </div>
 {% endblock %}

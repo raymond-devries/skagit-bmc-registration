@@ -365,3 +365,7 @@ def test_course_bought_refund_eligible(freezer, registration_settings):
     assert course_bought.refund_eligible
     freezer.move_to("2022-03-15")
     assert not course_bought.refund_eligible
+    freezer.move_to("2022-02-01")
+    course_bought.refunded = True
+    course_bought.save()
+    assert not course_bought.refund_eligible
