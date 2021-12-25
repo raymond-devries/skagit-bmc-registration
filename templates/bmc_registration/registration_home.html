@@ -72,6 +72,10 @@
                                     <a class="button" href="{% url "refund" course_pk=course.pk %}">
                                         Get Refund
                                     </a>
+                                {% else %}
+                                    <a class="button" href="{% url "refund" course_pk=course.pk %}">
+                                        Not refund eligible
+                                    </a>
                                 {% endif %}
                                 <ul>
                                     {% for course_date in course.coursedate_set.all %}
