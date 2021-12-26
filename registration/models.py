@@ -1,6 +1,7 @@
 import datetime
 import uuid
 
+import stripe
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -38,6 +39,7 @@ class BaseModel(models.Model):
 class Profile(BaseModel):
     user = models.OneToOneField(User, models.CASCADE)
     email_confirmed = models.BooleanField(default=False)
+    stripe_customer_id = models.CharField(max_length=200)
 
     @property
     def is_eligible_for_early_registration(self):
@@ -70,7 +72,10 @@ class Profile(BaseModel):
 @receiver(post_save, sender=User)
 def add_new_user_items(instance, created, **kwargs):
     if created:
-        Profile.objects.create(user=instance)
+        customer = stripe.Customer.create(
+            email=instance.email, name=instance.get_full_name()
+        )
+        Profile.objects.create(user=instance, stripe_customer_id=customer.stripe_id)
         UserCart.objects.create(user=instance)
 
 
@@ -239,6 +244,14 @@ def only_allow_wait_list_after_course_is_full(instance, **kwargs):
             "The user cannot be added to the wait list since the"
             f"course ({instance.course}) is not full"
         )
+
+
+class WaitListInvoice(BaseModel):
+    user = models.ForeignKey(User, models.SET_NULL, null=True)
+    date_added = models.DateTimeField(auto_now_add=True)
+    email = models.CharField(max_length=200)
+    expires = models.DateTimeField()
+    invoice_id = models.CharField(max_length=200)
 
 
 class CourseDate(BaseModel):

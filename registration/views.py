@@ -79,6 +79,7 @@ def refund(request, course_pk):
             refund = stripe.Refund.create(
                 payment_intent=course_bought.payment_record.payment_intent_id,
                 idempotency_key=str(course_bought.id),
+                amount=refund_amount,
             )
             course_bought.refund_id = refund["id"]
             course_bought.refunded = True

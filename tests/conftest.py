@@ -13,6 +13,19 @@ def fake() -> Faker:
     return Faker()
 
 
+@pytest.fixture(autouse=True)
+def patch_stripe(monkeypatch):
+    class FakeCustomer:
+        @property
+        def stripe_id(self):
+            return "fake_customer"
+
+    def create_customer(*args, **kwargs):
+        return FakeCustomer
+
+    monkeypatch.setattr("stripe.Customer.create", create_customer)
+
+
 @pytest.fixture
 def registration_settings():
     baker.make(

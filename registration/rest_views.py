@@ -107,7 +107,7 @@ def create_checkout_session(request):
             )
 
         checkout_session = stripe.checkout.Session.create(
-            customer_email=request.user.email,
+            customer=request.user.profile.stripe_customer_id,
             metadata={"user_id": request.user.id},
             payment_method_types=["card"],
             line_items=line_items,
