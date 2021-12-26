@@ -20,6 +20,13 @@ GENDER_CHOICES = [
 
 INSTRUCTOR_GROUP = "instructor"
 
+WAIT_LIST_USER = User.objects.get_or_create(
+    username="waitlistuser",
+    first_name="waitlistuser",
+    last_name="waitlistuser",
+    is_active=False,
+)[0]
+
 
 class BaseModel(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

@@ -62,6 +62,7 @@ def refund(request, course_pk):
         course=course_pk,
         refunded=False,
     )
+    course = course_bought.course
     refund_eligible = course_bought.refund_eligible
     context = {"refund_eligible": refund_eligible, "course": course_bought.course}
 
@@ -82,8 +83,10 @@ def refund(request, course_pk):
             course_bought.refund_id = refund["id"]
             course_bought.refunded = True
             course_bought.save()
-            course_bought.course.participants.remove(request.user)
-            redirect("registration_home")
+            course.participants.remove(request.user)
+            if course.num_on_wait_list > 0:
+                course.participants.add(models.WAIT_LIST_USER)
+            return redirect("registration_home")
 
     return render(request, "bmc_registration/refund.html", context)
 
