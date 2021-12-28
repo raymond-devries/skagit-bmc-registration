@@ -79,6 +79,7 @@ class RegistrationSettings(BaseModel):
     registration_close = models.DateTimeField()
     refund_period = models.DurationField(default=datetime.timedelta(days=14))
     cancellation_fee = models.PositiveIntegerField()
+    time_to_pay_invoice = models.DurationField(default=datetime.timedelta(days=2))
 
     def save(self, *args, **kwargs):
         if not self.pk and RegistrationSettings.objects.exists():
@@ -431,9 +432,10 @@ def handle_wait_list(course: Course):
             "A spot has opened up in a course you were on the wait list for. "
             "Please pay this invoice by the due to be added to the course."
         )
-        expiration = datetime.datetime.now(
-            tz=datetime.timezone.utc
-        ) + datetime.timedelta(days=2)
+        expiration = (
+            datetime.datetime.now(tz=datetime.timezone.utc)
+            + RegistrationSettings.objects.first().time_to_pay_invoice
+        )
         stripe.InvoiceItem.create(
             customer=wait_list.user.profile.stripe_customer_id,
             amount=course.type.cost,
