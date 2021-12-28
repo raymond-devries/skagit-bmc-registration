@@ -21,13 +21,6 @@ GENDER_CHOICES = [
 
 INSTRUCTOR_GROUP = "instructor"
 
-WAIT_LIST_USER = User.objects.get_or_create(
-    username="waitlistuser",
-    first_name="waitlistuser",
-    last_name="waitlistuser",
-    is_active=False,
-)[0]
-
 
 class BaseModel(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -155,8 +148,10 @@ class Course(BaseModel):
     type = models.ForeignKey(CourseType, on_delete=models.CASCADE)
     specifics = models.TextField()
     capacity = models.PositiveSmallIntegerField()
+    expected_capacity = models.PositiveIntegerField()
     participants = models.ManyToManyField(User, blank=True, related_name="participants")
     instructors = models.ManyToManyField(User, blank=True, related_name="instructors")
+    shown = models.BooleanField(default=True)
 
     @property
     def num_of_participants(self):
@@ -188,6 +183,10 @@ class Course(BaseModel):
             <= course_dates.earliest("start").start
             - RegistrationSettings.objects.first().refund_period
         )
+
+    @property
+    def spots_held_for_wait_list(self):
+        return self.expected_capacity - self.capacity
 
     def user_on_wait_list(self, user):
         try:
@@ -247,11 +246,14 @@ def only_allow_wait_list_after_course_is_full(instance, **kwargs):
 
 
 class WaitListInvoice(BaseModel):
-    user = models.ForeignKey(User, models.SET_NULL, null=True)
+    user = models.ForeignKey(User, models.PROTECT, null=True)
+    course = models.ForeignKey(Course, models.PROTECT)
     date_added = models.DateTimeField(auto_now_add=True)
     email = models.CharField(max_length=200)
     expires = models.DateTimeField()
     invoice_id = models.CharField(max_length=200)
+    paid = models.BooleanField(default=False)
+    voided = models.BooleanField(default=False)
 
 
 class CourseDate(BaseModel):
@@ -402,8 +404,9 @@ def verify_requirements_before_delete(instance, **kwargs):
 
 class PaymentRecord(BaseModel):
     user = models.ForeignKey(User, models.PROTECT)
-    checkout_session_id = models.CharField(max_length=200)
+    checkout_session_id = models.CharField(max_length=200, blank=True)
     payment_intent_id = models.CharField(max_length=200, blank=True)
+    invoice_id = models.CharField(max_length=200, blank=True)
 
 
 class CourseBought(BaseModel):
@@ -419,3 +422,39 @@ class CourseBought(BaseModel):
         if self.refunded:
             return False
         return self.course.refund_eligble
+
+
+def handle_wait_list(course: Course):
+    wait_list = WaitList.objects.filter(course=course).order_by("date_added").first()
+    if wait_list is not None:
+        description = (
+            "A spot has opened up in a course you were on the wait list for. "
+            "Please pay this invoice by the due to be added to the course."
+        )
+        expiration = datetime.datetime.now(
+            tz=datetime.timezone.utc
+        ) + datetime.timedelta(days=2)
+        stripe.InvoiceItem.create(
+            customer=wait_list.user.profile.stripe_customer_id,
+            amount=course.type.cost,
+            currency="usd",
+            description=str(course),
+        )
+        invoice = stripe.Invoice.create(
+            customer=wait_list.user.profile.stripe_customer_id,
+            collection_method="send_invoice",
+            due_date=expiration,
+            description=description,
+            metadata={"course_id": str(course.id)},
+        )
+        invoice.send_invoice()
+        wait_list.delete()
+        WaitListInvoice.objects.create(
+            user=wait_list.user,
+            course=wait_list.course,
+            email=wait_list.user.email,
+            expires=expiration,
+            invoice_id=invoice.id,
+        )
+        return True
+    return False

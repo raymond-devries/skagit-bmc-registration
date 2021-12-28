@@ -150,14 +150,38 @@ def stripe_checkout_webhook(request):
         fulfill_order(
             courses,
             session.metadata.user_id,
-            session.stripe_id,
-            session.payment_intent,
+            checkout_session_id=session.stripe_id,
+            payment_intent_id=session.payment_intent,
+        )
+
+    elif event["type"] == "invoice.paid":
+        invoice = event["data"]["object"]
+        wait_list_invoice = models.WaitListInvoice.objects.get(invoice_id=invoice.id)
+        wait_list_invoice.paid = True
+        wait_list_invoice.save()
+        wait_list_invoice.course.capacity += 1
+        wait_list_invoice.course.save()
+        price = invoice.lines.data[0].price
+        courses = [
+            {
+                "course_id": wait_list_invoice.course.id,
+                "product_id": price.product,
+                "price_id": price.id,
+            }
+        ]
+        fulfill_order(
+            courses,
+            wait_list_invoice.user.id,
+            invoice_id=invoice.id,
+            payment_intent_id=invoice.payment_intent,
         )
 
     return HttpResponse(status=200)
 
 
-def fulfill_order(courses, user_id, checkout_session_id, payment_intent_id):
+def fulfill_order(
+    courses, user_id, checkout_session_id="", invoice_id="", payment_intent_id=""
+):
     user = User.objects.get(id=user_id)
     cart = models.UserCart.objects.get(user=user)
     models.CartItem.objects.filter(cart=cart).delete()
@@ -165,9 +189,10 @@ def fulfill_order(courses, user_id, checkout_session_id, payment_intent_id):
         user=user,
         checkout_session_id=checkout_session_id,
         payment_intent_id=payment_intent_id,
+        invoice_id=invoice_id,
     )
     for course_data in courses:
-        course = models.Course.objects.get(id=str(course_data["course_id"]))
+        course = models.Course.objects.get(id=course_data["course_id"])
         course.participants.add(user)
         models.CourseBought.objects.create(
             payment_record=payment_record,

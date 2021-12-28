@@ -86,7 +86,9 @@ def refund(request, course_pk):
             course_bought.save()
             course.participants.remove(request.user)
             if course.num_on_wait_list > 0:
-                course.participants.add(models.WAIT_LIST_USER)
+                course.capacity -= 1
+                course.save()
+                models.handle_wait_list(course)
             return redirect("registration_home")
 
     return render(request, "bmc_registration/refund.html", context)

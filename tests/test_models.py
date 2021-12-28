@@ -122,6 +122,11 @@ def test_start_end_date():
     assert course.start_end_date["end__max"] == date2.end
 
 
+def test_course_spots_held_for_wait_list():
+    course = baker.make(models.Course, capacity=8, expected_capacity=10)
+    assert course.spots_held_for_wait_list == 2
+
+
 def test_user_on_wait_list():
     course = baker.make(models.Course, capacity=0)
     user = baker.make(User)

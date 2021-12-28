@@ -25,7 +25,12 @@ def test_fulfill_order(create_registration_form, fake):
     checkout_session_id = "123456789"
     payment_intent_id = "987654321"
 
-    rest_views.fulfill_order(courses, user.id, checkout_session_id, payment_intent_id)
+    rest_views.fulfill_order(
+        courses,
+        user.id,
+        checkout_session_id=checkout_session_id,
+        payment_intent_id=payment_intent_id,
+    )
     assert not models.CartItem.objects.filter(cart=cart).exists()
     assert models.PaymentRecord.objects.filter(
         checkout_session_id=checkout_session_id, payment_intent_id=payment_intent_id
