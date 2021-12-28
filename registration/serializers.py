@@ -18,6 +18,7 @@ class WaitListSerializer(serializers.ModelSerializer):
 class CourseSerializer(serializers.ModelSerializer):
     coursedate_set = CourseDateSerializer(many=True)
     user_on_wait_list = serializers.SerializerMethodField("_user_on_wait_list")
+    user_enrolled = serializers.SerializerMethodField("_user_enrolled")
 
     class Meta:
         model = models.Course
@@ -28,12 +29,19 @@ class CourseSerializer(serializers.ModelSerializer):
             "spots_left",
             "is_full",
             "user_on_wait_list",
+            "user_enrolled",
             "coursedate_set",
         ]
 
     def _user_on_wait_list(self, obj):
         user = self.context.get("user")
         return WaitListSerializer(obj.user_on_wait_list(user)).data
+
+    def _user_enrolled(self, obj):
+        user = self.context.get("user")
+        return models.CourseType.objects.filter(
+            course__participants=user, course=obj
+        ).exists()
 
 
 class RequirementSerializer(serializers.ModelSerializer):
