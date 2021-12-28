@@ -44,7 +44,8 @@ def test_is_eligible_for_registration(freezer, date, normal, early_signup):
 def test_is_instructor():
     user = baker.make(User)
     assert not user.profile.is_instructor
-    user.groups.add(Group.objects.get(name=models.INSTRUCTOR_GROUP))
+    group = baker.make(Group, name=models.INSTRUCTOR_GROUP)
+    user.groups.add(group)
     assert user.profile.is_instructor
 
 
@@ -121,11 +122,16 @@ def test_start_end_date():
     assert course.start_end_date["end__max"] == date2.end
 
 
+def test_course_spots_held_for_wait_list():
+    course = baker.make(models.Course, capacity=8, expected_capacity=10)
+    assert course.spots_held_for_wait_list == 2
+
+
 def test_user_on_wait_list():
     course = baker.make(models.Course, capacity=0)
     user = baker.make(User)
     assert course.user_on_wait_list(user) is None
-    wait_list = baker.make(models.WaitList, course=course, user=user, id=45)
+    wait_list = baker.make(models.WaitList, course=course, user=user)
     assert course.user_on_wait_list(user).id == wait_list.id
 
 
@@ -279,26 +285,36 @@ def course_pre_req_setup(create_registration_form):
 def test_cart_eligible_courses(course_pre_req_setup):
     cart, pre_req_course, course = course_pre_req_setup
 
-    assert pre_req_course.type in cart.eligible_courses.filter(eligible=True)
-    assert course.type in cart.eligible_courses.filter(eligible=False)
+    assert cart.eligible_courses.filter(
+        eligible=True, id=pre_req_course.type.id
+    ).exists()
+    assert cart.eligible_courses.filter(eligible=False, id=course.type.id).exists()
 
     pre_req_cart_item = baker.make(models.CartItem, cart=cart, course=pre_req_course)
-    assert pre_req_course.type in cart.eligible_courses.filter(eligible=False)
-    assert course.type in cart.eligible_courses.filter(eligible=True)
+    assert cart.eligible_courses.filter(
+        eligible=False, id=pre_req_course.type.id
+    ).exists()
+    assert cart.eligible_courses.filter(eligible=True, id=course.type.id).exists()
 
     pre_req_cart_item.delete()
     pre_req_course.participants.add(cart.user)
-    assert pre_req_course.type in cart.eligible_courses.filter(eligible=False)
-    assert course.type in cart.eligible_courses.filter(eligible=True)
+    assert cart.eligible_courses.filter(
+        eligible=False, id=pre_req_course.type.id
+    ).exists()
+    assert cart.eligible_courses.filter(eligible=True, id=course.type.id).exists()
 
     course_cart_item = baker.make(models.CartItem, cart=cart, course=course)
-    assert pre_req_course.type in cart.eligible_courses.filter(eligible=False)
-    assert course.type in cart.eligible_courses.filter(eligible=False)
+    assert cart.eligible_courses.filter(
+        eligible=False, id=pre_req_course.type.id
+    ).exists()
+    assert cart.eligible_courses.filter(eligible=False, id=course.type.id).exists()
 
     course_cart_item.delete()
     course.participants.add(cart.user)
-    assert pre_req_course.type in cart.eligible_courses.filter(eligible=False)
-    assert course.type in cart.eligible_courses.filter(eligible=False)
+    assert cart.eligible_courses.filter(
+        eligible=False, id=pre_req_course.type.id
+    ).exists()
+    assert cart.eligible_courses.filter(eligible=False, id=course.type.id).exists()
 
 
 def test_verify_course_requirements(course_pre_req_setup):
@@ -340,3 +356,21 @@ def test_verify_course_requirement_delete_when_not_in_cart_or_signed_up(
     cart_item_added.delete()
 
     assert not cart.cartitem_set.exists()
+
+
+def test_course_bought_refund_eligible(freezer, registration_settings):
+    course_bought = baker.make(models.CourseBought)
+    assert not course_bought.refund_eligible
+    baker.make(
+        models.CourseDate,
+        start=datetime(year=2022, month=3, day=20),
+        course=course_bought.course,
+    )
+    freezer.move_to("2022-02-01")
+    assert course_bought.refund_eligible
+    freezer.move_to("2022-03-15")
+    assert not course_bought.refund_eligible
+    freezer.move_to("2022-02-01")
+    course_bought.refunded = True
+    course_bought.save()
+    assert not course_bought.refund_eligible

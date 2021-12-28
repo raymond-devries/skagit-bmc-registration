@@ -1,3 +1,7 @@
+import datetime
+import uuid
+
+import stripe
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -18,9 +22,17 @@ GENDER_CHOICES = [
 INSTRUCTOR_GROUP = "instructor"
 
 
-class Profile(models.Model):
+class BaseModel(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    class Meta:
+        abstract = True
+
+
+class Profile(BaseModel):
     user = models.OneToOneField(User, models.CASCADE)
     email_confirmed = models.BooleanField(default=False)
+    stripe_customer_id = models.CharField(max_length=200)
 
     @property
     def is_eligible_for_early_registration(self):
@@ -53,15 +65,21 @@ class Profile(models.Model):
 @receiver(post_save, sender=User)
 def add_new_user_items(instance, created, **kwargs):
     if created:
-        Profile.objects.create(user=instance)
+        customer = stripe.Customer.create(
+            email=instance.email, name=instance.get_full_name()
+        )
+        Profile.objects.create(user=instance, stripe_customer_id=customer.stripe_id)
         UserCart.objects.create(user=instance)
 
 
-class RegistrationSettings(models.Model):
+class RegistrationSettings(BaseModel):
     early_registration_open = models.DateTimeField()
     early_signup_code = models.CharField(max_length=15, blank=True)
     registration_open = models.DateTimeField()
     registration_close = models.DateTimeField()
+    refund_period = models.DurationField(default=datetime.timedelta(days=14))
+    cancellation_fee = models.PositiveIntegerField()
+    time_to_pay_invoice = models.DurationField(default=datetime.timedelta(days=2))
 
     def save(self, *args, **kwargs):
         if not self.pk and RegistrationSettings.objects.exists():
@@ -69,14 +87,14 @@ class RegistrationSettings(models.Model):
         return super(RegistrationSettings, self).save(*args, **kwargs)
 
 
-class EarlySignupEmail(models.Model):
+class EarlySignupEmail(BaseModel):
     email = models.EmailField()
 
     def __str__(self):
         return self.email
 
 
-class RegistrationForm(models.Model):
+class RegistrationForm(BaseModel):
     user = models.OneToOneField(User, models.CASCADE)
     address = models.CharField(max_length=300)
     address_2 = models.CharField(max_length=300, blank=True)
@@ -109,7 +127,7 @@ def human_readable_cost(value):
     return f"${value/100 :,.2f}"
 
 
-class CourseType(models.Model):
+class CourseType(BaseModel):
     name = models.CharField(max_length=300)
     abbreviation = models.CharField(max_length=5)
     requirement = models.ForeignKey(
@@ -127,12 +145,14 @@ class CourseType(models.Model):
         return human_readable_cost(self.cost)
 
 
-class Course(models.Model):
+class Course(BaseModel):
     type = models.ForeignKey(CourseType, on_delete=models.CASCADE)
     specifics = models.TextField()
     capacity = models.PositiveSmallIntegerField()
+    expected_capacity = models.PositiveIntegerField()
     participants = models.ManyToManyField(User, blank=True, related_name="participants")
     instructors = models.ManyToManyField(User, blank=True, related_name="instructors")
+    shown = models.BooleanField(default=True)
 
     @property
     def num_of_participants(self):
@@ -153,6 +173,21 @@ class Course(models.Model):
     @property
     def start_end_date(self):
         return self.coursedate_set.aggregate(Min("start"), Max("end"))
+
+    @property
+    def refund_eligble(self):
+        course_dates = self.coursedate_set
+        if not course_dates.exists():
+            return False
+        return (
+            datetime.datetime.now(tz=datetime.timezone.utc)
+            <= course_dates.earliest("start").start
+            - RegistrationSettings.objects.first().refund_period
+        )
+
+    @property
+    def spots_held_for_wait_list(self):
+        return self.expected_capacity - self.capacity
 
     def user_on_wait_list(self, user):
         try:
@@ -187,7 +222,7 @@ def added_participant(action, instance, **kwargs):
 m2m_changed.connect(added_participant, sender=Course.participants.through)
 
 
-class WaitList(models.Model):
+class WaitList(BaseModel):
     date_added = models.DateTimeField(auto_now_add=True)
     course = models.ForeignKey(Course, models.CASCADE)
     user = models.ForeignKey(User, models.CASCADE)
@@ -211,7 +246,18 @@ def only_allow_wait_list_after_course_is_full(instance, **kwargs):
         )
 
 
-class CourseDate(models.Model):
+class WaitListInvoice(BaseModel):
+    user = models.ForeignKey(User, models.PROTECT, null=True)
+    course = models.ForeignKey(Course, models.PROTECT)
+    date_added = models.DateTimeField(auto_now_add=True)
+    email = models.CharField(max_length=200)
+    expires = models.DateTimeField()
+    invoice_id = models.CharField(max_length=200)
+    paid = models.BooleanField(default=False)
+    voided = models.BooleanField(default=False)
+
+
+class CourseDate(BaseModel):
     course = models.ForeignKey(Course, models.CASCADE)
     name = models.CharField(max_length=200)
     start = models.DateTimeField()
@@ -224,12 +270,12 @@ class CourseDate(models.Model):
         )
 
 
-class GearItem(models.Model):
+class GearItem(BaseModel):
     type = models.ForeignKey(CourseType, models.CASCADE, null=True, blank=True)
     item = models.CharField(max_length=300)
 
 
-class Discount(models.Model):
+class Discount(BaseModel):
     number_of_courses = models.PositiveSmallIntegerField(unique=True)
     discount = models.PositiveIntegerField()
     stripe_id = models.CharField(max_length=50)
@@ -239,7 +285,7 @@ class Discount(models.Model):
         return human_readable_cost(self.discount)
 
 
-class UserCart(models.Model):
+class UserCart(BaseModel):
     user = models.OneToOneField(User, models.CASCADE)
 
     @property
@@ -297,7 +343,7 @@ class UserCart(models.Model):
         return courses
 
 
-class CartItem(models.Model):
+class CartItem(BaseModel):
     cart = models.ForeignKey(UserCart, models.CASCADE)
     course = models.ForeignKey(Course, models.CASCADE)
 
@@ -357,12 +403,60 @@ def verify_requirements_before_delete(instance, **kwargs):
     cart_items_with_instance_as_requirement.delete()
 
 
-class PaymentRecord(models.Model):
+class PaymentRecord(BaseModel):
     user = models.ForeignKey(User, models.PROTECT)
-    checkout_session_id = models.CharField(max_length=200)
+    checkout_session_id = models.CharField(max_length=200, blank=True)
     payment_intent_id = models.CharField(max_length=200, blank=True)
+    invoice_id = models.CharField(max_length=200, blank=True)
 
 
-class CourseBought(models.Model):
+class CourseBought(BaseModel):
     payment_record = models.ForeignKey(PaymentRecord, models.PROTECT)
     course = models.ForeignKey(Course, models.PROTECT)
+    product_id = models.CharField(max_length=200)
+    price_id = models.CharField(max_length=200)
+    refunded = models.BooleanField(default=False)
+    refund_id = models.CharField(max_length=200, blank=True)
+
+    @property
+    def refund_eligible(self):
+        if self.refunded:
+            return False
+        return self.course.refund_eligble
+
+
+def handle_wait_list(course: Course):
+    wait_list = WaitList.objects.filter(course=course).order_by("date_added").first()
+    if wait_list is not None:
+        description = (
+            "A spot has opened up in a course you were on the wait list for. "
+            "Please pay this invoice by the due to be added to the course."
+        )
+        expiration = (
+            datetime.datetime.now(tz=datetime.timezone.utc)
+            + RegistrationSettings.objects.first().time_to_pay_invoice
+        )
+        stripe.InvoiceItem.create(
+            customer=wait_list.user.profile.stripe_customer_id,
+            amount=course.type.cost,
+            currency="usd",
+            description=str(course),
+        )
+        invoice = stripe.Invoice.create(
+            customer=wait_list.user.profile.stripe_customer_id,
+            collection_method="send_invoice",
+            due_date=expiration,
+            description=description,
+            metadata={"course_id": str(course.id)},
+        )
+        invoice.send_invoice()
+        wait_list.delete()
+        WaitListInvoice.objects.create(
+            user=wait_list.user,
+            course=wait_list.course,
+            email=wait_list.user.email,
+            expires=expiration,
+            invoice_id=invoice.id,
+        )
+        return True
+    return False

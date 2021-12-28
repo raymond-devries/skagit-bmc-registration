@@ -1,6 +1,7 @@
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.auth.models import User
-from django.shortcuts import redirect
+import stripe
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import FormView, TemplateView
 
@@ -53,6 +54,46 @@ class RegistrationHome(LoginRequiredMixin, TemplateView):
         return context
 
 
+@login_required
+def refund(request, course_pk):
+    course_bought = get_object_or_404(
+        models.CourseBought,
+        course__participants=request.user,
+        course=course_pk,
+        refunded=False,
+    )
+    course = course_bought.course
+    refund_eligible = course_bought.refund_eligible
+    context = {"refund_eligible": refund_eligible, "course": course_bought.course}
+
+    if refund_eligible:
+        purchase_price = stripe.Price.retrieve(course_bought.price_id)["unit_amount"]
+        context["purchase_price"] = models.human_readable_cost(purchase_price)
+        refund_amount = (
+            purchase_price
+            - models.RegistrationSettings.objects.first().cancellation_fee
+        )
+        context["refund_amount"] = models.human_readable_cost(refund_amount)
+
+        if request.method == "POST":
+            refund = stripe.Refund.create(
+                payment_intent=course_bought.payment_record.payment_intent_id,
+                idempotency_key=str(course_bought.id),
+                amount=refund_amount,
+            )
+            course_bought.refund_id = refund["id"]
+            course_bought.refunded = True
+            course_bought.save()
+            course.participants.remove(request.user)
+            if course.num_on_wait_list > 0:
+                course.capacity -= 1
+                course.save()
+                models.handle_wait_list(course)
+            return redirect("registration_home")
+
+    return render(request, "bmc_registration/refund.html", context)
+
+
 class RegistrationInfoForm(LoginRequiredMixin, FormView):
     template_name = "bmc_registration/registration_form.html"
     form_class = RegistrationForm
@@ -99,7 +140,7 @@ class CartView(LoginRequiredMixin, TemplateView):
 class GearListsView(TemplateView):
     template_name = "bmc_registration/gear_list.html"
 
-    def get_context_data(self, *, object_list=None, **kwargs):
+    def get_context_data(self, *args, object_list=None, **kwargs):
         context = super().get_context_data(object_list=None, **kwargs)
         context["gear_item_all"] = models.GearItem.objects.filter(type=None)
         context["courses"] = models.CourseType.objects.filter(visible=True).order_by(

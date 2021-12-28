@@ -12,8 +12,6 @@ from rest_framework.response import Response
 from registration import models, serializers
 from SkagitRegistration import settings
 
-stripe.api_key = settings.STRIPE_API_KEY
-
 
 class ListEligibleCoursesView(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.CourseTypeSerializer
@@ -109,7 +107,7 @@ def create_checkout_session(request):
             )
 
         checkout_session = stripe.checkout.Session.create(
-            customer_email=request.user.email,
+            customer=request.user.profile.stripe_customer_id,
             metadata={"user_id": request.user.id},
             payment_method_types=["card"],
             line_items=line_items,
@@ -139,35 +137,69 @@ def stripe_checkout_webhook(request):
         session = event["data"]["object"]
 
         line_items = stripe.checkout.Session.list_line_items(session.stripe_id)
-        product_ids = [item.price.product for item in line_items]
-        course_ids = [
-            int(stripe.Product.retrieve(product_id).metadata["course_id"])
-            for product_id in product_ids
+        product_ids = [(item.price.product, item.price.id) for item in line_items]
+        courses = [
+            {
+                "course_id": stripe.Product.retrieve(product_id).metadata["course_id"],
+                "product_id": product_id,
+                "price_id": price_id,
+            }
+            for product_id, price_id in product_ids
         ]
 
         fulfill_order(
-            course_ids,
+            courses,
             session.metadata.user_id,
-            session.stripe_id,
-            session.payment_intent,
+            checkout_session_id=session.stripe_id,
+            payment_intent_id=session.payment_intent,
+        )
+
+    elif event["type"] == "invoice.paid":
+        invoice = event["data"]["object"]
+        wait_list_invoice = models.WaitListInvoice.objects.get(invoice_id=invoice.id)
+        wait_list_invoice.paid = True
+        wait_list_invoice.save()
+        wait_list_invoice.course.capacity += 1
+        wait_list_invoice.course.save()
+        price = invoice.lines.data[0].price
+        courses = [
+            {
+                "course_id": wait_list_invoice.course.id,
+                "product_id": price.product,
+                "price_id": price.id,
+            }
+        ]
+        fulfill_order(
+            courses,
+            wait_list_invoice.user.id,
+            invoice_id=invoice.id,
+            payment_intent_id=invoice.payment_intent,
         )
 
     return HttpResponse(status=200)
 
 
-def fulfill_order(course_ids, user_id, checkout_session_id, payment_intent_id):
+def fulfill_order(
+    courses, user_id, checkout_session_id="", invoice_id="", payment_intent_id=""
+):
     user = User.objects.get(id=user_id)
     cart = models.UserCart.objects.get(user=user)
     models.CartItem.objects.filter(cart=cart).delete()
-    courses = models.Course.objects.filter(id__in=course_ids)
     payment_record = models.PaymentRecord.objects.create(
         user=user,
         checkout_session_id=checkout_session_id,
         payment_intent_id=payment_intent_id,
+        invoice_id=invoice_id,
     )
-    for course in courses:
+    for course_data in courses:
+        course = models.Course.objects.get(id=course_data["course_id"])
         course.participants.add(user)
-        models.CourseBought.objects.create(payment_record=payment_record, course=course)
+        models.CourseBought.objects.create(
+            payment_record=payment_record,
+            course=course,
+            product_id=course_data["product_id"],
+            price_id=course_data["price_id"],
+        )
 
 
 class AddCoursesView(views.APIView):

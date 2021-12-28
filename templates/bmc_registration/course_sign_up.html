@@ -108,7 +108,8 @@
                             </div>
                             <div v-else>
                                 <button @click="joinWaitList(course.id)"
-                                        class="button is-warning">
+                                        class="button is-warning"
+                                        :disabled="course.user_enrolled">
                             <span class="icon">
                                 <i class="fas fa-list"></i>
                             </span>
