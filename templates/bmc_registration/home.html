@@ -4,42 +4,33 @@
     <div class="content">
         <h2 class="title is-size-2">Welcome to 2022 BMC Registration</h2>
         <p class="block">
-{#            <b>Overview</b>#}
-{#            <br>#}
-{#            The Skagit Alpine Club will offer two types of courses this year:#}
-{#        <ol>#}
-{#            <li>#}
-{#                8-week Basic Mountaineering Course: The course covers basic climbing and mountaineering skills for#}
-{#                alpine environments. No previous experience necessary. Minimum fitness level and commitment to all#}
-{#                coursework required.#}
-{#            </li>#}
-{#            <li>#}
-{#                1-week Introduction to Snow Travel Course: This course will address basic skills and safety using ice#}
-{#                axes, basic avalanche awareness and snow travel practice. Open to all students, no previous experience#}
-{#                with snow travel necessary.#}
-{#            </li>#}
-{#        </ol>#}
-        <h3>The Skagit Alpine Club will offer two types of courses this year:</h3>
-        <p>
-            <b>Basic Mountaineering Course- 8 week course</b>
-            This 8-week course provides an introduction to outdoor rock climbing, navigation, ice axe arrest, rope team
-            travel, lead belay, and crevasse rescue. The course utilizes Mountaineering: Freedom of the Hills as
-            foundational reading prior to experiential coursework. Each week includes readings, classroom practice, and
-            an outing that will provide recurring practice with skills a mountaineer will need to travel safely in the
-            alpine. Participants must show basic skills competence during weekday session prior to weekend outing.
+            <b>Overview</b>
             <br>
-            Early Registration Rate (By February 1st)- $500
-            <br>
-            Registration (Feb 2nd-March 1st)- $550
-        </p>
-        <p>
-            <b>Intro to Snow Travel & Ice Axe Arrest- 1 week course</b>
-            This course will address basic skills and safety using ice axes, basic avalanche awareness and snow travel
-            practice. Open to all students, no previous experience with snow travel necessary. Participants must show
-            basic skills competence during weekday session prior to weekend outing.
-            <br>
-            Cost- $200
-        </p>
+            The Skagit Alpine Club will offer two types of courses this year:
+        <ol>
+            <li>
+                8-week Basic Mountaineering Course: The course covers basic climbing and mountaineering skills for
+                alpine environments. No previous experience necessary. Minimum fitness level and commitment to all
+                coursework required.
+                <br>
+                <b>$500</b>
+            </li>
+            <li>
+                1-week Introduction to Snow Travel Course: This course will address basic skills and safety using ice
+                axes, basic avalanche awareness and snow travel practice. Open to all students, no previous experience
+                with snow travel necessary.
+                <br>
+                <b>$200</b>
+            </li>
+        </ol>
+        <div class="block buttons">
+            <a href="{% url "available_courses" %}" class="button is-primary">
+                Details and Course Dates
+            </a>
+            <a href="{% url "gear_lists" %}" class="button is-info">
+                Gear Lists
+            </a>
+        </div>
         <p><b>Important Course Dates</b></p>
         <ul>
             <li>Registration Opens: January 2nd</li>
@@ -47,11 +38,14 @@
             <li>Registration Closes: March 1st</li>
             <li>First Course starts: March 23rd</li>
         </ul>
+        <p class="block">
+            All Course registrations include a one-year membership to the Skagit Alpine
+            Club meetings, newsletters, and events.
+        </p>
         <div class="block buttons">
-            {#            Removing button until 2022 registration opens #}
-            {#            <a href="{% url "registration_home" %}" class="button is-success">#}
-            {#                Sign Up for Courses#}
-            {#            </a>#}
+            <a href="{% url "registration_home" %}" class="button is-primary">
+                Sign Up for Courses
+            </a>
         </div>
         <p class="block">
             <b>Fitness Levels</b>
@@ -61,15 +55,6 @@
             each hike prior to starting the course. Strength training experience is also recommended. Participants
             participating in the 8 week course should be able to carry 30lbs up the Pine & Cedar Trail in the Chuckanuts
             in under 1 hour and 30 minutes.
-        </p>
-        <p class="block">
-            <b>Course Fees</b>
-            <br>
-            Course cost is still being determined.
-        </p>
-        <p class="block">
-            All Course registrations include a one-year membership to the Skagit Alpine
-            Club meetings, newsletters, and events.
         </p>
         <p class="block">
             <b>COVID Notice</b>
