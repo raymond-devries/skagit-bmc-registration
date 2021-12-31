@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1 class="title is-2 has-text-centered is-size-3-mobile">Courses from 2021</h1>
+    <h1 class="title is-2 has-text-centered is-size-3-mobile">2022 Courses</h1>
     <div class="message">
         <div class="message-body"><p class="block">Classroom sessions are held from 6
             p.m. to 9 p.m. Other outing
@@ -52,7 +52,7 @@
                                     <span>Full</span>
                                 </span>
                             {% endif %}
-                            {% for course_date in course.coursedate_set.all %}
+                            {% for course_date in course.coursedate_set.all|dictsort:"start" %}
                                 <article>
                                     <p>
                                         <b>{{ course_date.name }}:</b>

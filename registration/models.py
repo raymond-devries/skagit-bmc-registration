@@ -263,6 +263,9 @@ class CourseDate(BaseModel):
     start = models.DateTimeField()
     end = models.DateTimeField()
 
+    class Meta:
+        ordering = ["start", "pk"]
+
     def __str__(self):
         return (
             f"{self.course.type}/{self.course.specifics}/{self.name}: "
