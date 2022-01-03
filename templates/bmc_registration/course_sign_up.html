@@ -9,51 +9,6 @@
         <span>Back to Registration Home</span>
     </a>
     <h1 class="title is-size-1 is-size-4-mobile">Course Sign Up</h1>
-    <article class="message is-info">
-        <div class="message-header">
-            <div>
-                <span class="icon">
-                    <i class="fas fa-info-circle"></i>
-                </span>
-                <span>Cart Policies</span>
-            </div>
-        </div>
-        <div class="message-body">
-            <p>A course can only be added to your cart when:</p>
-            <div class="content">
-                <ul>
-                    <li>The course has no prerequisite courses.</li>
-                    <li>
-                        The course has prerequisites and you have the prerequisite
-                        courses in
-                        your cart.
-                    </li>
-                    <li>
-                        The course has prerequisites and you are already enrolled in the
-                        prerequisite course.
-                    </li>
-                    <li>
-                        A course of the same type is not already in the cart. You cannot
-                        sign
-                        up for the same course twice. i.e. You cannot sign up for two
-                        sessions
-                        of Snow Travel 1.
-                    </li>
-                </ul>
-            </div>
-            <p>Discounts:</p>
-            <div class="content">
-                <ul>
-                    {% for discount in discounts %}
-                        <li>
-                            {{ discount.number_of_courses }} course discount:
-                            {{ discount.discount_human }} off total
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-    </article>
     <div id="app">
         <article v-for="courseType in eligibleCourses" class="media">
             <figure class="media-left is-hidden-mobile">
