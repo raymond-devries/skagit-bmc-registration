@@ -13,4 +13,9 @@ url_patterns = [
         instructor_views.RegistrantView.as_view(),
         name="registrant",
     ),
+    path(
+        "particpant-csv/<uuid:course_pk>",
+        instructor_views.participant_csv,
+        name="participant_csv",
+    ),
 ]

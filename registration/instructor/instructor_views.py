@@ -1,16 +1,24 @@
+import csv
+
+from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
 
 from registration import models
 
 
+def instructor_check(user: User):
+    return user.profile.is_instructor
+
+
 class CurrentRegistrationsView(UserPassesTestMixin, TemplateView):
     template_name = "bmc_registration/instructor/current_registrations.html"
 
     def test_func(self):
-        return self.request.user.profile.is_instructor
+        return instructor_check(self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -29,7 +37,7 @@ class RegistrantView(UserPassesTestMixin, TemplateView):
     template_name = "bmc_registration/instructor/registrant_view.html"
 
     def test_func(self):
-        return self.request.user.profile.is_instructor
+        return instructor_check(self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -41,3 +49,18 @@ class RegistrantView(UserPassesTestMixin, TemplateView):
             models.RegistrationForm, user=registrant
         )
         return context
+
+
+@user_passes_test(instructor_check)
+def participant_csv(request, course_pk):
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="users.csv"'
+    course = models.Course.objects.get(pk=course_pk)
+    fields, values = models.get_course_participant_values(course)
+
+    writer = csv.writer(response)
+    writer.writerow(fields)
+    for value in values:
+        writer.writerow(value)
+
+    return response

@@ -52,6 +52,7 @@
                 <div class="message-body">
                     <ul>
                         {% for course in course_type.course_set.all %}
+                            <a href="{% url "instructor:participant_csv" course_pk=course.pk %}" class="button is-small is-info">Download CSV</a>
                             <li class="has-text-info-dark">
                                 <b>{{ course.specifics }}:&nbsp;</b>
                                 {{ course.start_end_date.start__min|date:"D M d Y" }} -

@@ -61,6 +61,13 @@ class Profile(BaseModel):
     def is_instructor(self):
         return self.user.groups.filter(name=INSTRUCTOR_GROUP).exists()
 
+    @property
+    def course_names(self):
+        courses = Course.objects.filter(participants=self.user).values_list(
+            "type__name", flat=True
+        )
+        return ", ".join(courses)
+
 
 @receiver(post_save, sender=User)
 def add_new_user_items(instance, created, **kwargs):
@@ -463,3 +470,52 @@ def handle_wait_list(course: Course):
         )
         return True
     return False
+
+
+def get_course_participant_values(course: Course):
+    participants = course.participants
+    fields = (
+        "First Name",
+        "Last Name",
+        "Email",
+        "City",
+        "State",
+        "Zip Code",
+        "Phone 1",
+        "Phone 2",
+        "DOB",
+        "Gender",
+        "Pronouns",
+        "Emergency Contact Name",
+        "Emergency Contact Relationship",
+        "Emergency Contact Phone Number",
+        "Physical Fitness",
+        "Medical Conditions",
+        "Allergies",
+        "Name of Policy Holder",
+        "Relation of Policy Holder",
+    )
+    values = participants.values_list(
+        "first_name",
+        "last_name",
+        "email",
+        "registrationform__address",
+        "registrationform__address_2",
+        "registrationform__city",
+        "registrationform__state",
+        "registrationform__zip_code",
+        "registrationform__phone_1",
+        "registrationform__phone_2",
+        "registrationform__date_of_birth",
+        "registrationform__gender",
+        "registrationform__pronouns",
+        "registrationform__emergency_contact_name",
+        "registrationform__emergency_contact_relationship_to_you",
+        "registrationform__emergency_contact_phone_number",
+        "registrationform__physical_fitness",
+        "registrationform__medical_condition_description",
+        "registrationform__allergy_condition_description",
+        "registrationform__name_of_policy_holder",
+        "registrationform__relation_of_policy_holder",
+    )
+    return fields, values
