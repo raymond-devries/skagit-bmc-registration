@@ -277,6 +277,9 @@ class GearItem(BaseModel):
     type = models.ForeignKey(CourseType, models.CASCADE, null=True, blank=True)
     item = models.CharField(max_length=300)
 
+    def __str__(self):
+        return f"{self.type.name}/{self.item}"
+
 
 class Discount(BaseModel):
     number_of_courses = models.PositiveSmallIntegerField(unique=True)
