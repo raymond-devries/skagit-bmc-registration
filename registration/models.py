@@ -134,6 +134,7 @@ class CourseType(BaseModel):
         "self", on_delete=models.SET_NULL, null=True, blank=True
     )
     description = models.TextField(blank=True)
+    fitness_level = models.TextField(blank=True)
     visible = models.BooleanField(default=True)
     cost = models.PositiveIntegerField()
 

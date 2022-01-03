@@ -26,8 +26,15 @@
                         {{ course_type.cost_human }}
                     </b>
                     <br>
+                    <b>Description</b>
+                    <br>
                     {{ course_type.description }}
                     <br>
+                    {% if course_type.fitness_level %}
+                        <b>Fitness Level</b>
+                        <br>
+                        {{ course_type.fitness_level }}
+                    {% endif %}
                     {% if course_type.requirement %}
                         <b>Requirement: {{ course_type.requirement }}</b>
                     {% endif %}
