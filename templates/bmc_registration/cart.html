@@ -8,25 +8,6 @@
             <span>Back to Course Sign Up</span>
         </a>
         <h1 class="title is-size-1">Cart</h1>
-{#        <article class="message is-info">#}
-{#            <div class="message-header">#}
-{#                <div>#}
-{#                <span class="icon">#}
-{#                    <i class="fas fa-info-circle"></i>#}
-{#                </span>#}
-{#                    <span>Cart Policies</span>#}
-{#                </div>#}
-{#            </div>#}
-{#            <div class="message-body">#}
-{#                <p>#}
-{#                    If you delete a course from your cart and it is a prerequisite for#}
-{#                    another course, the prerequisite course and the course that proceeds#}
-{#                    it will both be deleted. i.e. If you have Snow Travel 1 and Snow#}
-{#                    Travel 2 in your cart and you delete Snow Travel 1, Snow Travel 2#}
-{#                    will also be deleted.#}
-{#                </p>#}
-{#            </div>#}
-{#        </article>#}
         <article class="message is-danger">
             <div class="message-header">
                 <div>
@@ -51,6 +32,25 @@
                 </p>
             </div>
         </article>
+        {% if eligible_previous_student_discount %}
+            <article class="message is-info">
+                <div class="message-header">
+                    <div>
+                <span class="icon">
+                    <i class="fas fa-info"></i>
+                </span>
+                        <span>Previous student discount</span>
+                    </div>
+                </div>
+                <div class="message-body">
+                    <p class="block">
+                        You are eligible for a previous student discount. This discount will be applied during checkout.
+                        If you have any issues please email
+                        <a href="mailto:skagitalpineclubwebsite@gmail.com">skagitalpineclubwebsite@gmail.com</a>.
+                    </p>
+                </div>
+            </article>
+        {% endif %}
         <div id="app">
             <article v-for="item in cart" class="message">
                 <div class="message-header">
@@ -92,10 +92,6 @@
                     <h3 class="title is-size-3">
                         Total Cost: [[ readableCost(cost.cost) ]]
                     </h3>
-                    <h6 v-if="cost.discount" class="title is-size-6">
-                        [[cost.discount.number_of_courses ]] course discount:
-                        [[ readableCost(cost.discount.discount) ]]
-                    </h6>
                     {% if user.profile.is_eligible_for_registration %}
                         <button @click="stripeCheckout"
                                 :disabled="cost.cost === 0"

@@ -20,6 +20,7 @@ GENDER_CHOICES = [
 ]
 
 INSTRUCTOR_GROUP = "instructor"
+DISCOUNT_GROUP_PREFIX = "pid__"
 
 
 class BaseModel(models.Model):
@@ -282,14 +283,9 @@ class GearItem(BaseModel):
         return f"{self.type.name}/{self.item}"
 
 
-class Discount(BaseModel):
-    number_of_courses = models.PositiveSmallIntegerField(unique=True)
+class PreviousStudentDiscount(BaseModel):
+    email = models.EmailField(unique=True)
     discount = models.PositiveIntegerField()
-    stripe_id = models.CharField(max_length=50)
-
-    @property
-    def discount_human(self):
-        return human_readable_cost(self.discount)
 
 
 class UserCart(BaseModel):
@@ -300,22 +296,10 @@ class UserCart(BaseModel):
         return CartItem.objects.filter(cart=self).count()
 
     @property
-    def discount(self):
-        try:
-            discount = Discount.objects.get(number_of_courses=self.num_of_items)
-            return discount
-        except Discount.DoesNotExist:
-            return None
-
-    @property
     def cost(self):
         cost_sum = self.cartitem_set.aggregate(Sum("course__type__cost"))
         cost = cost_sum["course__type__cost__sum"]
-        if (discount := self.discount) is None:
-            discount = 0
-        else:
-            discount = discount.discount
-        return 0 if cost is None else cost - discount
+        return 0 if cost is None else cost
 
     @property
     def eligible_courses(self):
@@ -424,6 +408,7 @@ class CourseBought(BaseModel):
     price_id = models.CharField(max_length=200)
     refunded = models.BooleanField(default=False)
     refund_id = models.CharField(max_length=200, blank=True)
+    coupon_id = models.CharField(max_length=200, blank=True)
 
     @property
     def refund_eligible(self):

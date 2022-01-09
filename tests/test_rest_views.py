@@ -18,6 +18,7 @@ def test_fulfill_order(create_registration_form, fake):
             "course_id": course_id,
             "product_id": fake.pystr(20, 20),
             "price_id": fake.pystr(20, 20),
+            "coupon_id": fake.pystr(20, 20),
         }
         for course_id in course_ids
     ]
