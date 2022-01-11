@@ -53,9 +53,9 @@ class RegistrantView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
 
 @user_passes_test(instructor_check)
 def participant_csv(request, course_pk):
-    response = HttpResponse(content_type="text/csv")
-    response["Content-Disposition"] = 'attachment; filename="users.csv"'
     course = models.Course.objects.get(pk=course_pk)
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = f'attachment; filename="{course.specifics}.csv"'
     fields, values = models.get_course_participant_values(course)
 
     writer = csv.writer(response)

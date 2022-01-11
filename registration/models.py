@@ -467,6 +467,8 @@ def get_course_participant_values(course: Course):
         "First Name",
         "Last Name",
         "Email",
+        "Address 1",
+        "Address 2",
         "City",
         "State",
         "Zip Code",
