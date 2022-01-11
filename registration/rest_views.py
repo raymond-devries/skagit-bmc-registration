@@ -83,10 +83,16 @@ def create_checkout_session(request):
             return Response("User is not eligible for registration", status=403)
         cart = models.UserCart.objects.get(user=request.user)
         cart_items = models.CartItem.objects.filter(cart=cart)
-        if cart.discount is not None:
-            discounts = [{"coupon": cart.discount.stripe_id}]
-        else:
-            discounts = []
+        discounts = []
+        coupon_id = None
+        if pi_discount := models.PreviousStudentDiscount.objects.filter(
+            email=request.user.email
+        ).first():
+            coupon = stripe.Coupon.create(
+                percent_off=pi_discount.discount, name="Previous student discount"
+            )
+            discounts.append({"coupon": coupon.stripe_id})
+            coupon_id = coupon.id
         line_items = []
         for item in cart_items:
             line_items.append(
@@ -99,6 +105,7 @@ def create_checkout_session(request):
                             "metadata": {
                                 "course_id": item.course.id,
                                 "cart_item_id": item.id,
+                                "coupon_id": coupon_id,
                             },
                         },
                     },
@@ -138,14 +145,21 @@ def stripe_checkout_webhook(request):
 
         line_items = stripe.checkout.Session.list_line_items(session.stripe_id)
         product_ids = [(item.price.product, item.price.id) for item in line_items]
-        courses = [
-            {
-                "course_id": stripe.Product.retrieve(product_id).metadata["course_id"],
-                "product_id": product_id,
-                "price_id": price_id,
-            }
-            for product_id, price_id in product_ids
-        ]
+        courses = []
+        for product_id, price_id in product_ids:
+            product = stripe.Product.retrieve(product_id)
+            try:
+                coupon_id = product.metadata["coupon_id"]
+            except KeyError:
+                coupon_id = ""
+            courses.append(
+                {
+                    "course_id": product.metadata["course_id"],
+                    "product_id": product_id,
+                    "price_id": price_id,
+                    "coupon_id": coupon_id,
+                }
+            )
 
         fulfill_order(
             courses,
@@ -167,6 +181,7 @@ def stripe_checkout_webhook(request):
                 "course_id": wait_list_invoice.course.id,
                 "product_id": price.product,
                 "price_id": price.id,
+                "coupon_id": "",
             }
         ]
         fulfill_order(
@@ -199,6 +214,7 @@ def fulfill_order(
             course=course,
             product_id=course_data["product_id"],
             price_id=course_data["price_id"],
+            coupon_id=course_data["coupon_id"],
         )
 
 

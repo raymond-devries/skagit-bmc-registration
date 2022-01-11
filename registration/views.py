@@ -19,7 +19,6 @@ class Home(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["discounts"] = models.Discount.objects.all()
         return context
 
 
@@ -68,6 +67,11 @@ def refund(request, course_pk):
 
     if refund_eligible:
         purchase_price = stripe.Price.retrieve(course_bought.price_id)["unit_amount"]
+        if course_bought.coupon_id:
+            percent_off = stripe.Coupon.retrieve(course_bought.coupon_id).percent_off
+            purchase_price *= 1 - (percent_off / 100)
+            purchase_price = int(purchase_price)
+
         context["purchase_price"] = models.human_readable_cost(purchase_price)
         refund_amount = (
             purchase_price
@@ -123,7 +127,6 @@ class CourseSignUp(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["discounts"] = models.Discount.objects.all()
         return context
 
 
@@ -134,6 +137,11 @@ class CartView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context["registration_settings"] = models.RegistrationSettings.objects.first()
         context["stripe_public_api_key"] = settings.STRIPE_PUBLIC_API_KEY
+        context[
+            "eligible_previous_student_discount"
+        ] = models.PreviousStudentDiscount.objects.filter(
+            email=self.request.user.email
+        ).exists()
         return context
 
 
