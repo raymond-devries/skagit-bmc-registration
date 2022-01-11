@@ -52,12 +52,14 @@
                 <div class="message-body">
                     <ul>
                         {% for course in course_type.course_set.all %}
-                            <a href="{% url "instructor:participant_csv" course_pk=course.pk %}" class="button is-small is-info">Download CSV</a>
                             <li class="has-text-info-dark">
                                 <b>{{ course.specifics }}:&nbsp;</b>
                                 {{ course.start_end_date.start__min|date:"D M d Y" }} -
                                 {{ course.start_end_date.end__max|date:"D M d Y" }}
                             </li>
+                            <a href="{% url "instructor:participant_csv" course_pk=course.pk %}"
+                               class="button is-small is-info my-2">Download CSV</a>
+                            <br>
                             <b>Participants</b>
                             <ul>
                                 {% for registrant in course.participants.all|dictsort:"first_name" %}
