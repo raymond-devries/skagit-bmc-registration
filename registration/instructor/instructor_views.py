@@ -1,7 +1,7 @@
 import csv
 
 from django.contrib.auth.decorators import user_passes_test
-from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -14,7 +14,7 @@ def instructor_check(user: User):
     return user.profile.is_instructor
 
 
-class CurrentRegistrationsView(UserPassesTestMixin, TemplateView):
+class CurrentRegistrationsView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     template_name = "bmc_registration/instructor/current_registrations.html"
 
     def test_func(self):
@@ -33,7 +33,7 @@ class CurrentRegistrationsView(UserPassesTestMixin, TemplateView):
         return context
 
 
-class RegistrantView(UserPassesTestMixin, TemplateView):
+class RegistrantView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     template_name = "bmc_registration/instructor/registrant_view.html"
 
     def test_func(self):
