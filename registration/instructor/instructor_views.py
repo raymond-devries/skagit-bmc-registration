@@ -1,4 +1,4 @@
-from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
@@ -6,7 +6,7 @@ from django.views.generic import TemplateView
 from registration import models
 
 
-class CurrentRegistrationsView(UserPassesTestMixin, TemplateView):
+class CurrentRegistrationsView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     template_name = "bmc_registration/instructor/current_registrations.html"
 
     def test_func(self):
@@ -25,7 +25,7 @@ class CurrentRegistrationsView(UserPassesTestMixin, TemplateView):
         return context
 
 
-class RegistrantView(UserPassesTestMixin, TemplateView):
+class RegistrantView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     template_name = "bmc_registration/instructor/registrant_view.html"
 
     def test_func(self):
