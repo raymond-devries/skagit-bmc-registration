@@ -286,6 +286,9 @@ class GearItem(BaseModel):
     type = models.ForeignKey(CourseType, models.CASCADE, null=True, blank=True)
     item = models.CharField(max_length=300)
 
+    class Meta:
+        ordering = ["item", "pk"]
+
     def __str__(self):
         return f"{self.type.name}/{self.item}"
 
