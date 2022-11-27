@@ -410,7 +410,7 @@ class PaymentRecord(BaseModel):
 
 class CourseBought(BaseModel):
     payment_record = models.ForeignKey(PaymentRecord, models.PROTECT)
-    course = models.ForeignKey(Course, models.PROTECT)
+    course = models.ForeignKey(Course, models.SET_NULL, null=True)
     product_id = models.CharField(max_length=200)
     price_id = models.CharField(max_length=200)
     refunded = models.BooleanField(default=False)
