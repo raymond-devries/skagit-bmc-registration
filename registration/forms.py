@@ -25,6 +25,7 @@ class RegistrationForm(forms.ModelForm):
         model = models.RegistrationForm
         exclude = ["user"]
         labels = {
+            "skagit_county_resident": "Check this box if you are resident of Skagit County",
             "pronouns": "Pronouns (He/him), (She/her), (They/them), etc.",
             "physical_fitness": "Describe your current physical fitness and level of activity",
             "medical_condition_description": "If you have any medical conditions please describe them below",

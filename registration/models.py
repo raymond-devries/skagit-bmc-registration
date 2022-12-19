@@ -37,7 +37,12 @@ class Profile(BaseModel):
 
     @property
     def is_eligible_for_early_registration(self):
-        return EarlySignupEmail.objects.filter(email__iexact=self.user.email).exists()
+        return (
+            EarlySignupEmail.objects.filter(email__iexact=self.user.email).exists()
+            or RegistrationForm.objects.filter(
+                user__profile=self, skagit_county_resident=True
+            ).exists()
+        )
 
     @property
     def is_eligible_for_registration(self):
@@ -104,6 +109,7 @@ class EarlySignupEmail(BaseModel):
 
 class RegistrationForm(BaseModel):
     user = models.OneToOneField(User, models.CASCADE)
+    skagit_county_resident = models.BooleanField(default=False)
     address = models.CharField(max_length=300)
     address_2 = models.CharField(max_length=300, blank=True)
     city = models.CharField(max_length=100)
