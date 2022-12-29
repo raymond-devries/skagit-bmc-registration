@@ -148,16 +148,15 @@ def stripe_checkout_webhook(request):
         courses = []
         for product_id, price_id in product_ids:
             product = stripe.Product.retrieve(product_id)
-            try:
-                coupon_id = product.metadata["coupon_id"]
-            except KeyError:
-                coupon_id = ""
+            course_id = product.metadata.get("course_id")
+            if course_id is None:
+                return HttpResponse(status=204)
             courses.append(
                 {
-                    "course_id": product.metadata["course_id"],
+                    "course_id": course_id,
                     "product_id": product_id,
                     "price_id": price_id,
-                    "coupon_id": coupon_id,
+                    "coupon_id": product.metadata.get("coupon_id", ""),
                 }
             )
 
