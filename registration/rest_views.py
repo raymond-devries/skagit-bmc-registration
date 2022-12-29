@@ -150,9 +150,7 @@ def stripe_checkout_webhook(request):
             product = stripe.Product.retrieve(product_id)
             course_id = product.metadata.get("course_id")
             if course_id is None:
-                return HttpResponse(
-                    "NOT PROCESSED: No course ID was provided", status=204
-                )
+                return HttpResponse(status=204)
             courses.append(
                 {
                     "course_id": course_id,
