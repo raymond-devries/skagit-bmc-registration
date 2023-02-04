@@ -58,6 +58,7 @@ def refund(request, course_pk):
     course_bought = get_object_or_404(
         models.CourseBought,
         course__participants=request.user,
+        payment_record__user=request.user,
         course=course_pk,
         refunded=False,
     )
