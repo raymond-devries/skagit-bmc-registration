@@ -119,12 +119,14 @@
     </div>
     <script type="text/javascript">
         stripe = Stripe("{{ stripe_public_api_key }}")
-        const app = new Vue({
-            el: '#app',
+        const {createApp} = Vue
+        createApp({
             delimiters: ['[[', ']]'],
-            data: {
-                cart: [],
-                cost: {}
+            data() {
+                return {
+                    cart: [],
+                    cost: {}
+                }
             },
             created() {
                 this.getCartList()
@@ -198,7 +200,7 @@
                     }
                 }
             }
-        })
+        }).mount('#app')
 
     </script>
 {% endblock %}

@@ -100,11 +100,12 @@
     </div>
 
     <script type="text/javascript">
-        let app = new Vue({
-            el: '#app',
+        const {createApp} = Vue;
+
+        createApp({
             delimiters: ['[[', ']]'],
-            data: {
-                eligibleCourses: []
+            data() {
+                return {eligibleCourses: []}
             },
             created() {
                 this.getEligbleCourses()
@@ -160,6 +161,6 @@
                     }
                 }
             }
-        })
+        }).mount('#app')
     </script>
 {% endblock %}
