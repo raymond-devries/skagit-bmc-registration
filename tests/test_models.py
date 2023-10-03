@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from model_bakery import baker
 
 from registration import models
+from registration.models import Course
 
 pytestmark = pytest.mark.django_db
 
@@ -347,7 +348,7 @@ def test_verify_course_requirement_delete_when_not_in_cart_or_signed_up(
 
 
 def test_course_bought_refund_eligible(freezer, registration_settings):
-    course_bought = baker.make(models.CourseBought)
+    course_bought = baker.make(models.CourseBought, course=baker.make(Course))
     assert not course_bought.refund_eligible
     baker.make(
         models.CourseDate,
