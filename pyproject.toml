@@ -6,7 +6,7 @@ authors = ["Raymond DeVries"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.11"
 django = "^4.0"
 django-localflavor = "^3.1.0"
 django-phonenumber-field = {extras = ["phonenumberslite"], version = "^7.0.0"}

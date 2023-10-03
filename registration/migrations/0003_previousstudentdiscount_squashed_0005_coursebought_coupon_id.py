@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     replaces = [
         ("registration", "0003_previousstudentdiscount"),
         ("registration", "0004_delete_discount"),
