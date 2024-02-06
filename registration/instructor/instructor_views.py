@@ -3,6 +3,7 @@ import csv
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
@@ -24,7 +25,8 @@ class CurrentRegistrationsView(LoginRequiredMixin, UserPassesTestMixin, Template
         context = super().get_context_data(**kwargs)
         context["registered_users"] = (
             User.objects.filter(
-                participants__in=models.Course.objects.filter(type__visible=True)
+                Q(participants__in=models.Course.objects.filter(type__visible=True))
+                | Q(waitlist__isnull=False)
             )
             .distinct()
             .order_by("first_name", "last_name")
