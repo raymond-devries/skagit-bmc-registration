@@ -53,8 +53,11 @@ if __name__ == "__main__":
         return start_date, end_date
 
     course = models.Course.objects.get()
+    course.specifics = "BMC 2025"
+    course.save()
     course.participants.set([])
 
+    models.WaitList.objects.all().delete()
     models.CourseDate.objects.all().delete()
 
     for course_date_data in course_dates_data:
