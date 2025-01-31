@@ -6,10 +6,10 @@ authors = [{ name = "Raymond DeVries" }]
 requires-python = "==3.11.10"
 license = "MIT"
 dependencies = [
-    "django~=4.0",
-    "django-localflavor>=3.1.0,<4",
-    "django-phonenumber-field[phonenumberslite]>=7.0.0,<8",
-    "django-bulma>=0.8.3,<0.9",
+    "django~=5.0",
+    "django-localflavor~=4.0",
+    "django-phonenumber-field[phonenumberslite]~=8.0",
+    "django-bulma~=0.9",
     "djangorestframework>=3.14.0,<4",
     "django-extensions>=3.2.1,<4",
     "stripe>=4.2.0,<5",
