@@ -18,3 +18,20 @@ Required Environment Variables:
 * `STRIPE_ENDPOINT_SECRET`: Stripe API endpoint secret for end point (/api/stripe_webhook/) that fulfills orders
 * `SENTRY_DSN`: DSN link from sentry to track errors
 * `SENTRY_SAMPLE_RATE`: A rate from 0.0-1.0. Determines what percent of transactions are tracked for performance.
+
+### Dev Notes
+
+Set dev env
+```shell
+source set_dev_env.sh
+```
+
+Setup Postgres
+```shell
+docker run --name skagit-bmc -e POSTGRES_HOST_AUTH_METHOD=trust -p 5432:5432 -d postgres
+```
+
+Seeding data
+```shell
+python manage.py migrate && aws s3 cp s3://skagit-bmc-dev/dev-dump.json - | python manage.py loaddata --format=json -
+```

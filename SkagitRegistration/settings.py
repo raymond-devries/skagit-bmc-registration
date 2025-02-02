@@ -3,12 +3,26 @@ import os
 from distutils.util import strtobool
 from pathlib import Path
 
+import boto3
 import dj_database_url
 import sentry_sdk
 import stripe
 from django.contrib.messages import constants as messages
 from django.urls import reverse_lazy
 from sentry_sdk.integrations.django import DjangoIntegration
+
+ENV_SECRETS_ID = "bmc/local"
+AWS_REGION = "us-west-2"
+
+aws_session = boto3.session.Session()
+client = aws_session.client(
+    service_name="secretsmanager",
+    region_name=AWS_REGION,
+)
+env_secrets = json.loads(
+    client.get_secret_value(SecretId=ENV_SECRETS_ID)["SecretString"]
+)
+os.environ.update(env_secrets)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
