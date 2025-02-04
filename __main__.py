@@ -1,22 +1,9 @@
 """An AWS Python Pulumi program"""
 import json
 
-import boto3
 import pulumi
 import pulumi_aws as aws
 import pulumi_awsx as awsx
-
-ENV_SECRETS_ID = "bmc/prod"
-AWS_REGION = "us-west-2"
-aws_session = boto3.session.Session()
-client = aws_session.client(
-    service_name="secretsmanager",
-    region_name=AWS_REGION,
-)
-django_secrets = json.loads(
-    client.get_secret_value(SecretId=ENV_SECRETS_ID)["SecretString"]
-)
-
 
 api_gateway: aws.apigatewayv2.Api = aws.apigatewayv2.Api(
     "skagit",
@@ -42,10 +29,35 @@ lambda_role: aws.iam.Role = aws.iam.Role(
     ),
 )
 
+lambda_secret_policy = aws.iam.Policy(
+    "lambdaSecretReadPolicy",
+    description="Policy to allow reading secrets starting with 'bmc/'",
+    policy=pulumi.Output.all().apply(
+        lambda _: json.dumps(
+            {
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Effect": "Allow",
+                        "Action": ["secretsmanager:GetSecretValue"],
+                        "Resource": [f"arn:aws:secretsmanager:*:*:secret:bmc/*"],
+                    }
+                ],
+            }
+        )
+    ),
+)
+
 lambda_role_policy: aws.iam.RolePolicyAttachment = aws.iam.RolePolicyAttachment(
     "lambda-role-policy",
     role=lambda_role.name,
     policy_arn="arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+)
+
+lambda_role_secret_policy_attach = aws.iam.RolePolicyAttachment(
+    "lambdaSecretReadPolicyAttachment",
+    role=lambda_role.name,
+    policy_arn=lambda_secret_policy.arn,
 )
 
 repository: aws.ecr.Repository = aws.ecr.Repository(
@@ -72,7 +84,6 @@ lambda_function: aws.lambda_.Function = aws.lambda_.Function(
     role=lambda_role.arn,
     timeout=30,
     memory_size=512,
-    environment={"variables": django_secrets},
 )
 
 stage: aws.apigatewayv2.Stage = aws.apigatewayv2.Stage(
