@@ -14,15 +14,15 @@ from sentry_sdk.integrations.django import DjangoIntegration
 ENV_SECRETS_ID = "bmc/local"
 AWS_REGION = "us-west-2"
 
-aws_session = boto3.session.Session()
-client = aws_session.client(
-    service_name="secretsmanager",
-    region_name=AWS_REGION,
-)
-env_secrets = json.loads(
-    client.get_secret_value(SecretId=ENV_SECRETS_ID)["SecretString"]
-)
-os.environ.update(env_secrets)
+# aws_session = boto3.session.Session()
+# client = aws_session.client(
+#     service_name="secretsmanager",
+#     region_name=AWS_REGION,
+# )
+# env_secrets = json.loads(
+#     client.get_secret_value(SecretId=ENV_SECRETS_ID)["SecretString"]
+# )
+# os.environ.update(env_secrets)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 

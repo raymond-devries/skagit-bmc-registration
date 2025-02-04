@@ -35,3 +35,19 @@ Seeding data
 ```shell
 python manage.py migrate && aws s3 cp s3://skagit-bmc-dev/dev-dump.json - | python manage.py loaddata --format=json -
 ```
+
+#### Lambda Image Testing
+Build
+```shell
+docker buildx build --platform linux/amd64 --provenance=false -t docker-image:test . 
+```
+
+Run
+```shell
+docker run --platform linux/amd64 --rm -it -p 9000:8080 --env-file .env-local --name django-lambda docker-image:test
+```
+
+Test
+```shell
+curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"resource": "/", "path": "/", "httpMethod": "GET", "requestContext": {}, "multiValueQueryStringParameters": null}'
+```

@@ -1,0 +1,10 @@
+name: skagit-bmc
+description: Skagit Basic Mountaineering Course website.
+runtime:
+  name: python
+  options:
+    toolchain: uv
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: aws-python

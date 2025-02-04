@@ -1,15 +1,12 @@
-FROM python:3.9
+FROM public.ecr.aws/lambda/python:3.11
 
-RUN apt-get -y update
+COPY requirements.txt ${LAMBDA_TASK_ROOT}
+RUN pip install -r requirements.txt
 
-RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | POETRY_HOME=/opt/poetry python && \
-    cd /usr/local/bin && \
-    ln -s /opt/poetry/bin/poetry && \
-    poetry config virtualenvs.create false
+COPY registration ${LAMBDA_TASK_ROOT}/registration
+COPY SkagitRegistration ${LAMBDA_TASK_ROOT}/SkagitRegistration
+COPY static ${LAMBDA_TASK_ROOT}/static
+COPY staticfiles ${LAMBDA_TASK_ROOT}/staticfiles
+COPY templates ${LAMBDA_TASK_ROOT}/templates
 
-WORKDIR /app
-COPY ./pyproject.toml ./poetry.lock* /app/
-
-RUN poetry install --no-root --no-dev
-
-COPY ./ /app
+CMD [ "SkagitRegistration.asgi.handler" ]
