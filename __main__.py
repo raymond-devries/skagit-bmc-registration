@@ -1,9 +1,26 @@
 """An AWS Python Pulumi program"""
 import json
 
+import boto3
 import pulumi
 import pulumi_aws as aws
 import pulumi_awsx as awsx
+
+config = pulumi.Config()
+constant_config = config.require("constant-config")
+aws_config = pulumi.Config("aws")
+aws_region = aws_config.require("region")
+
+aws_session = boto3.session.Session()
+client = aws_session.client(
+    service_name="secretsmanager",
+    region_name=aws_region,
+)
+constant_secrets = json.loads(
+    client.get_secret_value(SecretId=constant_config)["SecretString"]
+)
+
+secret_config = aws.secretsmanager.Secret("secret-config")
 
 static_files_bucket = aws.s3.BucketV2("static-files-bucket", force_destroy=True)
 
@@ -60,20 +77,17 @@ lambda_role: aws.iam.Role = aws.iam.Role(
 
 lambda_secret_policy = aws.iam.Policy(
     "lambdaSecretReadPolicy",
-    description="Policy to allow reading secrets starting with 'bmc/'",
-    policy=pulumi.Output.all().apply(
-        lambda _: json.dumps(
-            {
-                "Version": "2012-10-17",
-                "Statement": [
-                    {
-                        "Effect": "Allow",
-                        "Action": ["secretsmanager:GetSecretValue"],
-                        "Resource": [f"arn:aws:secretsmanager:*:*:secret:bmc/*"],
-                    }
-                ],
-            }
-        )
+    policy=pulumi.Output.json_dumps(
+        {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Action": ["secretsmanager:GetSecretValue"],
+                    "Resource": [secret_config.arn],
+                }
+            ],
+        }
     ),
 )
 
@@ -113,7 +127,7 @@ lambda_function: aws.lambda_.Function = aws.lambda_.Function(
     role=lambda_role.arn,
     timeout=30,
     memory_size=512,
-    environment={"variables": {"STATIC_FILES_BUCKET_NAME": static_files_bucket.bucket}},
+    environment={"variables": {"AWS_SECRETS_CONFIG_NAME": secret_config.name}},
 )
 
 stage: aws.apigatewayv2.Stage = aws.apigatewayv2.Stage(
@@ -144,6 +158,20 @@ lambda_permission: aws.lambda_.Permission = aws.lambda_.Permission(
     source_arn=api_gateway.execution_arn.apply(lambda arn: f"{arn}/*/*"),
 )
 
+secret_config_version = aws.secretsmanager.SecretVersion(
+    "secret-config-version",
+    secret_id=secret_config.id,
+    secret_string=pulumi.Output.json_dumps(
+        {
+            "ALLOWED_HOSTS": api_gateway.api_endpoint.apply(
+                lambda api_endpoint: api_endpoint.replace("https://", "")
+            ),
+            "STATIC_FILES_BUCKET_NAME": static_files_bucket.bucket,
+            **constant_secrets,
+        }
+    ),
+)
 
+pulumi.export("secret config name", secret_config.name)
 pulumi.export("bucket_name", static_files_bucket.bucket)
 pulumi.export("url", api_gateway.api_endpoint)

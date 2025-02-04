@@ -11,7 +11,7 @@ from django.contrib.messages import constants as messages
 from django.urls import reverse_lazy
 from sentry_sdk.integrations.django import DjangoIntegration
 
-ENV_SECRETS_ID = "bmc/prod"
+ENV_SECRETS_ID = os.environ["AWS_SECRETS_CONFIG_NAME"]
 AWS_REGION = "us-west-2"
 aws_session = boto3.session.Session()
 client = aws_session.client(
@@ -118,7 +118,7 @@ if not DEBUG:
         "staticfiles": {
             "BACKEND": "storages.backends.s3.S3Storage",
             "OPTIONS": {
-                "bucket_name": "static-files-bucket-af7a09a",
+                "bucket_name": os.getenv("STATIC_FILES_BUCKET_NAME"),
             },
         }
     }
