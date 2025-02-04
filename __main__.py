@@ -5,6 +5,35 @@ import pulumi
 import pulumi_aws as aws
 import pulumi_awsx as awsx
 
+static_files_bucket = aws.s3.BucketV2("static-files-bucket", force_destroy=True)
+
+static_files_bucket_public_access_block = aws.s3.BucketPublicAccessBlock(
+    "static-files-bucket-public-access-block",
+    bucket=static_files_bucket.bucket,
+    block_public_acls=False,
+    block_public_policy=False,
+    ignore_public_acls=False,
+    restrict_public_buckets=False,
+)
+
+static_files_bucket_policy = aws.s3.BucketPolicy(
+    "static-files-bucket-policy",
+    bucket=static_files_bucket.bucket,
+    policy=static_files_bucket.bucket.apply(
+        lambda bucket_name: f"""{{
+        "Version": "2012-10-17",
+        "Statement": [
+            {{
+                "Effect": "Allow",
+                "Principal": "*",
+                "Action": "s3:GetObject",
+                "Resource": "arn:aws:s3:::{bucket_name}/*"
+            }}
+        ]
+    }}"""
+    ),
+)
+
 api_gateway: aws.apigatewayv2.Api = aws.apigatewayv2.Api(
     "skagit",
     name="BMC Lambda API",
@@ -84,6 +113,7 @@ lambda_function: aws.lambda_.Function = aws.lambda_.Function(
     role=lambda_role.arn,
     timeout=30,
     memory_size=512,
+    environment={"variables": {"STATIC_FILES_BUCKET_NAME": static_files_bucket.bucket}},
 )
 
 stage: aws.apigatewayv2.Stage = aws.apigatewayv2.Stage(
@@ -115,4 +145,5 @@ lambda_permission: aws.lambda_.Permission = aws.lambda_.Permission(
 )
 
 
+pulumi.export("bucket_name", static_files_bucket.bucket)
 pulumi.export("url", api_gateway.api_endpoint)
