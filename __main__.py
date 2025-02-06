@@ -99,18 +99,20 @@ static_files_bucket_public_access_block = aws.s3.BucketPublicAccessBlock(
 static_files_bucket_policy = aws.s3.BucketPolicy(
     "static-files-bucket-policy",
     bucket=static_files_bucket.bucket,
-    policy=static_files_bucket.bucket.apply(
-        lambda bucket_name: f"""{{
-        "Version": "2012-10-17",
-        "Statement": [
-            {{
-                "Effect": "Allow",
-                "Principal": "*",
-                "Action": "s3:GetObject",
-                "Resource": "arn:aws:s3:::{bucket_name}/*"
-            }}
-        ]
-    }}"""
+    policy=pulumi.Output.json_dumps(
+        {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Principal": "*",
+                    "Action": "s3:GetObject",
+                    "Resource": static_files_bucket.bucket.apply(
+                        lambda bucket_name: f"arn:aws:s3:::{bucket_name}/*"
+                    ),
+                }
+            ],
+        }
     ),
 )
 
