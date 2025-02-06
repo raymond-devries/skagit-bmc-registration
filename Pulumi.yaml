@@ -5,7 +5,4 @@ runtime:
   options:
     toolchain: uv
 config:
-  pulumi:tags:
-    value:
-      pulumi:template: aws-python
   aws:region: us-west-2
