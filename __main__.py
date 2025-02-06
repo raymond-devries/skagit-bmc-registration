@@ -168,9 +168,10 @@ lambda_role_secret_policy_attach = aws.iam.RolePolicyAttachment(
     policy_arn=lambda_secret_policy.arn,
 )
 
+# images
 repository: aws.ecr.Repository = aws.ecr.Repository(
     "bmc-django-repo",
-    name="bmc-django-app-repo",
+    name="bmc-django-app-lambda",
     force_delete=True,  # Makes cleanup easier for testing
     image_scanning_configuration=aws.ecr.RepositoryImageScanningConfigurationArgs(
         scan_on_push=True,
@@ -178,9 +179,9 @@ repository: aws.ecr.Repository = aws.ecr.Repository(
 )
 
 image: awsx.ecr.Image = awsx.ecr.Image(
-    "bmc-django-app-image",
+    "bmc-django-lambda-image",
     repository_url=repository.repository_url,
-    dockerfile="Dockerfile",  # Path to your Dockerfile
+    dockerfile="lambda.Dockerfile",  # Path to your lambda.Dockerfile
     platform="linux/amd64",  # Important for M1/M2 Mac users
 )
 
