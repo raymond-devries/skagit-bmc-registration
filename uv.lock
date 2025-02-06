@@ -573,6 +573,26 @@ wheels = [
 ]
 
 [[package]]
+name = "pulumi-local"
+version = "1.3.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ca/66/c435c31828c6b8c18aaff187e6ebbd0c2cf3bfdfd3f4e0be1cd82ee51905/pulumi_local-1.3.0.tar.gz", hash = "sha256:440ae5151b037f78540f325251e760a93bd47406338b62f03efb2128833da8af", size = 13214 }
+
+[[package]]
+name = "pulumi-random"
+version = "4.17.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "parver" },
+    { name = "pulumi" },
+    { name = "semver" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/90/42/b8066cd965e8cf8892b6440ca67e8392c9b1f1c69b40a7550f448ef3c36f/pulumi_random-4.17.0.tar.gz", hash = "sha256:96a1ad0f4eeb6164ea64a228231e8363777e01cf4dec4c02e99d1718ef99b8b7", size = 21177 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/07/5d/c07732830f7227f0a4bc85f8d7d09750d0e0de41a9ca3862dbdaa2d652a6/pulumi_random-4.17.0-py3-none-any.whl", hash = "sha256:3e3d31af5561b8156f2fa7393c42e34f7ca2e122fc2e5f2471d956e4550a6ac8", size = 30812 },
+]
+
+[[package]]
 name = "pytest"
 version = "7.4.4"
 source = { registry = "https://pypi.org/simple" }
@@ -747,6 +767,8 @@ dev = [
     { name = "pulumi" },
     { name = "pulumi-aws" },
     { name = "pulumi-awsx" },
+    { name = "pulumi-local" },
+    { name = "pulumi-random" },
     { name = "pytest" },
     { name = "pytest-django" },
     { name = "pytest-freezegun" },
@@ -779,6 +801,8 @@ dev = [
     { name = "pulumi", specifier = ">=3.148.0" },
     { name = "pulumi-aws", specifier = ">=6.67.0" },
     { name = "pulumi-awsx", specifier = ">=2.21.0" },
+    { name = "pulumi-local", specifier = ">=1.3.0" },
+    { name = "pulumi-random", specifier = ">=4.17.0" },
     { name = "pytest", specifier = ">=7.1.3,<8" },
     { name = "pytest-django", specifier = ">=4.5.2,<5" },
     { name = "pytest-freezegun", specifier = ">=0.4.2,<0.5" },

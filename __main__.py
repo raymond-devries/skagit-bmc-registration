@@ -5,6 +5,7 @@ import boto3
 import pulumi
 import pulumi_aws as aws
 import pulumi_awsx as awsx
+import pulumi_random
 
 config = pulumi.Config()
 constant_config = config.require("constant-config")
@@ -21,6 +22,68 @@ constant_secrets = json.loads(
 )
 
 secret_config = aws.secretsmanager.Secret("secret-config")
+
+db_password = pulumi_random.RandomPassword("db-password", length=16, special=False)
+
+database_security_group = aws.ec2.SecurityGroup(
+    "database-security-group",
+    egress=[
+        {
+            "cidr_blocks": ["0.0.0.0/0"],
+            "from_port": 0,
+            "protocol": "-1",
+            "to_port": 0,
+        }
+    ],
+    ingress=[
+        {
+            "cidr_blocks": ["0.0.0.0/0"],
+            "from_port": 0,
+            "protocol": "-1",
+            "to_port": 0,
+        }
+    ],
+)
+
+# database
+serverless_postgres_cluster = aws.rds.Cluster(
+    "serverless-postgres-cluster",
+    database_name="bmcdata",
+    engine=aws.rds.EngineType.AURORA_POSTGRESQL,
+    engine_mode=aws.rds.EngineMode.PROVISIONED,
+    engine_version="16.6",
+    master_username="superuser",
+    master_password=db_password.result,
+    storage_encrypted=True,
+    serverlessv2_scaling_configuration={
+        "max_capacity": 4,
+        "min_capacity": 0,
+        "seconds_until_auto_pause": 300,
+    },
+    # todo remove
+    vpc_security_group_ids=[database_security_group.id],
+    skip_final_snapshot=True,
+)
+
+serverless_postgres_cluster_instance = aws.rds.ClusterInstance(
+    "serverless-postgres-cluster-instance",
+    cluster_identifier=serverless_postgres_cluster.id,
+    instance_class="db.serverless",
+    engine=serverless_postgres_cluster.engine,
+    engine_version=serverless_postgres_cluster.engine_version,
+    publicly_accessible=True,
+)
+
+db_url = pulumi.Output.concat(
+    "postgres://",
+    serverless_postgres_cluster.master_username,
+    ":",
+    serverless_postgres_cluster.master_password,
+    "@",
+    serverless_postgres_cluster.endpoint,
+    "/",
+    serverless_postgres_cluster.database_name,
+)
 
 static_files_bucket = aws.s3.BucketV2("static-files-bucket", force_destroy=True)
 
@@ -166,6 +229,7 @@ secret_config_version = aws.secretsmanager.SecretVersion(
             "ALLOWED_HOSTS": api_gateway.api_endpoint.apply(
                 lambda api_endpoint: api_endpoint.replace("https://", "")
             ),
+            "DATABASE_URL": db_url,
             "STATIC_FILES_BUCKET_NAME": static_files_bucket.bucket,
             **constant_secrets,
         }
@@ -174,4 +238,5 @@ secret_config_version = aws.secretsmanager.SecretVersion(
 
 pulumi.export("secret config name", secret_config.name)
 pulumi.export("bucket_name", static_files_bucket.bucket)
+pulumi.export("cluster_url", serverless_postgres_cluster.endpoint)
 pulumi.export("url", api_gateway.api_endpoint)
