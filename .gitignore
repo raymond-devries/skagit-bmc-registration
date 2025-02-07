@@ -3,3 +3,5 @@ venv
 *.sqlite3
 .env*
 sdks
+staticfiles/**
+!staticfiles/empty.txt
