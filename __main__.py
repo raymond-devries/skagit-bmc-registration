@@ -9,6 +9,7 @@ import pulumi_random
 
 config = pulumi.Config()
 constant_config = config.require("constant-config")
+supabase_slug = config.require("supabase-slug")
 aws_config = pulumi.Config("aws")
 aws_region = aws_config.require("region")
 
@@ -169,9 +170,9 @@ lambda_role_secret_policy_attach = aws.iam.RolePolicyAttachment(
 )
 
 # images
-repository: aws.ecr.Repository = aws.ecr.Repository(
-    "bmc-django-repo",
-    name="bmc-django-app-lambda",
+linux_repository: aws.ecr.Repository = aws.ecr.Repository(
+    "bmc-django-linux-repo",
+    name="bmc-django-app-linux",
     force_delete=True,  # Makes cleanup easier for testing
     image_scanning_configuration=aws.ecr.RepositoryImageScanningConfigurationArgs(
         scan_on_push=True,
@@ -179,8 +180,25 @@ repository: aws.ecr.Repository = aws.ecr.Repository(
 )
 
 image: awsx.ecr.Image = awsx.ecr.Image(
+    "bmc-django-linux-image",
+    repository_url=linux_repository.repository_url,
+    dockerfile="linux.Dockerfile",  # Path to your lambda.Dockerfile
+    platform="linux/amd64",  # Important for M1/M2 Mac users
+)
+
+
+lambda_repo: aws.ecr.Repository = aws.ecr.Repository(
+    "bmc-django-lambda-repo",
+    name="bmc-django-app-lambda",
+    force_delete=True,  # Makes cleanup easier for testing
+    image_scanning_configuration=aws.ecr.RepositoryImageScanningConfigurationArgs(
+        scan_on_push=True,
+    ),
+)
+
+lambda_image: awsx.ecr.Image = awsx.ecr.Image(
     "bmc-django-lambda-image",
-    repository_url=repository.repository_url,
+    repository_url=lambda_repo.repository_url,
     dockerfile="lambda.Dockerfile",  # Path to your lambda.Dockerfile
     platform="linux/amd64",  # Important for M1/M2 Mac users
 )
@@ -189,7 +207,7 @@ lambda_function: aws.lambda_.Function = aws.lambda_.Function(
     "bmc-django-app-lambda-function",
     name="bmc-django-app-lambda-function",
     package_type="Image",
-    image_uri=image.image_uri,
+    image_uri=lambda_image.image_uri,
     role=lambda_role.arn,
     timeout=30,
     memory_size=512,
