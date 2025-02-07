@@ -1,4 +1,5 @@
 import pulumi
+import pulumi_aws as aws
 import pulumi_random
 
 config = pulumi.Config()
@@ -32,9 +33,9 @@ def get_supabase_db(db_password: pulumi_random.RandomPassword) -> pulumi.Output[
     return db_url
 
 
-def get_serverless_db(db_password: pulumi_random.RandomPassword) -> pulumi.Output[str]:
-    import pulumi_aws as aws
-
+def get_aws_serverless_db(
+    db_password: pulumi_random.RandomPassword,
+) -> pulumi.Output[str]:
     database_security_group = aws.ec2.SecurityGroup(
         "database-security-group",
         egress=[
@@ -93,5 +94,54 @@ def get_serverless_db(db_password: pulumi_random.RandomPassword) -> pulumi.Outpu
         serverless_postgres_cluster.endpoint,
         "/",
         serverless_postgres_cluster.database_name,
+    )
+    return db_url
+
+
+def get_aws_db_instance(
+    db_password: pulumi_random.RandomPassword,
+) -> pulumi.Output[str]:
+    database_security_group = aws.ec2.SecurityGroup(
+        "database-security-group",
+        egress=[
+            {
+                "cidr_blocks": ["0.0.0.0/0"],
+                "from_port": 0,
+                "protocol": "-1",
+                "to_port": 0,
+            }
+        ],
+        ingress=[
+            {
+                "cidr_blocks": ["0.0.0.0/0"],
+                "from_port": 0,
+                "protocol": "-1",
+                "to_port": 0,
+            }
+        ],
+    )
+
+    database = aws.rds.Instance(
+        "aws-database-instance",
+        engine="postgres",
+        instance_class="db.t4g.micro",
+        allocated_storage=10,
+        db_name="mydatabase",
+        username="postgres",
+        password=db_password.result,
+        publicly_accessible=True,
+        skip_final_snapshot=True,
+        vpc_security_group_ids=[database_security_group.id],
+    )
+
+    db_url = pulumi.Output.concat(
+        "postgres://",
+        database.username,
+        ":",
+        database.password,
+        "@",
+        database.endpoint,
+        "/",
+        database.db_name,
     )
     return db_url
