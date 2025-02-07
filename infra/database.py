@@ -63,7 +63,7 @@ def get_aws_serverless_db(
         engine=aws.rds.EngineType.AURORA_POSTGRESQL,
         engine_mode=aws.rds.EngineMode.PROVISIONED,
         engine_version="16.6",
-        master_username="superuser",
+        master_username="postgres",
         master_password=db_password.result,
         storage_encrypted=True,
         serverlessv2_scaling_configuration={
