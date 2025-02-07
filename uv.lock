@@ -545,6 +545,20 @@ wheels = [
 ]
 
 [[package]]
+name = "pulumi-command"
+version = "1.0.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "parver" },
+    { name = "pulumi" },
+    { name = "semver" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/dd/c0/a6304d7697a22cec1f71101613eb81fe5f98549c36040d40a5d0a9cc759e/pulumi_command-1.0.1.tar.gz", hash = "sha256:58e123707956aa7a9be2ce89c009642539cde5d9fa02e1e10501662600894843", size = 31532 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ad/f1/a7616bc13081a110d8c2d0fe26c42249735154fa2732c86fab9ef8de0844/pulumi_command-1.0.1-py3-none-any.whl", hash = "sha256:672cdea9c0ced0f79ed47e578267a2b2160dcf88626dde34ee96f5524a003574", size = 34742 },
+]
+
+[[package]]
 name = "pulumi-docker"
 version = "4.6.1"
 source = { registry = "https://pypi.org/simple" }
@@ -772,7 +786,6 @@ dependencies = [
     { name = "gunicorn" },
     { name = "mangum" },
     { name = "psycopg2-binary" },
-    { name = "pulumi-supabase" },
     { name = "sentry-sdk" },
     { name = "stripe" },
 ]
@@ -786,8 +799,10 @@ dev = [
     { name = "pulumi" },
     { name = "pulumi-aws" },
     { name = "pulumi-awsx" },
+    { name = "pulumi-command" },
     { name = "pulumi-local" },
     { name = "pulumi-random" },
+    { name = "pulumi-supabase" },
     { name = "pytest" },
     { name = "pytest-django" },
     { name = "pytest-freezegun" },
@@ -807,7 +822,6 @@ requires-dist = [
     { name = "gunicorn", specifier = ">=20.1.0,<21" },
     { name = "mangum", specifier = ">=0.19.0" },
     { name = "psycopg2-binary", specifier = "~=2.0" },
-    { name = "pulumi-supabase", directory = "sdks/supabase" },
     { name = "sentry-sdk", specifier = ">=1.9.10,<2" },
     { name = "stripe", specifier = ">=4.2.0,<5" },
 ]
@@ -821,8 +835,10 @@ dev = [
     { name = "pulumi", specifier = ">=3.148.0" },
     { name = "pulumi-aws", specifier = ">=6.67.0" },
     { name = "pulumi-awsx", specifier = ">=2.21.0" },
+    { name = "pulumi-command", specifier = ">=1.0.1" },
     { name = "pulumi-local", specifier = ">=1.3.0" },
     { name = "pulumi-random", specifier = ">=4.17.0" },
+    { name = "pulumi-supabase", directory = "sdks/supabase" },
     { name = "pytest", specifier = ">=7.1.3,<8" },
     { name = "pytest-django", specifier = ">=4.5.2,<5" },
     { name = "pytest-freezegun", specifier = ">=0.4.2,<0.5" },

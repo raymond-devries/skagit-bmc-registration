@@ -5,7 +5,9 @@ import pulumi_random
 config = pulumi.Config()
 
 
-def get_supabase_db(db_password: pulumi_random.RandomPassword) -> pulumi.Output[str]:
+def get_supabase_db(
+    db_password: pulumi_random.RandomPassword,
+) -> tuple[pulumi.Output[str], pulumi.Resource]:
     """
     To use supabase db run:
     pulumi package add terraform-provider supabase/supabase
@@ -24,18 +26,20 @@ def get_supabase_db(db_password: pulumi_random.RandomPassword) -> pulumi.Output[
         name="bmc-test",
     )
     db_url = pulumi.Output.concat(
-        "postgres://postgres:",
-        supabase_db.database_password,
-        "@db.",
+        "postgres://postgres.",
         supabase_db.id,
-        ".supabase.co/postgres",
+        ":",
+        supabase_db.database_password,
+        "@aws-0-",
+        supabase_db.region,
+        ".pooler.supabase.com:6543/postgres",
     )
-    return db_url
+    return db_url, supabase_db
 
 
 def get_aws_serverless_db(
     db_password: pulumi_random.RandomPassword,
-) -> pulumi.Output[str]:
+) -> tuple[pulumi.Output[str], pulumi.Resource]:
     database_security_group = aws.ec2.SecurityGroup(
         "database-security-group",
         egress=[
@@ -95,12 +99,12 @@ def get_aws_serverless_db(
         "/",
         serverless_postgres_cluster.database_name,
     )
-    return db_url
+    return db_url, serverless_postgres_cluster_instance
 
 
 def get_aws_db_instance(
     db_password: pulumi_random.RandomPassword,
-) -> pulumi.Output[str]:
+) -> tuple[pulumi.Output[str], pulumi.Resource]:
     database_security_group = aws.ec2.SecurityGroup(
         "database-security-group",
         egress=[
@@ -144,4 +148,4 @@ def get_aws_db_instance(
         "/",
         database.db_name,
     )
-    return db_url
+    return db_url, database

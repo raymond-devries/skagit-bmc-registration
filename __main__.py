@@ -5,6 +5,7 @@ import boto3
 import pulumi
 import pulumi_aws as aws
 import pulumi_awsx as awsx
+import pulumi_command
 import pulumi_random
 
 from infra.database import get_supabase_db
@@ -28,7 +29,7 @@ secret_config = aws.secretsmanager.Secret("secret-config")
 
 # db
 db_password = pulumi_random.RandomPassword("db-password", length=16, special=False)
-db_url = get_supabase_db(db_password)
+db_url, database = get_supabase_db(db_password)
 
 static_files_bucket = aws.s3.BucketV2("static-files-bucket", force_destroy=True)
 
@@ -66,6 +67,37 @@ api_gateway: aws.apigatewayv2.Api = aws.apigatewayv2.Api(
     name="BMC Lambda API",
     protocol_type="HTTP",
     route_selection_expression="$request.method $request.path",
+)
+
+secret_config_version = aws.secretsmanager.SecretVersion(
+    "secret-config-version",
+    secret_id=secret_config.id,
+    secret_string=pulumi.Output.json_dumps(
+        {
+            "ALLOWED_HOSTS": api_gateway.api_endpoint.apply(
+                lambda api_endpoint: api_endpoint.replace("https://", "")
+            ),
+            "DATABASE_URL": db_url,
+            "STATIC_FILES_BUCKET_NAME": static_files_bucket.bucket,
+            **constant_secrets,
+        }
+    ),
+)
+
+required_setup = pulumi.ResourceOptions(
+    depends_on=[database, static_files_bucket, api_gateway, secret_config_version]
+)
+collectstatic_command = pulumi_command.local.Command(
+    "collectstatic_command",
+    create="python manage.py collectstatic --no-input",
+    opts=required_setup,
+    environment={"AWS_SECRETS_CONFIG_NAME": secret_config.name},
+)
+migrate_command = pulumi_command.local.Command(
+    "migrate_command",
+    create="python manage.py migrate --no-input",
+    opts=required_setup,
+    environment={"AWS_SECRETS_CONFIG_NAME": secret_config.name},
 )
 
 lambda_role: aws.iam.Role = aws.iam.Role(
@@ -141,6 +173,7 @@ lambda_function: aws.lambda_.Function = aws.lambda_.Function(
     timeout=30,
     memory_size=512,
     environment={"variables": {"AWS_SECRETS_CONFIG_NAME": secret_config.name}},
+    opts=pulumi.ResourceOptions(depends_on=[migrate_command, collectstatic_command]),
 )
 
 stage: aws.apigatewayv2.Stage = aws.apigatewayv2.Stage(
@@ -169,21 +202,6 @@ lambda_permission: aws.lambda_.Permission = aws.lambda_.Permission(
     function=lambda_function.name,
     principal="apigateway.amazonaws.com",
     source_arn=api_gateway.execution_arn.apply(lambda arn: f"{arn}/*/*"),
-)
-
-secret_config_version = aws.secretsmanager.SecretVersion(
-    "secret-config-version",
-    secret_id=secret_config.id,
-    secret_string=pulumi.Output.json_dumps(
-        {
-            "ALLOWED_HOSTS": api_gateway.api_endpoint.apply(
-                lambda api_endpoint: api_endpoint.replace("https://", "")
-            ),
-            "DATABASE_URL": db_url,
-            "STATIC_FILES_BUCKET_NAME": static_files_bucket.bucket,
-            **constant_secrets,
-        }
-    ),
 )
 
 pulumi.export("secret config name", secret_config.name)
