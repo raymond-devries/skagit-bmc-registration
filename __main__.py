@@ -7,6 +7,8 @@ import pulumi_aws as aws
 import pulumi_awsx as awsx
 import pulumi_random
 
+from infra.database import get_supabase_db
+
 config = pulumi.Config()
 constant_config = config.require("constant-config")
 supabase_slug = config.require("supabase-slug")
@@ -24,67 +26,9 @@ constant_secrets = json.loads(
 
 secret_config = aws.secretsmanager.Secret("secret-config")
 
+# db
 db_password = pulumi_random.RandomPassword("db-password", length=16, special=False)
-
-database_security_group = aws.ec2.SecurityGroup(
-    "database-security-group",
-    egress=[
-        {
-            "cidr_blocks": ["0.0.0.0/0"],
-            "from_port": 0,
-            "protocol": "-1",
-            "to_port": 0,
-        }
-    ],
-    ingress=[
-        {
-            "cidr_blocks": ["0.0.0.0/0"],
-            "from_port": 0,
-            "protocol": "-1",
-            "to_port": 0,
-        }
-    ],
-)
-
-# database
-serverless_postgres_cluster = aws.rds.Cluster(
-    "serverless-postgres-cluster",
-    database_name="bmcdata",
-    engine=aws.rds.EngineType.AURORA_POSTGRESQL,
-    engine_mode=aws.rds.EngineMode.PROVISIONED,
-    engine_version="16.6",
-    master_username="superuser",
-    master_password=db_password.result,
-    storage_encrypted=True,
-    serverlessv2_scaling_configuration={
-        "max_capacity": 4,
-        "min_capacity": 0,
-        "seconds_until_auto_pause": 300,
-    },
-    # todo remove
-    vpc_security_group_ids=[database_security_group.id],
-    skip_final_snapshot=True,
-)
-
-serverless_postgres_cluster_instance = aws.rds.ClusterInstance(
-    "serverless-postgres-cluster-instance",
-    cluster_identifier=serverless_postgres_cluster.id,
-    instance_class="db.serverless",
-    engine=serverless_postgres_cluster.engine,
-    engine_version=serverless_postgres_cluster.engine_version,
-    publicly_accessible=True,
-)
-
-db_url = pulumi.Output.concat(
-    "postgres://",
-    serverless_postgres_cluster.master_username,
-    ":",
-    serverless_postgres_cluster.master_password,
-    "@",
-    serverless_postgres_cluster.endpoint,
-    "/",
-    serverless_postgres_cluster.database_name,
-)
+db_url = get_supabase_db(db_password)
 
 static_files_bucket = aws.s3.BucketV2("static-files-bucket", force_destroy=True)
 
@@ -184,6 +128,8 @@ image: awsx.ecr.Image = awsx.ecr.Image(
     repository_url=linux_repository.repository_url,
     dockerfile="linux.Dockerfile",  # Path to your lambda.Dockerfile
     platform="linux/amd64",  # Important for M1/M2 Mac users
+    # todo change to latest
+    image_tag="linux-latest",
 )
 
 
@@ -201,6 +147,8 @@ lambda_image: awsx.ecr.Image = awsx.ecr.Image(
     repository_url=lambda_repo.repository_url,
     dockerfile="lambda.Dockerfile",  # Path to your lambda.Dockerfile
     platform="linux/amd64",  # Important for M1/M2 Mac users
+    # todo change to latest
+    image_tag="lambda-latest",
 )
 
 lambda_function: aws.lambda_.Function = aws.lambda_.Function(
@@ -259,5 +207,4 @@ secret_config_version = aws.secretsmanager.SecretVersion(
 
 pulumi.export("secret config name", secret_config.name)
 pulumi.export("bucket_name", static_files_bucket.bucket)
-pulumi.export("cluster_url", serverless_postgres_cluster.endpoint)
 pulumi.export("url", api_gateway.api_endpoint)

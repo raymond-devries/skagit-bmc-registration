@@ -21,6 +21,11 @@ Required Environment Variables:
 
 ### Dev Notes
 
+To deploy with pulumi the supabase sdk will need to be generated
+```shell
+pulumi package add terraform-provider supabase/supabase
+```
+
 Set dev env
 ```shell
 source set_dev_env.sh
