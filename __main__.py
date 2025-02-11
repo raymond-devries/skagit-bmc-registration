@@ -23,6 +23,8 @@ register_auto_tags(
 
 config = pulumi.Config()
 constant_config = config.require("constant-config")
+seed_data_on_startup = config.get_bool("seed_data_on_startup", False)
+protect_data = config.get_bool("protect_data", True)
 
 aws_config = pulumi.Config("aws")
 aws_region = aws_config.require("region")
@@ -43,7 +45,7 @@ secret_config = aws.secretsmanager.Secret("secret-config", name=f"bmc/server/{ST
 
 # db
 db_password = pulumi_random.RandomPassword("db_password", length=16, special=False)
-db_url, database = get_supabase_db(db_password)
+db_url, database = get_supabase_db(db_password, protect_data)
 
 static_files_bucket = aws.s3.BucketV2(
     "static_files_bucket", force_destroy=True, bucket_prefix=f"bmcstatic{STACK}"
@@ -153,6 +155,15 @@ migrate_command = pulumi_command.local.Command(
     environment={"AWS_SECRETS_CONFIG_NAME": secret_config.name},
 )
 
+if seed_data_on_startup:
+    pulumi_command.local.Command(
+        "seed_data_on_startup_command",
+        create="aws s3 cp s3://skagit-bmc-dev/dev-dump.json - | python manage.py loaddata --format=json -",
+        update='echo "Data already seeded"',
+        opts=pulumi.ResourceOptions(depends_on=[migrate_command]),
+        environment={"AWS_SECRETS_CONFIG_NAME": secret_config.name},
+    )
+
 lambda_role: aws.iam.Role = aws.iam.Role(
     "lambda_role",
     name=f"bmc_lambda_role_{STACK}",
@@ -259,6 +270,8 @@ api_lambda_permission: aws.lambda_.Permission = aws.lambda_.Permission(
     source_arn=api_gateway.execution_arn.apply(lambda arn: f"{arn}/*/*"),
 )
 
+pulumi.export("seeding data on startup", seed_data_on_startup)
+pulumi.export("protect data", protect_data)
 pulumi.export("secret config name", secret_config.name)
 pulumi.export("bucket_name", static_files_bucket.bucket)
 pulumi.export("url", api_gateway.api_endpoint)

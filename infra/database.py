@@ -36,7 +36,7 @@ def wait_for_supabase_deployment(api_key: str, ref: str, timeout: int = 300):
 
 
 def get_supabase_db(
-    db_password: pulumi_random.RandomPassword,
+    db_password: pulumi_random.RandomPassword, protect: bool
 ) -> tuple[pulumi.Output[str], pulumi.Resource]:
     """
     To use supabase db run:
@@ -55,6 +55,7 @@ def get_supabase_db(
         organization_id=supabase_slug,
         region="us-west-1",
         name=f"bmc-{stack}",
+        opts=pulumi.ResourceOptions(protect=protect),
     )
     db_url = pulumi.Output.concat(
         "postgres://postgres.",
@@ -69,7 +70,7 @@ def get_supabase_db(
 
 
 def get_aws_serverless_db(
-    db_password: pulumi_random.RandomPassword,
+    db_password: pulumi_random.RandomPassword, protect: bool
 ) -> tuple[pulumi.Output[str], pulumi.Resource]:
     database_security_group = aws.ec2.SecurityGroup(
         "database-security-group",
@@ -109,6 +110,7 @@ def get_aws_serverless_db(
         # todo remove
         vpc_security_group_ids=[database_security_group.id],
         skip_final_snapshot=True,
+        opts=pulumi.ResourceOptions(protect=protect),
     )
 
     serverless_postgres_cluster_instance = aws.rds.ClusterInstance(
@@ -118,6 +120,7 @@ def get_aws_serverless_db(
         engine=serverless_postgres_cluster.engine,
         engine_version=serverless_postgres_cluster.engine_version,
         publicly_accessible=True,
+        opts=pulumi.ResourceOptions(protect=protect),
     )
 
     db_url = pulumi.Output.concat(
@@ -134,7 +137,7 @@ def get_aws_serverless_db(
 
 
 def get_aws_db_instance(
-    db_password: pulumi_random.RandomPassword,
+    db_password: pulumi_random.RandomPassword, protect: bool
 ) -> tuple[pulumi.Output[str], pulumi.Resource]:
     database_security_group = aws.ec2.SecurityGroup(
         "database-security-group",
@@ -167,6 +170,7 @@ def get_aws_db_instance(
         publicly_accessible=True,
         skip_final_snapshot=True,
         vpc_security_group_ids=[database_security_group.id],
+        opts=pulumi.ResourceOptions(protect=protect),
     )
 
     db_url = pulumi.Output.concat(
