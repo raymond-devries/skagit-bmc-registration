@@ -12,19 +12,22 @@ import pulumi_random
 from infra.autotag import register_auto_tags
 from infra.database import get_supabase_db
 
+STACK = pulumi.get_stack()
+
 register_auto_tags(
     {
         "user:Project": pulumi.get_project(),
-        "user:Stack": pulumi.get_stack(),
+        "user:Stack": STACK,
     }
 )
 
 config = pulumi.Config()
 constant_config = config.require("constant-config")
-supabase_slug = config.require("supabase-slug")
+
 aws_config = pulumi.Config("aws")
 aws_region = aws_config.require("region")
 
+supabase_slug = config.require("supabase-slug")
 supabase_api_key = pulumi.Config("supabase").get_secret("accessToken")
 
 aws_session = boto3.session.Session()
@@ -36,14 +39,14 @@ constant_secrets = json.loads(
     client.get_secret_value(SecretId=constant_config)["SecretString"]
 )
 
-secret_config = aws.secretsmanager.Secret("secret-config")
+secret_config = aws.secretsmanager.Secret("secret-config", name=f"bmc/server/{STACK}")
 
 # db
 db_password = pulumi_random.RandomPassword("db_password", length=16, special=False)
 db_url, database = get_supabase_db(db_password)
 
 static_files_bucket = aws.s3.BucketV2(
-    "static_files_bucket", force_destroy=True, bucket_prefix="static"
+    "static_files_bucket", force_destroy=True, bucket_prefix=f"bmcstatic{STACK}"
 )
 
 static_files_bucket_public_access_block = aws.s3.BucketPublicAccessBlock(
@@ -77,10 +80,35 @@ static_files_bucket_policy = aws.s3.BucketPolicy(
 
 api_gateway: aws.apigatewayv2.Api = aws.apigatewayv2.Api(
     "api_gateway",
-    name="BMC Lambda API",
+    name=f"bmc_api_gateway_{STACK}",
     protocol_type="HTTP",
     route_selection_expression="$request.method $request.path",
 )
+
+# email
+domain_identity = aws.ses.get_domain_identity(domain="skagitalpineclub.com")
+
+email_user = aws.iam.User(f"bmc_email_user", name=f"bmc_email_user_{STACK}")
+
+email_user_policy = aws.iam.UserPolicy(
+    "email_user_policy",
+    user=email_user.id,
+    name=f"bmc_email_user_policy_{STACK}",
+    policy=pulumi.Output.json_dumps(
+        {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Action": "ses:SendRawEmail",
+                    "Resource": "*",
+                }
+            ],
+        }
+    ),
+)
+
+email_access_key = aws.iam.AccessKey("email_access_key", user=email_user.name)
 
 secret_config_version = aws.secretsmanager.SecretVersion(
     "secret_config_version",
@@ -92,6 +120,8 @@ secret_config_version = aws.secretsmanager.SecretVersion(
             ),
             "DATABASE_URL": db_url,
             "STATIC_FILES_BUCKET_NAME": static_files_bucket.bucket,
+            "EMAIL_HOST_USER": email_access_key.id,
+            "EMAIL_HOST_PASSWORD": email_access_key.ses_smtp_password_v4,
             **constant_secrets,
         }
     ),
@@ -125,6 +155,7 @@ migrate_command = pulumi_command.local.Command(
 
 lambda_role: aws.iam.Role = aws.iam.Role(
     "lambda_role",
+    name=f"bmc_lambda_role_{STACK}",
     assume_role_policy=json.dumps(
         {
             "Version": "2012-10-17",
@@ -142,6 +173,7 @@ lambda_role: aws.iam.Role = aws.iam.Role(
 
 lambda_secret_policy = aws.iam.Policy(
     "lambda_secret_policy",
+    name=f"bmc_lambda_secret_policy_{STACK}",
     policy=pulumi.Output.json_dumps(
         {
             "Version": "2012-10-17",
@@ -171,7 +203,7 @@ lambda_role_secret_policy_attach = aws.iam.RolePolicyAttachment(
 # images
 lambda_repo: aws.ecr.Repository = aws.ecr.Repository(
     "lambda_repo",
-    name="bmc-django-app-lambda",
+    name=f"bmc_django_app_lambda_{STACK}",
     force_delete=True,  # Makes cleanup easier for testing
     image_scanning_configuration=aws.ecr.RepositoryImageScanningConfigurationArgs(
         scan_on_push=True,
@@ -189,7 +221,7 @@ lambda_image: awsx.ecr.Image = awsx.ecr.Image(
 
 lambda_function: aws.lambda_.Function = aws.lambda_.Function(
     "bmc-django-app-lambda-function",
-    name="bmc-django-app-lambda-function",
+    name=f"bmc_django_app_lambda_function_{STACK}",
     package_type="Image",
     image_uri=lambda_image.image_uri,
     role=lambda_role.arn,
