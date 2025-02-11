@@ -29,6 +29,28 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
 DEBUG = strtobool(os.getenv("DEBUG", "false"))
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "console": {
+            "format": "%(asctime)s %(name)-12s %(levelname)-8s %(message)s",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "console",
+        },
+    },
+    "loggers": {
+        "": {
+            "level": "INFO",
+            "handlers": ["console"],
+        },
+    },
+}
+
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(",")
 
 INTERNAL_IPS = ["127.0.0.1", "0.0.0.0"]
@@ -46,6 +68,7 @@ INSTALLED_APPS = [
     "registration",
     "rest_framework",
     "django_extensions",
+    "infra",
 ]
 
 MIDDLEWARE = [

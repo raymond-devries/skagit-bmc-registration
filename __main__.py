@@ -41,7 +41,9 @@ constant_secrets = json.loads(
     client.get_secret_value(SecretId=constant_config)["SecretString"]
 )
 
-secret_config = aws.secretsmanager.Secret("secret-config", name=f"bmc/server/{STACK}")
+secret_config = aws.secretsmanager.Secret(
+    "secret-config", name_prefix=f"bmc/server/{STACK}"
+)
 
 # db
 db_password = pulumi_random.RandomPassword("db_password", length=16, special=False)
@@ -239,7 +241,47 @@ lambda_function: aws.lambda_.Function = aws.lambda_.Function(
     timeout=30,
     memory_size=512,
     environment={"variables": {"AWS_SECRETS_CONFIG_NAME": secret_config.name}},
+    image_config=aws.lambda_.FunctionImageConfigArgs(
+        commands=["SkagitRegistration.asgi.handler"]
+    ),
     opts=pulumi.ResourceOptions(depends_on=[migrate_command, collectstatic_command]),
+)
+
+management_lambda_function: aws.lambda_.Function = aws.lambda_.Function(
+    "management_lambda_function",
+    name=f"management_lambda_function_{STACK}",
+    package_type="Image",
+    image_uri=lambda_image.image_uri,
+    role=lambda_role.arn,
+    timeout=30,
+    memory_size=512,
+    environment={"variables": {"AWS_SECRETS_CONFIG_NAME": secret_config.name}},
+    image_config=aws.lambda_.FunctionImageConfigArgs(
+        commands=["infra.management_lambdas.management_command"]
+    ),
+    opts=pulumi.ResourceOptions(depends_on=[migrate_command]),
+)
+
+event_rule = aws.cloudwatch.EventRule(
+    "check_invoice_event_rule",
+    name=f"bmc_check_invoice_event_rule_{STACK}",
+    schedule_expression="cron(0 12 * * ? *)",
+    description="Trigger Lambda function daily at 1 am PST",
+)
+
+aws.cloudwatch.EventTarget(
+    "check_invoice_event_target",
+    rule=event_rule.name,
+    arn=management_lambda_function.arn,
+    input=json.dumps({"command": "check_invoices"}),
+)
+
+aws.lambda_.Permission(
+    "allowEventBridgeInvocation",
+    action="lambda:InvokeFunction",
+    function=management_lambda_function.name,
+    principal="events.amazonaws.com",
+    source_arn=event_rule.arn,
 )
 
 api_stage: aws.apigatewayv2.Stage = aws.apigatewayv2.Stage(

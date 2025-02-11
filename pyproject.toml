@@ -41,6 +41,7 @@ dev = [
     "pulumi-command>=1.0.1",
     "httpx>=0.28.1",
     "black>=25.1.0",
+    "rich>=13.9.4",
 ]
 
 [tool.isort]

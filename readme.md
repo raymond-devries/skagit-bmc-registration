@@ -44,12 +44,12 @@ python manage.py migrate && aws s3 cp s3://skagit-bmc-dev/dev-dump.json - | pyth
 #### Lambda Image Testing
 Build
 ```shell
-docker buildx build --platform linux/amd64 --provenance=false -t docker-image:test . 
+docker buildx build --platform linux/amd64 --provenance=false -t docker-image:test -f lambda.Dockerfile .
 ```
 
 Run
 ```shell
-docker run --platform linux/amd64 --rm -it -p 9000:8080 --env-file .env-local --name django-lambda docker-image:test
+docker run --platform linux/amd64 --rm -it -p 9000:8080 --env-file .env-local --name django-lambda docker-image:test "SkagitRegistration.asgi.handler"
 ```
 
 Test

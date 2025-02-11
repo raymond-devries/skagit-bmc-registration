@@ -7,5 +7,4 @@ COPY registration ${LAMBDA_TASK_ROOT}/registration
 COPY SkagitRegistration ${LAMBDA_TASK_ROOT}/SkagitRegistration
 COPY static ${LAMBDA_TASK_ROOT}/static
 COPY templates ${LAMBDA_TASK_ROOT}/templates
-
-CMD [ "SkagitRegistration.asgi.handler" ]
+COPY infra/management_lambdas.py ${LAMBDA_TASK_ROOT}/infra/management_lambdas.py

@@ -459,15 +459,14 @@ def handle_wait_list(course: Course):
         )
         invoice.send_invoice()
         wait_list.delete()
-        WaitListInvoice.objects.create(
+        return WaitListInvoice.objects.create(
             user=wait_list.user,
             course=wait_list.course,
             email=wait_list.user.email,
             expires=expiration,
             invoice_id=invoice.id,
         )
-        return True
-    return False
+    return None
 
 
 def get_course_participant_values(course: Course):
