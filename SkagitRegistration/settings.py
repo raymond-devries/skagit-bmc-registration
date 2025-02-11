@@ -27,10 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
-try:
-    DEBUG = strtobool(os.getenv("DEBUG"))
-except AttributeError:
-    DEBUG = False
+DEBUG = strtobool(os.getenv("DEBUG", False))
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(",")
 
