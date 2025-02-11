@@ -1,8 +1,38 @@
+from time import sleep
+
+import httpx
 import pulumi
 import pulumi_aws as aws
 import pulumi_random
+from rich.progress import Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
 
 config = pulumi.Config()
+
+
+def _healthy(api_key: str, ref: str):
+    services = httpx.get(
+        f"https://api.supabase.com/v1/projects/{ref}/health",
+        headers={"Authorization": f"Bearer {api_key}"},
+        params={"services": ["auth", "db", "pooler", "realtime", "rest", "storage"]},
+        timeout=30,
+    )
+    services.raise_for_status()
+    return all(service["status"] == "ACTIVE_HEALTHY" for service in services.json())
+
+
+def wait_for_supabase_deployment(api_key: str, ref: str, timeout: int = 300):
+    healthy = _healthy(api_key, ref)
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("DB Status: [progress.description]{task.description}"),
+        TimeElapsedColumn(),
+    ) as progress:
+        progress.add_task("Working", total=None)
+        for _ in range(timeout):
+            if healthy:
+                break
+            sleep(2)
+            healthy = _healthy(api_key, ref)
 
 
 def get_supabase_db(
@@ -17,13 +47,14 @@ def get_supabase_db(
     supabase_slug = config.require("supabase-slug")
     supabase_config = pulumi.Config("supabase")
     supabase_config.require_secret("accessToken")
+    stack = pulumi.get_stack()
 
     supabase_db = pulumi_supabase.Project(
         "bmc-db",
         database_password=db_password.result,
         organization_id=supabase_slug,
         region="us-west-1",
-        name="bmc-test",
+        name=f"bmc-{stack}",
     )
     db_url = pulumi.Output.concat(
         "postgres://postgres.",

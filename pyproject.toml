@@ -39,6 +39,8 @@ dev = [
     # Add with `pulumi package add terraform-provider supabase/supabase`
     "pulumi-supabase",
     "pulumi-command>=1.0.1",
+    "httpx>=0.28.1",
+    "black>=25.1.0",
 ]
 
 [tool.isort]
