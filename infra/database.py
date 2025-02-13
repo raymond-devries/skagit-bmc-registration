@@ -1,3 +1,4 @@
+import json
 from time import sleep
 
 import httpx
@@ -56,6 +57,17 @@ def get_supabase_db(
         region="us-west-1",
         name=f"bmc-{stack}",
         opts=pulumi.ResourceOptions(protect=protect),
+    )
+    pulumi_supabase.Settings(
+        "bmc_supabase_settings",
+        project_ref=supabase_db.id,
+        api=json.dumps(
+            {
+                "db_schema": "",
+                "db_extra_search_path": "",
+                "max_rows": 1000,
+            }
+        ),
     )
     db_url = pulumi.Output.concat(
         "postgres://postgres.",

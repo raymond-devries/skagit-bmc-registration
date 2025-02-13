@@ -23,6 +23,7 @@ register_auto_tags(
 
 config = pulumi.Config()
 constant_config = config.require("constant-config")
+domain_name = config.require("domain_name")
 seed_data_on_startup = config.get_bool("seed_data_on_startup", False)
 protect_data = config.get_bool("protect_data", True)
 
@@ -46,8 +47,15 @@ secret_config = aws.secretsmanager.Secret(
 )
 
 # db
-db_password = pulumi_random.RandomPassword("db_password", length=16, special=False)
+db_password = pulumi_random.RandomPassword("db_password", length=50, special=False)
 db_url, database = get_supabase_db(db_password, protect_data)
+
+db_backup_bucket = aws.s3.BucketV2(
+    "db_backup_bucket",
+    force_destroy=True,
+    bucket_prefix=f"dbbackupbucket{STACK}",
+    opts=pulumi.ResourceOptions(protect=protect_data),
+)
 
 static_files_bucket = aws.s3.BucketV2(
     "static_files_bucket", force_destroy=True, bucket_prefix=f"bmcstatic{STACK}"
@@ -119,13 +127,15 @@ secret_config_version = aws.secretsmanager.SecretVersion(
     secret_id=secret_config.id,
     secret_string=pulumi.Output.json_dumps(
         {
-            "ALLOWED_HOSTS": api_gateway.api_endpoint.apply(
-                lambda api_endpoint: api_endpoint.replace("https://", "")
-            ),
+            "ALLOWED_HOSTS": domain_name,
             "DATABASE_URL": db_url,
+            "DB_BACKUP_BUCKET": db_backup_bucket.bucket,
             "STATIC_FILES_BUCKET_NAME": static_files_bucket.bucket,
             "EMAIL_HOST_USER": email_access_key.id,
             "EMAIL_HOST_PASSWORD": email_access_key.ses_smtp_password_v4,
+            "DJANGO_SECRET_KEY": pulumi_random.RandomPassword(
+                "django_secret_key", length=50
+            ).result,
             **constant_secrets,
         }
     ),
@@ -286,6 +296,13 @@ aws.lambda_.Permission(
 
 api_stage: aws.apigatewayv2.Stage = aws.apigatewayv2.Stage(
     "api_stage", api_id=api_gateway.id, name="$default", auto_deploy=True
+)
+
+aws.apigatewayv2.ApiMapping(
+    "base_path_mapping",
+    api_id=api_gateway.id,
+    domain_name=domain_name,
+    stage=api_stage.name,
 )
 
 lambda_integration: aws.apigatewayv2.Integration = aws.apigatewayv2.Integration(

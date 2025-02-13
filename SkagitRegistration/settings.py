@@ -68,7 +68,7 @@ INSTALLED_APPS = [
     "registration",
     "rest_framework",
     "django_extensions",
-    "infra",
+    "dbbackup",
 ]
 
 MIDDLEWARE = [
@@ -140,8 +140,21 @@ if not DEBUG:
             "OPTIONS": {
                 "bucket_name": os.getenv("STATIC_FILES_BUCKET_NAME"),
             },
-        }
+        },
+        "dbbackup": {
+            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+            "OPTIONS": {
+                "bucket_name": os.getenv("DB_BACKUP_BUCKET"),
+            },
+        },
     }
+
+
+def backup_filename(databasename, servername, datetime, extension, content_type):
+    return f"'{databasename}-{datetime}.{extension}'"
+
+
+DBBACKUP_FILENAME_TEMPLATE = backup_filename
 
 LOGOUT_REDIRECT_URL = reverse_lazy("home")
 LOGIN_REDIRECT_URL = reverse_lazy("home")

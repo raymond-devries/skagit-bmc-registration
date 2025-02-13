@@ -1,5 +1,4 @@
 config:
   skagit-bmc:constant-config: bmc/constant/prod
-  skagit-bmc:protect_data: false
   supabase:accessToken:
     secure: AAABAP93MdHFcvUTgl1QnF9MlODg8zAmV0QSML3TCs5bIbvptbsSlVlPiYyfmgBwkyh9LLKNRrlGQMIIdUv6YxxBX9wAjg0eiUkO7A==
