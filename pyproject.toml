@@ -3,7 +3,7 @@ name = "skagit-bmc-registration"
 version = "0.1.0"
 description = "A site to help with registration for the Skagit BMC."
 authors = [{ name = "Raymond DeVries" }]
-requires-python = "==3.11.10"
+requires-python = "==3.13.1"
 license = "MIT"
 dependencies = [
     "django~=5.0",

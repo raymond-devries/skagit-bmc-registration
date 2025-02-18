@@ -46,6 +46,8 @@ secret_config = aws.secretsmanager.Secret(
     "secret-config", name_prefix=f"bmc/server/{STACK}"
 )
 
+heroku_secret = aws.secretsmanager.Secret("heroku-secret", name_prefix="heroku")
+
 # db
 db_password = pulumi_random.RandomPassword("db_password", length=50, special=False)
 db_url, database = get_supabase_db("bmc_db", db_password, protect_data)
@@ -122,6 +124,8 @@ email_user_policy = aws.iam.UserPolicy(
 
 email_access_key = aws.iam.AccessKey("email_access_key", user=email_user.name)
 
+django_secret_key = pulumi_random.RandomPassword("django_secret_key", length=50)
+
 secret_config_version = aws.secretsmanager.SecretVersion(
     "secret_config_version",
     secret_id=secret_config.id,
@@ -133,9 +137,24 @@ secret_config_version = aws.secretsmanager.SecretVersion(
             "STATIC_FILES_BUCKET_NAME": static_files_bucket.bucket,
             "EMAIL_HOST_USER": email_access_key.id,
             "EMAIL_HOST_PASSWORD": email_access_key.ses_smtp_password_v4,
-            "DJANGO_SECRET_KEY": pulumi_random.RandomPassword(
-                "django_secret_key", length=50
-            ).result,
+            "DJANGO_SECRET_KEY": django_secret_key.result,
+            **constant_secrets,
+        }
+    ),
+)
+
+heroku_secret_version = aws.secretsmanager.SecretVersion(
+    "heroku_secret_version",
+    secret_id=secret_config.id,
+    secret_string=pulumi.Output.json_dumps(
+        {
+            "ALLOWED_HOSTS": domain_name,
+            "DATABASE_URL": constant_secrets["HEROKU_DB"],
+            "DB_BACKUP_BUCKET": db_backup_bucket.bucket,
+            "STATIC_FILES_BUCKET_NAME": static_files_bucket.bucket,
+            "EMAIL_HOST_USER": email_access_key.id,
+            "EMAIL_HOST_PASSWORD": email_access_key.ses_smtp_password_v4,
+            "DJANGO_SECRET_KEY": django_secret_key.result,
             **constant_secrets,
         }
     ),
@@ -192,35 +211,29 @@ lambda_role: aws.iam.Role = aws.iam.Role(
             ],
         }
     ),
-)
-
-lambda_secret_policy = aws.iam.Policy(
-    "lambda_secret_policy",
-    name=f"bmc_lambda_secret_policy_{STACK}",
-    policy=pulumi.Output.json_dumps(
-        {
-            "Version": "2012-10-17",
-            "Statement": [
+    inline_policies=[
+        aws.iam.RoleInlinePolicyArgs(
+            name="secrets_policy",
+            policy=pulumi.Output.json_dumps(
                 {
-                    "Effect": "Allow",
-                    "Action": ["secretsmanager:GetSecretValue"],
-                    "Resource": [secret_config.arn],
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": ["secretsmanager:GetSecretValue"],
+                            "Resource": [secret_config.arn],
+                        }
+                    ],
                 }
-            ],
-        }
-    ),
+            ),
+        )
+    ],
 )
 
 lambda_role_policy: aws.iam.RolePolicyAttachment = aws.iam.RolePolicyAttachment(
     "lambda_role_policy",
     role=lambda_role.name,
     policy_arn="arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-)
-
-lambda_role_secret_policy_attach = aws.iam.RolePolicyAttachment(
-    "lambda_role_secret_policy_attach",
-    role=lambda_role.name,
-    policy_arn=lambda_secret_policy.arn,
 )
 
 # images
@@ -266,12 +279,51 @@ lambda_function: aws.lambda_.Function = aws.lambda_.Function(
     opts=pulumi.ResourceOptions(depends_on=[migrate_command, collectstatic_command]),
 )
 
+management_lambda_role = aws.iam.Role(
+    "management_lambda_role",
+    name=f"bmc_management_lambda_role_{STACK}",
+    assume_role_policy=lambda_role.assume_role_policy,
+    managed_policy_arns=lambda_role.managed_policy_arns,
+    inline_policies=lambda_role.inline_policies.apply(
+        lambda policies: policies
+        + [
+            aws.iam.RoleInlinePolicyArgs(
+                name="secrets_policy",
+                policy=pulumi.Output.json_dumps(
+                    {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "s3:GetObject",
+                                    "s3:PutObject",
+                                    "s3:DeleteObject",
+                                    "s3:ListBucket",
+                                ],
+                                "Resource": [
+                                    db_backup_bucket.bucket.apply(
+                                        lambda bucket: f"arn:aws:s3:::{bucket}"
+                                    ),
+                                    db_backup_bucket.bucket.apply(
+                                        lambda bucket: f"arn:aws:s3:::{bucket}/*"
+                                    ),
+                                ],
+                            }
+                        ],
+                    }
+                ),
+            )
+        ]
+    ),
+)
+
 management_lambda_function: aws.lambda_.Function = aws.lambda_.Function(
     "management_lambda_function",
     name=f"management_lambda_function_{STACK}",
     package_type="Image",
     image_uri=management_image.image_uri,
-    role=lambda_role.arn,
+    role=management_lambda_role.arn,
     timeout=30,
     memory_size=512,
     environment={"variables": {"AWS_SECRETS_CONFIG_NAME": secret_config.name}},
@@ -281,27 +333,34 @@ management_lambda_function: aws.lambda_.Function = aws.lambda_.Function(
     opts=pulumi.ResourceOptions(depends_on=[migrate_command]),
 )
 
-event_rule = aws.cloudwatch.EventRule(
-    "check_invoice_event_rule",
-    name=f"bmc_check_invoice_event_rule_{STACK}",
-    schedule_expression="cron(0 12 * * ? *)",
-    description="Trigger Lambda function daily at 1 am PST",
-)
 
-aws.cloudwatch.EventTarget(
-    "check_invoice_event_target",
-    rule=event_rule.name,
-    arn=management_lambda_function.arn,
-    input=json.dumps({"command": "check_invoices"}),
-)
+def create_management_event(name, schedule, command):
+    event_rule = aws.cloudwatch.EventRule(
+        name,
+        name=f"bmc_{name}_{STACK}",
+        schedule_expression=schedule,
+    )
 
-aws.lambda_.Permission(
-    "allowEventBridgeInvocation",
-    action="lambda:InvokeFunction",
-    function=management_lambda_function.name,
-    principal="events.amazonaws.com",
-    source_arn=event_rule.arn,
+    aws.cloudwatch.EventTarget(
+        f"{name}_target",
+        rule=event_rule.name,
+        arn=management_lambda_function.arn,
+        input=json.dumps({"command": command}),
+    )
+
+    aws.lambda_.Permission(
+        f"{name}_permission",
+        action="lambda:InvokeFunction",
+        function=management_lambda_function.name,
+        principal="events.amazonaws.com",
+        source_arn=event_rule.arn,
+    )
+
+
+create_management_event(
+    "check_invoice_event_rule", "cron(0 9 * * ? *)", "check_invoices"
 )
+create_management_event("backup_db_rule", "cron(0 10 * * ? *)", "backup_db")
 
 api_stage: aws.apigatewayv2.Stage = aws.apigatewayv2.Stage(
     "api_stage", api_id=api_gateway.id, name="$default", auto_deploy=True
