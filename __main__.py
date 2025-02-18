@@ -144,6 +144,7 @@ secret_config_version = aws.secretsmanager.SecretVersion(
 collectstatic_command = pulumi_command.local.Command(
     "collectstatic_command",
     create="python manage.py collectstatic --no-input",
+    update="python manage.py collectstatic --no-input",
     opts=pulumi.ResourceOptions(
         depends_on=[static_files_bucket, secret_config_version]
     ),
