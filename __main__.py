@@ -48,7 +48,7 @@ secret_config = aws.secretsmanager.Secret(
 
 # db
 db_password = pulumi_random.RandomPassword("db_password", length=50, special=False)
-db_url, database = get_supabase_db(db_password, protect_data)
+db_url, database = get_supabase_db("bmc_db", db_password, protect_data)
 
 db_backup_bucket = aws.s3.BucketV2(
     "db_backup_bucket",
@@ -234,7 +234,7 @@ lambda_repo: aws.ecr.Repository = aws.ecr.Repository(
 )
 
 lambda_image: awsx.ecr.Image = awsx.ecr.Image(
-    "lambda_repo",
+    "lambda_image",
     repository_url=lambda_repo.repository_url,
     dockerfile="lambda.Dockerfile",  # Path to your lambda.Dockerfile
     platform="linux/amd64",  # Important for M1/M2 Mac users
@@ -242,8 +242,17 @@ lambda_image: awsx.ecr.Image = awsx.ecr.Image(
     image_tag="django",
 )
 
+management_image: awsx.ecr.Image = awsx.ecr.Image(
+    "management_image",
+    args={"MANAGEMENT": "true"},
+    repository_url=lambda_repo.repository_url,
+    dockerfile="lambda.Dockerfile",  # Path to your lambda.Dockerfile
+    platform="linux/amd64",  # Important for M1/M2 Mac users
+    image_tag="management",
+)
+
 lambda_function: aws.lambda_.Function = aws.lambda_.Function(
-    "bmc-django-app-lambda-function",
+    "bmc_django_app_lambda_function",
     name=f"bmc_django_app_lambda_function_{STACK}",
     package_type="Image",
     image_uri=lambda_image.image_uri,
@@ -261,7 +270,7 @@ management_lambda_function: aws.lambda_.Function = aws.lambda_.Function(
     "management_lambda_function",
     name=f"management_lambda_function_{STACK}",
     package_type="Image",
-    image_uri=lambda_image.image_uri,
+    image_uri=management_image.image_uri,
     role=lambda_role.arn,
     timeout=30,
     memory_size=512,

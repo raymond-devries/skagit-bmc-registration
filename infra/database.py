@@ -37,7 +37,7 @@ def wait_for_supabase_deployment(api_key: str, ref: str, timeout: int = 300):
 
 
 def get_supabase_db(
-    db_password: pulumi_random.RandomPassword, protect: bool
+    resource_name, db_password: pulumi_random.RandomPassword, protect: bool
 ) -> tuple[pulumi.Output[str], pulumi.Resource]:
     """
     To use supabase db run:
@@ -51,15 +51,15 @@ def get_supabase_db(
     stack = pulumi.get_stack()
 
     supabase_db = pulumi_supabase.Project(
-        "bmc-db",
+        resource_name,
         database_password=db_password.result,
         organization_id=supabase_slug,
         region="us-west-1",
-        name=f"bmc-{stack}",
+        name=f"{resource_name}_{stack}",
         opts=pulumi.ResourceOptions(protect=protect),
     )
     pulumi_supabase.Settings(
-        "bmc_supabase_settings",
+        f"{resource_name}_supabase_settings",
         project_ref=supabase_db.id,
         api=json.dumps(
             {
@@ -68,6 +68,7 @@ def get_supabase_db(
                 "max_rows": 1000,
             }
         ),
+        opts=pulumi.ResourceOptions(protect=protect),
     )
     db_url = pulumi.Output.concat(
         "postgres://postgres.",

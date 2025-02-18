@@ -68,7 +68,6 @@ INSTALLED_APPS = [
     "registration",
     "rest_framework",
     "django_extensions",
-    "dbbackup",
 ]
 
 MIDDLEWARE = [
@@ -104,7 +103,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "SkagitRegistration.wsgi.application"
 
-DATABASES = {"default": dj_database_url.parse(os.getenv("DATABASE_URL"))}
+DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASES = {"default": dj_database_url.parse(DATABASE_URL)}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -133,18 +133,15 @@ USE_TZ = True
 
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATIC_URL = "/static/"
+
+DB_BACKUP_BUCKET = os.getenv("DB_BACKUP_BUCKET")
+
 if not DEBUG:
     STORAGES = {
         "staticfiles": {
             "BACKEND": "storages.backends.s3.S3Storage",
             "OPTIONS": {
                 "bucket_name": os.getenv("STATIC_FILES_BUCKET_NAME"),
-            },
-        },
-        "dbbackup": {
-            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
-            "OPTIONS": {
-                "bucket_name": os.getenv("DB_BACKUP_BUCKET"),
             },
         },
     }
