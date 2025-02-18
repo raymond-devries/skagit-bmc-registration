@@ -19,6 +19,7 @@ class Command(BaseCommand):
         parser.add_argument("file_name", type=str, help="db backup file name")
 
     def handle(self, *args, **options):
+        """This command is pretty fickle. Use with caution."""
         logger.warning("Restoring DB")
         confirmed = input("This could be a destructive action, continue? (y/n)")
         if confirmed.lower() != "y":
