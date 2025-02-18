@@ -46,8 +46,6 @@ secret_config = aws.secretsmanager.Secret(
     "secret-config", name_prefix=f"bmc/server/{STACK}"
 )
 
-heroku_secret = aws.secretsmanager.Secret("heroku-secret", name_prefix="heroku")
-
 # db
 db_password = pulumi_random.RandomPassword("db_password", length=50, special=False)
 db_url, database = get_supabase_db("bmc_db", db_password, protect_data)
@@ -133,23 +131,6 @@ secret_config_version = aws.secretsmanager.SecretVersion(
         {
             "ALLOWED_HOSTS": domain_name,
             "DATABASE_URL": db_url,
-            "DB_BACKUP_BUCKET": db_backup_bucket.bucket,
-            "STATIC_FILES_BUCKET_NAME": static_files_bucket.bucket,
-            "EMAIL_HOST_USER": email_access_key.id,
-            "EMAIL_HOST_PASSWORD": email_access_key.ses_smtp_password_v4,
-            "DJANGO_SECRET_KEY": django_secret_key.result,
-            **constant_secrets,
-        }
-    ),
-)
-
-heroku_secret_version = aws.secretsmanager.SecretVersion(
-    "heroku_secret_version",
-    secret_id=secret_config.id,
-    secret_string=pulumi.Output.json_dumps(
-        {
-            "ALLOWED_HOSTS": domain_name,
-            "DATABASE_URL": constant_secrets["HEROKU_DB"],
             "DB_BACKUP_BUCKET": db_backup_bucket.bucket,
             "STATIC_FILES_BUCKET_NAME": static_files_bucket.bucket,
             "EMAIL_HOST_USER": email_access_key.id,
