@@ -177,6 +177,22 @@ if seed_data_on_startup:
         environment={"AWS_SECRETS_CONFIG_NAME": secret_config.name},
     )
 
+lambda_secrets_policy = aws.iam.RoleInlinePolicyArgs(
+    name="secrets_policy",
+    policy=pulumi.Output.json_dumps(
+        {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Action": ["secretsmanager:GetSecretValue"],
+                    "Resource": [secret_config.arn],
+                }
+            ],
+        }
+    ),
+)
+
 lambda_role: aws.iam.Role = aws.iam.Role(
     "lambda_role",
     name=f"bmc_lambda_role_{STACK}",
@@ -193,23 +209,7 @@ lambda_role: aws.iam.Role = aws.iam.Role(
             ],
         }
     ),
-    inline_policies=[
-        aws.iam.RoleInlinePolicyArgs(
-            name="secrets_policy",
-            policy=pulumi.Output.json_dumps(
-                {
-                    "Version": "2012-10-17",
-                    "Statement": [
-                        {
-                            "Effect": "Allow",
-                            "Action": ["secretsmanager:GetSecretValue"],
-                            "Resource": [secret_config.arn],
-                        }
-                    ],
-                }
-            ),
-        )
-    ],
+    inline_policies=[lambda_secrets_policy],
 )
 
 lambda_role_policy: aws.iam.RolePolicyAttachment = aws.iam.RolePolicyAttachment(
@@ -266,38 +266,36 @@ management_lambda_role = aws.iam.Role(
     name=f"bmc_management_lambda_role_{STACK}",
     assume_role_policy=lambda_role.assume_role_policy,
     managed_policy_arns=lambda_role.managed_policy_arns,
-    inline_policies=lambda_role.inline_policies.apply(
-        lambda policies: policies
-        + [
-            aws.iam.RoleInlinePolicyArgs(
-                name="secrets_policy",
-                policy=pulumi.Output.json_dumps(
-                    {
-                        "Version": "2012-10-17",
-                        "Statement": [
-                            {
-                                "Effect": "Allow",
-                                "Action": [
-                                    "s3:GetObject",
-                                    "s3:PutObject",
-                                    "s3:DeleteObject",
-                                    "s3:ListBucket",
-                                ],
-                                "Resource": [
-                                    db_backup_bucket.bucket.apply(
-                                        lambda bucket: f"arn:aws:s3:::{bucket}"
-                                    ),
-                                    db_backup_bucket.bucket.apply(
-                                        lambda bucket: f"arn:aws:s3:::{bucket}/*"
-                                    ),
-                                ],
-                            }
-                        ],
-                    }
-                ),
-            )
-        ]
-    ),
+    inline_policies=[
+        lambda_secrets_policy,
+        aws.iam.RoleInlinePolicyArgs(
+            name="s3_policy",
+            policy=pulumi.Output.json_dumps(
+                {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "s3:GetObject",
+                                "s3:PutObject",
+                                "s3:DeleteObject",
+                                "s3:ListBucket",
+                            ],
+                            "Resource": [
+                                db_backup_bucket.bucket.apply(
+                                    lambda bucket: f"arn:aws:s3:::{bucket}"
+                                ),
+                                db_backup_bucket.bucket.apply(
+                                    lambda bucket: f"arn:aws:s3:::{bucket}/*"
+                                ),
+                            ],
+                        }
+                    ],
+                }
+            ),
+        ),
+    ],
 )
 
 management_lambda_function: aws.lambda_.Function = aws.lambda_.Function(
