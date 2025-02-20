@@ -1,14 +1,9 @@
 from datetime import datetime
-
-from dotenv import load_dotenv
-
-load_dotenv(".env-local")
-
 import django
 
 django.setup()
 
-from registration import models
+from registration import models  # noqa E402
 
 if __name__ == "__main__":
     course_dates_data = """Required Fitness Hike: Sat Mar 15 2025

@@ -100,7 +100,7 @@ api_gateway: aws.apigatewayv2.Api = aws.apigatewayv2.Api(
 # email
 domain_identity = aws.ses.get_domain_identity(domain="skagitalpineclub.com")
 
-email_user = aws.iam.User(f"bmc_email_user", name=f"bmc_email_user_{STACK}")
+email_user = aws.iam.User("bmc_email_user", name=f"bmc_email_user_{STACK}")
 
 email_user_policy = aws.iam.UserPolicy(
     "email_user_policy",

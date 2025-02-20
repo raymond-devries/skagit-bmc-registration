@@ -85,5 +85,5 @@ class Command(BaseCommand):
             ).put(Body=backup.stdout)
 
             self.delete_all_but_recent_files(settings.DB_BACKUP_BUCKET)
-        except subprocess.CalledProcessError as e:
+        except subprocess.CalledProcessError:
             logger.error("Failed to backup database")

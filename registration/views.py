@@ -138,11 +138,11 @@ class CartView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context["registration_settings"] = models.RegistrationSettings.objects.first()
         context["stripe_public_api_key"] = settings.STRIPE_PUBLIC_API_KEY
-        context[
-            "eligible_previous_student_discount"
-        ] = models.PreviousStudentDiscount.objects.filter(
-            email=self.request.user.email
-        ).exists()
+        context["eligible_previous_student_discount"] = (
+            models.PreviousStudentDiscount.objects.filter(
+                email=self.request.user.email
+            ).exists()
+        )
         return context
 
 

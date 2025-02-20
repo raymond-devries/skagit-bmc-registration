@@ -4,7 +4,7 @@ import tempfile
 
 import boto3
 from django.core.management import BaseCommand, call_command
-from django.db import connection, transaction
+from django.db import connection
 
 from SkagitRegistration import settings
 

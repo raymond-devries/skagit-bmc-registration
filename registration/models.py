@@ -134,11 +134,11 @@ class RegistrationForm(BaseModel):
     todays_date = models.DateField()
 
     def __str__(self):
-        return f"{self.user.first_name} {self.user.last_name} " f"registration form"
+        return f"{self.user.first_name} {self.user.last_name} registration form"
 
 
 def human_readable_cost(value):
-    return f"${value/100 :,.2f}"
+    return f"${value / 100:,.2f}"
 
 
 class CourseType(BaseModel):
