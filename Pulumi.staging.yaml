@@ -1,0 +1,7 @@
+config:
+  skagit-bmc:constant-config: bmc/constant/staging
+  skagit-bmc:seed_data_on_startup: true
+  skagit-bmc:protect_data: false
+  skagit-bmc:domain_name: "bmc-staging.skagitalpineclub.com"
+  supabase:accessToken:
+    secure: AAABADMO94S+U9EyklaqQ6hxtqpm573hYVXpA1Jb1ft9KrKEcxfT0HntHtL+zYeOFMWIZXdbf/VEWSyZwefd8e5x7rl/0L3+LNbhDw==

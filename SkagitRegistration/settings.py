@@ -3,6 +3,7 @@ import os
 from distutils.util import strtobool
 from pathlib import Path
 
+import boto3
 import dj_database_url
 import sentry_sdk
 import stripe
@@ -10,14 +11,45 @@ from django.contrib.messages import constants as messages
 from django.urls import reverse_lazy
 from sentry_sdk.integrations.django import DjangoIntegration
 
+ENV_SECRETS_ID = os.environ["AWS_SECRETS_CONFIG_NAME"]
+AWS_REGION = "us-west-2"
+aws_session = boto3.session.Session()
+client = aws_session.client(
+    service_name="secretsmanager",
+    region_name=AWS_REGION,
+)
+env_secrets = json.loads(
+    client.get_secret_value(SecretId=ENV_SECRETS_ID)["SecretString"]
+)
+os.environ.update(env_secrets)
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
-try:
-    DEBUG = strtobool(os.getenv("DEBUG"))
-except AttributeError:
-    DEBUG = False
+DEBUG = strtobool(os.getenv("DEBUG", "false"))
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "console": {
+            "format": "%(asctime)s %(name)-12s %(levelname)-8s %(message)s",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "console",
+        },
+    },
+    "loggers": {
+        "": {
+            "level": "INFO",
+            "handlers": ["console"],
+        },
+    },
+}
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(",")
 
@@ -39,7 +71,6 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -72,7 +103,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "SkagitRegistration.wsgi.application"
 
-DATABASES = {"default": dj_database_url.parse(os.getenv("DATABASE_URL"))}
+DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASES = {"default": dj_database_url.parse(DATABASE_URL)}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -101,7 +133,25 @@ USE_TZ = True
 
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATIC_URL = "/static/"
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+DB_BACKUP_BUCKET = os.getenv("DB_BACKUP_BUCKET")
+
+if not DEBUG:
+    STORAGES = {
+        "staticfiles": {
+            "BACKEND": "storages.backends.s3.S3Storage",
+            "OPTIONS": {
+                "bucket_name": os.getenv("STATIC_FILES_BUCKET_NAME"),
+            },
+        },
+    }
+
+
+def backup_filename(databasename, servername, datetime, extension, content_type):
+    return f"'{databasename}-{datetime}.{extension}'"
+
+
+DBBACKUP_FILENAME_TEMPLATE = backup_filename
 
 LOGOUT_REDIRECT_URL = reverse_lazy("home")
 LOGIN_REDIRECT_URL = reverse_lazy("home")

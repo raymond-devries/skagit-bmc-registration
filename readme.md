@@ -18,3 +18,41 @@ Required Environment Variables:
 * `STRIPE_ENDPOINT_SECRET`: Stripe API endpoint secret for end point (/api/stripe_webhook/) that fulfills orders
 * `SENTRY_DSN`: DSN link from sentry to track errors
 * `SENTRY_SAMPLE_RATE`: A rate from 0.0-1.0. Determines what percent of transactions are tracked for performance.
+
+### Dev Notes
+
+To deploy with pulumi the supabase sdk will need to be generated
+```shell
+pulumi package add terraform-provider supabase/supabase
+```
+
+Set dev env
+```shell
+source set_dev_env.sh
+```
+
+Setup Postgres
+```shell
+docker run --name skagit-bmc -e POSTGRES_HOST_AUTH_METHOD=trust -p 5432:5432 -d postgres
+```
+
+Seeding data
+```shell
+python manage.py migrate && aws s3 cp s3://skagit-bmc-dev/dev-dump.json - | python manage.py loaddata --format=json -
+```
+
+#### Lambda Image Testing
+Build
+```shell
+docker buildx build --platform linux/amd64 --provenance=false -t docker-image:test -f lambda.Dockerfile .
+```
+
+Run
+```shell
+docker run --platform linux/amd64 --rm -it -p 9000:8080 --env-file .env-local --name django-lambda docker-image:test "SkagitRegistration.asgi.handler"
+```
+
+Test
+```shell
+curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"resource": "/", "path": "/", "httpMethod": "GET", "requestContext": {}, "multiValueQueryStringParameters": null}'
+```

@@ -1,0 +1,9 @@
+name: skagit-bmc
+description: Skagit Basic Mountaineering Course website.
+runtime:
+  name: python
+  options:
+    toolchain: uv
+config:
+  aws:region: us-west-2
+  supabase-slug: yphuiafofyfhykyfpjfg

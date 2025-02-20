@@ -26,7 +26,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         context: .
-        file: ./Dockerfile
+        file: ./lambda.Dockerfile
         pull: true
         push: true
         tags: ghcr.io/raymond-devries/skagit-bmc-registration-backend:latest
@@ -42,7 +42,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         context: ./nginx
-        file: ./nginx/Dockerfile
+        file: ./nginx/lambda.Dockerfile
         pull: true
         push: true
         tags: ghcr.io/raymond-devries/skagit-bmc-registration-nginx:latest
