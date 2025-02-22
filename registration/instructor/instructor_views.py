@@ -32,6 +32,9 @@ class CurrentRegistrationsView(LoginRequiredMixin, UserPassesTestMixin, Template
             .order_by("first_name", "last_name")
         )
         context["course_types"] = models.CourseType.objects.filter(visible=True)
+        context["open_waitlist_invoices"] = models.WaitListInvoice.objects.filter(
+            voided=False, paid=False
+        )
         return context
 
 

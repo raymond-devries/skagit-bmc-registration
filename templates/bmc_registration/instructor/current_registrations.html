@@ -43,6 +43,41 @@
             </tbody>
         </table>
     </div>
+    <h2 class="title is-size-2">Open Invoices</h2>
+    <div class="table-container">
+        <table class="table is-striped is-fullwidth">
+            <thead>
+            <tr>
+                <th>Registrant</th>
+                <th>Email</th>
+                <th><abbr title="Blue: registered & Yellow: on wait list">Courses</abbr>
+                </th>
+                <th>Expires</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for invoice in open_waitlist_invoices %}
+                <tr>
+                    <th>
+                        <a href="{% url "instructor:registrant" username=invoice.user.username %}">
+                            {{ invoice.user.first_name }} {{ invoice.user.last_name }}
+                        </a>
+                    </th>
+                    <td>{{ invoice.user.email }}</td>
+                    <td>
+                        <div class="tags">
+                            <span class="tag is-info">
+                                <b>{{ invoice.course.type.abbreviation }}:&nbsp;</b>
+                                {{ invoice.course.specifics }}
+                            </span>
+                        </div>
+                    </td>
+                <td>{{ invoice.expires }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
     <div class="content">
         {% for course_type in course_types %}
             <div class="message">
