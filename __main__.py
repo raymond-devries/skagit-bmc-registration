@@ -53,12 +53,12 @@ db_url, database = get_supabase_db("bmc_db", db_password, protect_data)
 db_backup_bucket = aws.s3.BucketV2(
     "db_backup_bucket",
     force_destroy=True,
-    bucket_prefix=f"dbbackupbucket{STACK}",
+    bucket=f"bmc-db-backupbucket-{STACK}",
     opts=pulumi.ResourceOptions(protect=protect_data),
 )
 
 static_files_bucket = aws.s3.BucketV2(
-    "static_files_bucket", force_destroy=True, bucket_prefix=f"bmcstatic{STACK}"
+    "static_files_bucket", force_destroy=True, bucket=f"bmc-static-{STACK}"
 )
 
 static_files_bucket_public_access_block = aws.s3.BucketPublicAccessBlock(
@@ -381,4 +381,4 @@ pulumi.export("seeding data on startup", seed_data_on_startup)
 pulumi.export("protect data", protect_data)
 pulumi.export("secret config name", secret_config.name)
 pulumi.export("bucket_name", static_files_bucket.bucket)
-pulumi.export("url", api_gateway.api_endpoint)
+pulumi.export("url", domain_name)
