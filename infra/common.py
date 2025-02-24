@@ -197,3 +197,28 @@ def get_aws_db_instance(
         database.db_name,
     )
     return db_url, database
+
+
+def create_management_event(
+    project_slug, stack, management_lambda_function, name, schedule, command
+):
+    event_rule = aws.cloudwatch.EventRule(
+        name,
+        name=f"{project_slug}_{name}_{stack}",
+        schedule_expression=schedule,
+    )
+
+    aws.cloudwatch.EventTarget(
+        f"{name}_target",
+        rule=event_rule.name,
+        arn=management_lambda_function.arn,
+        input=json.dumps({"command": command}),
+    )
+
+    aws.lambda_.Permission(
+        f"{name}_permission",
+        action="lambda:InvokeFunction",
+        function=management_lambda_function.name,
+        principal="events.amazonaws.com",
+        source_arn=event_rule.arn,
+    )
