@@ -1,0 +1,3 @@
+[submodule "django-infra"]
+	path = infra
+	url = git@github.com:Skagit-Alpine-Club/infra.git
