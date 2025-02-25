@@ -44,13 +44,10 @@ dev = [
     "rich>=13.9.4",
 ]
 
-[tool.isort]
-profile = "black"
-
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "SkagitRegistration.settings"
 
 [tool.uv.sources]
-pulumi-supabase = { path = "sdks/supabase" }
+pulumi-supabase = { path = "infra/sdks/supabase" }
 
 

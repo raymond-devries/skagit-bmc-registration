@@ -1,4 +1,5 @@
 version = 1
+revision = 1
 requires-python = "==3.13.1"
 
 [[package]]
@@ -711,7 +712,7 @@ wheels = [
 [[package]]
 name = "pulumi-supabase"
 version = "1.5.1"
-source = { directory = "sdks/supabase" }
+source = { directory = "infra/sdks/supabase" }
 dependencies = [
     { name = "parver" },
     { name = "pulumi" },
@@ -967,7 +968,7 @@ dev = [
     { name = "pulumi-command", specifier = ">=1.0.1" },
     { name = "pulumi-local", specifier = ">=1.3.0" },
     { name = "pulumi-random", specifier = ">=4.17.0" },
-    { name = "pulumi-supabase", directory = "sdks/supabase" },
+    { name = "pulumi-supabase", directory = "infra/sdks/supabase" },
     { name = "pytest", specifier = ">=7.1.3,<8" },
     { name = "pytest-django", specifier = ">=4.5.2,<5" },
     { name = "pytest-freezegun", specifier = ">=0.4.2,<0.5" },

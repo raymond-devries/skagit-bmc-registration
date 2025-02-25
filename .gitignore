@@ -2,6 +2,6 @@
 venv
 *.sqlite3
 .env*
-sdks
+infra/sdks
 staticfiles/**
 !staticfiles/empty.txt
