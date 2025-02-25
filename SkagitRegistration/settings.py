@@ -160,12 +160,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
 
-try:
-    USE_AWS_EMAIL = strtobool(os.getenv("USE_AWS_EMAIL"))
-except AttributeError:
-    USE_AWS_EMAIL = False
-
-if USE_AWS_EMAIL:
+if not DEBUG:
     EMAIL_USE_TLS = True
     EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
     EMAIL_HOST = "email-smtp.us-west-2.amazonaws.com"
