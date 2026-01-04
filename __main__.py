@@ -5,7 +5,6 @@ import json
 import boto3
 import pulumi
 
-from infra.common import create_management_event
 from infra.get_django_aws import build_stack
 
 STACK = pulumi.get_stack()
@@ -28,13 +27,4 @@ constant_secrets = json.loads(
 project_slug = "bmc"
 artifacts = build_stack(
     project_slug, "skagit-bmc-dev/dev-dump.json", constant_secrets, "lambda.Dockerfile"
-)
-
-create_management_event(
-    project_slug,
-    STACK,
-    artifacts.management_lambda_function,
-    "check_invoice_event_rule",
-    "cron(0 9 * * ? *)",
-    "check_invoices",
 )

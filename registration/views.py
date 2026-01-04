@@ -1,6 +1,8 @@
 import stripe
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import Group, User
+from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import FormView, TemplateView
@@ -8,6 +10,7 @@ from django.views.generic import FormView, TemplateView
 from registration import models
 from registration.forms import RegistrationForm
 from SkagitRegistration import settings
+from registration.utils import instructor_check
 
 
 class ProfileView(LoginRequiredMixin, TemplateView):
@@ -54,11 +57,16 @@ class RegistrationHome(LoginRequiredMixin, TemplateView):
 
 
 @login_required
-def refund(request, course_pk):
+def refund(request, course_pk, user_pk=None):
+    user = request.user
+    instructor_request = user_pk and instructor_check(request.user)
+    if instructor_request:
+        user = get_object_or_404(User, id=user_pk)
+
     course_bought = get_object_or_404(
         models.CourseBought,
-        course__participants=request.user,
-        payment_record__user=request.user,
+        course__participants=user,
+        payment_record__user=user,
         course=course_pk,
         refunded=False,
     )
@@ -66,7 +74,7 @@ def refund(request, course_pk):
     refund_eligible = course_bought.refund_eligible
     context = {"refund_eligible": refund_eligible, "course": course_bought.course}
 
-    if refund_eligible:
+    if refund_eligible or instructor_request:
         purchase_price = stripe.Price.retrieve(course_bought.price_id)["unit_amount"]
         if course_bought.coupon_id:
             percent_off = stripe.Coupon.retrieve(course_bought.coupon_id).percent_off
@@ -89,11 +97,33 @@ def refund(request, course_pk):
             course_bought.refund_id = refund["id"]
             course_bought.refunded = True
             course_bought.save()
-            course.participants.remove(request.user)
+            course.participants.remove(user)
+            waitlist_obj = None
             if course.num_on_wait_list > 0:
                 course.capacity -= 1
                 course.save()
-                models.handle_wait_list(course)
+                waitlist_obj = models.handle_wait_list(course)
+
+            instructor_group = Group.objects.get(name="instructor")
+            instructor_emails = instructor_group.user_set.values_list(
+                "email", flat=True
+            )
+            waitlist_message = ""
+            if waitlist_obj:
+                waitlist_message = (
+                    f"An invoice has been sent to {waitlist_obj.user.first_name} "
+                    f"{waitlist_obj.user.last_name} ({waitlist_obj.user.email})."
+                )
+            send_mail(
+                f"{user.first_name} {user.last_name} unenrolled from {course_bought.course.type.name}",
+                f"{user.first_name} {user.last_name} ({user.email}) has removed "
+                f"themselves from the {course_bought.course.type.name}."
+                + waitlist_message,
+                None,
+                list(instructor_emails),
+            )
+            if instructor_request:
+                redirect("instructor:current_registrations")
             return redirect("registration_home")
 
     return render(request, "bmc_registration/refund.html", context)

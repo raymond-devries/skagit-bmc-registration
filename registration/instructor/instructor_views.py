@@ -5,14 +5,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import TemplateView
 
 from registration import models
-
-
-def instructor_check(user: User):
-    return user.profile.is_instructor
+from registration.utils import check_invoices, instructor_check
 
 
 class CurrentRegistrationsView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
@@ -69,3 +66,10 @@ def participant_csv(request, course_pk):
         writer.writerow(value)
 
     return response
+
+
+@user_passes_test(instructor_check)
+def instructor_check_invoices(request):
+    check_invoices()
+    referer = request.META.get("HTTP_REFERER", "/")
+    return redirect(referer)

@@ -44,6 +44,9 @@
         </table>
     </div>
     <h2 class="title is-size-2">Open Invoices</h2>
+    <a href="{% url "instructor:instructor_check_invoices" %}"
+       class="button is-info my-2">Remove expired invoices and send invoice to next person on the *waitlist</a>
+    <p>*If no one else is on the waitlist the spot reopens for registration.</p>
     <div class="table-container">
         <table class="table is-striped is-fullwidth">
             <thead>
@@ -72,7 +75,7 @@
                             </span>
                         </div>
                     </td>
-                <td>{{ invoice.expires }}</td>
+                    <td>{{ invoice.expires }}</td>
                 </tr>
             {% endfor %}
             </tbody>
@@ -85,40 +88,76 @@
                     <span>{{ course_type.name }}</span>
                 </div>
                 <div class="message-body">
-                    <ul>
-                        {% for course in course_type.course_set.all %}
-                            <li class="has-text-info-dark">
+                    {% for course in course_type.course_set.all %}
+                        <div class="mb-5">
+                            <h3 class="has-text-info-dark">
                                 <b>{{ course.specifics }}:&nbsp;</b>
                                 {{ course.start_end_date.start__min|date:"D M d Y" }} -
                                 {{ course.start_end_date.end__max|date:"D M d Y" }}
-                            </li>
+                            </h3>
                             <a href="{% url "instructor:participant_csv" course_pk=course.pk %}"
                                class="button is-small is-info my-2">Download CSV</a>
-                            <br>
-                            <b>Participants</b>
-                            <ul>
-                                {% for registrant in course.participants.all|dictsort:"first_name" %}
-                                    <li>
-                                        <a href="{% url "instructor:registrant" username=registrant.username %}">
-                                            {{ registrant.first_name }} {{ registrant.last_name }}
-                                        </a>
-                                    </li>
-                                {% endfor %}
-                            </ul>
+
+                            <h4 class="mt-4"><b>Participants</b></h4>
+                            <div class="table-container">
+                                <table class="table is-striped is-fullwidth">
+                                    <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for registrant in course.participants.all|dictsort:"first_name" %}
+                                        <tr>
+                                            <td>
+                                                <a href="{% url "instructor:registrant" username=registrant.username %}">
+                                                    {{ registrant.first_name }} {{ registrant.last_name }}
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <form method="post" action="{% url "refund" course_pk=course.pk user_pk=registrant.pk %}" style="display: inline;">
+                                                    {% csrf_token %}
+                                                    <button type="submit"
+                                                            class="button is-small is-danger"
+                                                            onclick="return confirm('Are you sure you want to disenroll {{ registrant.first_name }} {{ registrant.last_name }} from {{ course.specifics }} and process a refund? This action cannot be undone.');">
+                                                        Disenroll and refund
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
                             {% if course.waitlist_set.all %}
-                                <b>Waitlist</b>
+                                <h4 class="mt-4"><b>Waitlist</b></h4>
+                                <div class="table-container">
+                                    <table class="table is-striped is-fullwidth">
+                                        <thead>
+                                        <tr>
+                                            <th>Position</th>
+                                            <th>Name</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for waitlist_item in course.waitlist_set.all|dictsort:"date_added" %}
+                                            <tr>
+                                                <td>{{ forloop.counter }}</td>
+                                                <td>
+                                                    <a href="{% url "instructor:registrant" username=waitlist_item.user.username %}">
+                                                        {{ waitlist_item.user.first_name }} {{ waitlist_item.user.last_name }}
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
                             {% endif %}
-                            <ol>
-                                {% for waitlist_item in course.waitlist_set.all|dictsort:"date_added" %}
-                                    <li>
-                                        <a href="{% url "instructor:registrant" username=waitlist_item.user.username %}">
-                                            {{ waitlist_item.user.first_name }} {{ waitlist_item.user.last_name }}
-                                        </a>
-                                    </li>
-                                {% endfor %}
-                            </ol>
-                        {% endfor %}
-                    </ul>
+                        </div>
+                    {% endfor %}
                 </div>
             </div>
         {% endfor %}

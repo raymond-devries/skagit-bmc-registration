@@ -193,9 +193,10 @@ STRIPE_PUBLIC_API_KEY = os.getenv("STRIPE_PUBLIC_API_KEY")
 STRIPE_ENDPOINT_SECRET = os.getenv("STRIPE_ENDPOINT_SECRET")
 stripe.api_key = STRIPE_API_KEY
 
-sentry_sdk.init(
-    dsn=os.getenv("SENTRY_DSN"),
-    integrations=[DjangoIntegration()],
-    traces_sample_rate=float(os.getenv("SENTRY_SAMPLE_RATE", 0)),
-    send_default_pii=True,
-)
+if not DEBUG:
+    sentry_sdk.init(
+        dsn=os.getenv("SENTRY_DSN"),
+        integrations=[DjangoIntegration()],
+        traces_sample_rate=float(os.getenv("SENTRY_SAMPLE_RATE", 0)),
+        send_default_pii=True,
+    )

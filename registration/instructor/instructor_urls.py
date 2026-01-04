@@ -18,4 +18,9 @@ url_patterns = [
         instructor_views.participant_csv,
         name="participant_csv",
     ),
+    path(
+        "instructor-check-invoices/",
+        instructor_views.instructor_check_invoices,
+        name="instructor_check_invoices",
+    ),
 ]
