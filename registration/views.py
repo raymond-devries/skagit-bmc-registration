@@ -96,6 +96,7 @@ def refund(request, course_pk, user_pk=None):
             )
             course_bought.refund_id = refund["id"]
             course_bought.refunded = True
+            course_bought.refund_initiator = request.user
             course_bought.save()
             course.participants.remove(user)
             waitlist_obj = None

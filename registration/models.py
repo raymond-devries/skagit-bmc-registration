@@ -427,6 +427,7 @@ class CourseBought(BaseModel):
     price_id = models.CharField(max_length=200)
     refunded = models.BooleanField(default=False)
     refund_id = models.CharField(max_length=200, blank=True)
+    refund_initiator = models.ForeignKey(User, models.PROTECT, null=True, blank=True)
     coupon_id = models.CharField(max_length=200, blank=True)
 
     @property
