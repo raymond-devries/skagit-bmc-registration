@@ -44,8 +44,11 @@
         </table>
     </div>
     <h2 class="title is-size-2">Open Invoices</h2>
-    <a href="{% url "instructor:instructor_check_invoices" %}"
-       class="button is-info my-2">Remove expired invoices and send invoice to next person on the *waitlist</a>
+    <form method="post" action="{% url "instructor:instructor_check_invoices" %}" style="display: inline;">
+        {% csrf_token %}
+        <button type="submit" class="button is-info my-2"
+                onclick="return confirm('Are you sure you want to remove expired invoices and send invoices to the next people on the waitlist?');">Remove expired invoices and send invoice to next person on the *waitlist</button>
+    </form>
     <p>*If no one else is on the waitlist the spot reopens for registration.</p>
     <div class="table-container">
         <table class="table is-striped is-fullwidth">

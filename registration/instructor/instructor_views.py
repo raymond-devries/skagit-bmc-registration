@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView
 
 from registration import models
@@ -68,6 +69,7 @@ def participant_csv(request, course_pk):
     return response
 
 
+@require_POST
 @user_passes_test(instructor_check)
 def instructor_check_invoices(request):
     check_invoices()
