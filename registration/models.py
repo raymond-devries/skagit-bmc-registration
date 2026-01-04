@@ -91,6 +91,7 @@ class RegistrationSettings(BaseModel):
     registration_open = models.DateTimeField()
     registration_close = models.DateTimeField()
     refund_period = models.DurationField(default=datetime.timedelta(days=14))
+    refund_cutoff = models.DateTimeField()
     cancellation_fee = models.PositiveIntegerField()
     time_to_pay_invoice = models.DurationField(default=datetime.timedelta(days=2))
 
@@ -188,17 +189,6 @@ class Course(BaseModel):
     @property
     def start_end_date(self):
         return self.coursedate_set.aggregate(Min("start"), Max("end"))
-
-    @property
-    def refund_eligble(self):
-        course_dates = self.coursedate_set
-        if not course_dates.exists():
-            return False
-        return (
-            datetime.datetime.now(tz=datetime.timezone.utc)
-            <= course_dates.earliest("start").start
-            - RegistrationSettings.objects.first().refund_period
-        )
 
     @property
     def spots_held_for_wait_list(self):
@@ -419,6 +409,16 @@ class PaymentRecord(BaseModel):
     payment_intent_id = models.CharField(max_length=200, blank=True)
     invoice_id = models.CharField(max_length=200, blank=True)
 
+    @property
+    def payment_time(self):
+        if self.payment_intent_id:
+            payment_intent = stripe.PaymentIntent.retrieve(self.payment_intent_id)
+            return datetime.datetime.fromtimestamp(payment_intent.created)
+        elif self.invoice_id:
+            invoice = stripe.Invoice.retrieve(self.invoice_id)
+            return datetime.datetime.fromtimestamp(invoice.status_transitions.paid_at)
+        return None
+
 
 class CourseBought(BaseModel):
     payment_record = models.ForeignKey(PaymentRecord, models.PROTECT)
@@ -433,7 +433,16 @@ class CourseBought(BaseModel):
     def refund_eligible(self):
         if self.refunded:
             return False
-        return self.course.refund_eligble
+        if not (payment_time := self.payment_record.payment_time):
+            return False
+        registration_settings = RegistrationSettings.objects.first()
+        return (
+            datetime.datetime.now()
+            <= payment_time + registration_settings.refund_period
+        ) and (
+            datetime.datetime.now(tz=datetime.timezone.utc)
+            <= registration_settings.refund_cutoff
+        )
 
 
 def handle_wait_list(course: Course):
