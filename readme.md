@@ -41,6 +41,18 @@ Seeding data
 python manage.py migrate && aws s3 cp s3://skagit-bmc-dev/dev-dump.json - | python manage.py loaddata --format=json -
 ```
 
+Deployment
+```shell
+aws login
+```
+
+```shell
+source source export-aws-creds.sh
+```
+
+```shell
+pulumi up
+```
 #### Lambda Image Testing
 Build
 ```shell
