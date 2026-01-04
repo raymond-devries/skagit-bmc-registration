@@ -116,9 +116,8 @@ def refund(request, course_pk, user_pk=None):
                 )
             send_mail(
                 f"{user.first_name} {user.last_name} unenrolled from {course_bought.course.type.name}",
-                f"{user.first_name} {user.last_name} ({user.email}) has removed "
-                f"themselves from the {course_bought.course.type.name}."
-                + waitlist_message,
+                f"{user.first_name} {user.last_name} ({user.email}) has been removed "
+                f"from the {course_bought.course.type.name}." + waitlist_message,
                 None,
                 list(instructor_emails),
             )
