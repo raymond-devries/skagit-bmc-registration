@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import Group, User
 from django.core.mail import send_mail
+from django.db.models import Min, Max
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import FormView, TemplateView
@@ -34,6 +35,13 @@ class AvailableCoursesView(TemplateView):
             visible=True
         ).order_by("name")
 
+        dates = models.CourseDate.objects.all().aggregate(Min("start"), Max("end"))
+        start = dates["start__min"].year
+        end = dates["end__max"].year
+        if start == end:
+            context["course_years"] = start
+        else:
+            context["course_years"] = f"{start}-{end}"
         return context
 
 
