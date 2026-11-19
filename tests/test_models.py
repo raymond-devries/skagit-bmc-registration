@@ -347,19 +347,33 @@ def test_verify_course_requirement_delete_when_not_in_cart_or_signed_up(
     assert not cart.cartitem_set.exists()
 
 
-def test_course_bought_refund_eligible(freezer, registration_settings):
+def test_course_bought_refund_eligible(freezer, registration_settings, monkeypatch):
+    settings = models.RegistrationSettings.objects.first()
+    settings.refund_cutoff = datetime(2022, 3, 15, tzinfo=timezone.utc)
+    settings.save()
     course_bought = baker.make(models.CourseBought, course=baker.make(Course))
-    assert not course_bought.refund_eligible
-    baker.make(
-        models.CourseDate,
-        start=datetime(year=2022, month=3, day=20),
-        course=course_bought.course,
-    )
+
+    # No payment time (no Stripe payment) means not refundable.
+    monkeypatch.setattr(models.PaymentRecord, "payment_time", property(lambda s: None))
     freezer.move_to("2022-02-01")
+    assert not course_bought.refund_eligible
+
+    paid = datetime(2022, 2, 1)
+    monkeypatch.setattr(models.PaymentRecord, "payment_time", property(lambda s: paid))
     assert course_bought.refund_eligible
-    freezer.move_to("2022-03-15")
+
+    # Refund period (14 days) has passed.
+    freezer.move_to("2022-02-20")
     assert not course_bought.refund_eligible
+
+    # Within the refund period but after the refund cutoff.
+    paid = datetime(2022, 3, 10)
+    freezer.move_to("2022-03-16")
+    assert not course_bought.refund_eligible
+
+    # Already refunded.
     freezer.move_to("2022-02-01")
+    paid = datetime(2022, 2, 1)
     course_bought.refunded = True
     course_bought.save()
     assert not course_bought.refund_eligible

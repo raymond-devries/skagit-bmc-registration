@@ -36,12 +36,15 @@ class AvailableCoursesView(TemplateView):
         ).order_by("name")
 
         dates = models.CourseDate.objects.all().aggregate(Min("start"), Max("end"))
-        start = dates["start__min"].year
-        end = dates["end__max"].year
-        if start == end:
-            context["course_years"] = start
+        if dates["start__min"] and dates["end__max"]:
+            start = dates["start__min"].year
+            end = dates["end__max"].year
+            if start == end:
+                context["course_years"] = start
+            else:
+                context["course_years"] = f"{start}-{end}"
         else:
-            context["course_years"] = f"{start}-{end}"
+            context["course_years"] = ""
         return context
 
 
