@@ -5,3 +5,5 @@ venv
 infra/sdks
 staticfiles/**
 !staticfiles/empty.txt
+__pycache__/
+.DS_Store
